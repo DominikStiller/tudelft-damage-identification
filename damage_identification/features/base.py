@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Any, Optional
 
 import numpy as np
 
@@ -10,14 +10,19 @@ class FeatureExtractor(ABC):
     """
 
     @abstractmethod
-    def get_name(self) -> str:
+    def __init__(self, name: str, params: Dict[str, Any]):
         """
-        Returns the name of the feature extractor.
+        Initialize the feature extractor.
 
-        This name will be used in log outputs and for state directories. Use a human-readable name without feature
+        The name will be used in log outputs and for state directories. Use a human-readable name without feature
         extractor as suffix. Examples are "fourier transform", "multiresolution analysis" or "autoencoder".
+
+        Args:
+            name: name of the feature extractor
+            params: parameters for the feature extractor, uses default parameters if None
         """
-        pass
+        self.name = name
+        self.params = params
 
     def save(self, directory):
         """

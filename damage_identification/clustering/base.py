@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional
 
 import pandas as pd
 
@@ -10,23 +11,20 @@ class Clustering(ABC):
     A base class for all clustering methods.
     """
 
-    def __init__(self, params):
+    @abstractmethod
+    def __init__(self, name: str, params: Dict[str, Any]):
         """
+        Initialize the clustering method.
+
+        The name will be used in log outputs and for state directories. Use a human-readable name without clustering
+        as suffix. Examples are "kmeans", "hierarchical" or "som".
 
         Args:
-            params:
+            name: name of the clustering method
+            params: parameters for the clustering method
         """
+        self.name = name
         self.params = params
-
-    @abstractmethod
-    def get_name(self) -> str:
-        """
-        Returns the name of the clustering method.
-
-        This name will be used in log outputs and for state directories. Use a human-readable name without clustering
-        as suffix. Examples are "kmeans", "hierarchical" or "som".
-        """
-        pass
 
     def save(self, directory):
         """

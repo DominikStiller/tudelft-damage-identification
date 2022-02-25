@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any, Optional
 
 import numpy as np
 
@@ -13,8 +13,14 @@ class DirectFeatureExtractor(FeatureExtractor):
         - Peak amplitude: maximum absolute value of the waveform
     """
 
-    def get_name(self) -> str:
-        return "direct"
+    def __init__(self, params: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the direct feature extractor.
+
+        Args:
+            params: parameters for the feature extractor, uses default parameters if None
+        """
+        super().__init__("direct", params)
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
         """
