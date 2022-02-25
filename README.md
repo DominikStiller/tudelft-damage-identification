@@ -1,1 +1,68 @@
-# tudelft-composite-impact
+# Damage mode identification for composites
+This is the repository for the AE2223-I project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task.
+
+
+## Setup
+To get started with development:
+1. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
+2. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
+3. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
+4. Install all required packages by opening `requirements.txt` and clicking "Install requirements". This ensures that everyone uses the same package versions, preventing bugs that might be hard to find.
+5. Read the code and Git guidelines in this document so the code stays consistent and clear.
+
+To run the code from the console:
+1. Make sure you are in the project directory.
+2. Aactivate the virtual environment (`<venv>\Scripts\activate.bat` on Windows, `source <venv>/bin/activate`).
+3. The program can be executed using `python -m damage_identification`.
+4. All tests can be run using `python -m unittest -v`.
+
+
+## Code Guidelines
+
+This project uses the [_Black_ code style](https://github.com/psf/black) for consistency and clarity. Before committing,
+format the project code by running `black .` in the project directory.  For docstrings and comments,
+the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
+
+Some more guidelines to follow:
+* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests.
+* Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
+* Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file
+* If you start using a package that is not yet `requirements.txt`, add it with the specific version you are using, so your code works for everyone else.
+* If your code creates files that change with every execution or are user-specific, add them to the `.gitignore`.
+  structure, avoiding long files and preferring small, specialized files.
+* If you are writing a new feature extractor or clustering method, read the docstrings of the base classes carefully to implement your class correctly.
+
+### Array Shapes
+
+Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
+that can be hard to find. The following names are used in docstrings for this purpose:
+
+* `n_examples`: the number of examples in this array
+* `length_example`: the length of a single example
+* `n_features`: the number of features
+
+For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
+time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
+then be accessed as `array[2][6]` (note that arrays start at 0).
+
+
+## Git Guidelines
+[GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow) is used as git model for this repository. Please become familiar with it before committing. Follow these guidelines:
+* The main branch should always be in a usable state.
+* Never commit to the main branch directly (in fact, pushing to main is blocked). Always work on your feature branch, then use a pull request to merge your changes into main.
+* Use pull requests as platform for discussions and questions. You can open a pull request even if your code is not done yet. Tagging people in pull requests to get feedback on work-in-progress code is explicitly encourages. Once you're done, the pull request will be approved for merging into main.
+* Commit often, after finishing a small part of a feature, even if the code does not work fully yet. Since you commit to your own feature branch, no one else is affected, and you can keep a history of your changes in case something goes wrong.
+* Always start new branch for new feature, do not reuse a branch for multiple features. A feature should be about a week's work, if more, split into smaller features. Always update main before starting a new feature branch, then base your feature branch on main. Prefix your feature branches with `feature-`.
+* If it can be avoided, do not merge feature branches into another. This leads to messy pull requests with much manual labor.
+* Use descriptive commit messages (not just "fix bugs"). Follow [these guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53). Use the imperative ("add" instead of "added") for verbs.
+
+
+## Glossary:
+* Example: a single waveform, term is borrowed from machine learning
+* Pipeline: the collective term for all components and the flow of data between them, starting from raw waveforms and ending at the identified damage mode
+* Training set: the set of examples used to train the pipeline
+* Validation set: the set of examples used to evaluate the performance of the pipeline
+
+
+## Pipeline
+![Flow diagram of the data analysis pipeline](docs/data_analysis_pipeline.png)
