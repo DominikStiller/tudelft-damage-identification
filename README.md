@@ -12,7 +12,7 @@ To get started with development:
 
 To run the code from the console:
 1. Make sure you are in the project directory.
-2. Aactivate the virtual environment (`<venv>\Scripts\activate.bat` on Windows, `source <venv>/bin/activate`).
+2. Activate the virtual environment (`<venv>\Scripts\activate.bat` on Windows, `source <venv>/bin/activate`).
 3. The program can be executed using `python -m damage_identification`.
 4. All tests can be run using `python -m unittest -v`.
 
