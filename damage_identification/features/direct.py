@@ -10,7 +10,7 @@ class DirectFeatureExtractor(FeatureExtractor):
     This class extracts all features that can be obtained directly from the waveform without further transformation.
 
     List of features:
-        - Peak amplitude: maximum absolute value of the waveform
+        - peak_amplitude: maximum absolute value of the waveform
     """
 
     def __init__(self, params: Optional[Dict[str, Any]] = None):
