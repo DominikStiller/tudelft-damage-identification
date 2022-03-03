@@ -33,7 +33,6 @@ Some more guidelines to follow:
 * If you are writing a new feature extractor or clustering method, read the docstrings of the base classes carefully to implement your class correctly.
 
 ### Array Shapes
-
 Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
 that can be hard to find. The following names are used in docstrings for this purpose:
 
@@ -55,6 +54,17 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 * If it can be avoided, do not merge feature branches into another. This leads to messy pull requests with much manual labor. Instead, use [cherry-picking](https://gitbetter.substack.com/p/how-to-use-git-cherry-pick-effectively) if you need another branches' code before it has been merged into main.
 * Commit often, after finishing a small part of a feature, even if the code does not work fully yet. Since you commit to your own feature branch, no one else is affected, and you can keep a history of your changes in case something goes wrong.
 * Use descriptive commit messages (not just "fix bugs"). Follow [these guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53). Use the imperative ("add" instead of "added") for verbs.
+
+
+## Useful topics to learn
+In order of relevance:
+* [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
+* [Unit testing](https://docs.python.org/3/library/unittest.html)
+* [GitHub](https://docs.github.com/en/get-started/quickstart/hello-world) and [Git](https://docs.github.com/en/get-started/using-git/about-git)
+* [NumPy](https://numpy.org/devdocs/user/quickstart.html) (math and linear algebra package for Python)
+* [pandas](https://pandas.pydata.org/docs/user_guide/10min.html) (tabular data package for Python)
+* [PyCharm](https://www.jetbrains.com/pycharm/) (highly recommended Python IDE/editor)
+* [scikit-learn](https://scikit-learn.org/stable/getting_started.html) (machine learning package for Python)
 
 
 ## Glossary:
