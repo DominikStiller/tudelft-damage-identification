@@ -4,11 +4,12 @@ This is the repository for the AE2223-I project of group D5. The goal is the ide
 
 ## Setup
 To get started with development:
-1. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
-2. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
-3. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
-4. Install all required packages by opening `requirements.txt` and clicking "Install requirements". This ensures that everyone uses the same package versions, preventing bugs that might be hard to find.
-5. Read the code and Git guidelines in this document so the code stays consistent and clear.
+1. Ensure that Python 3.7-3.9 are installed (newer and older versions are not supported by PyTorch).
+2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
+3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
+4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
+5. Install all required packages by opening `requirements.txt` and clicking "Install requirements". This ensures that everyone uses the same package versions, preventing bugs that might be hard to find.
+6. Read the code and Git guidelines in this document so the code stays consistent and clear.
 
 To run the code from the console:
 1. Make sure you are in the project directory.
@@ -57,7 +58,7 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 
 
 ## Useful topics to learn
-In order of relevance:
+In decreasing order of relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
 * [Unit testing](https://docs.python.org/3/library/unittest.html)
 * [GitHub](https://docs.github.com/en/get-started/quickstart/hello-world) and [Git](https://docs.github.com/en/get-started/using-git/about-git)
@@ -65,6 +66,7 @@ In order of relevance:
 * [pandas](https://pandas.pydata.org/docs/user_guide/10min.html) (tabular data package for Python)
 * [PyCharm](https://www.jetbrains.com/pycharm/) (highly recommended Python IDE/editor)
 * [scikit-learn](https://scikit-learn.org/stable/getting_started.html) (machine learning package for Python)
+* [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
 ## Glossary:
