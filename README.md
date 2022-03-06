@@ -4,7 +4,7 @@ This is the repository for the AE2223-I project of group D5. The goal is the ide
 
 ## Setup
 To get started with development:
-1. Ensure that Python 3.7-3.9 are installed (newer and older versions are not supported by PyTorch).
+1. Ensure that Python 3.9 is installed.
 2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
 3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
 4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
