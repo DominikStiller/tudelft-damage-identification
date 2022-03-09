@@ -1,3 +1,5 @@
+import os
+import pickle
 from abc import ABC
 from typing import Dict, Any, Optional
 import pandas as pd
@@ -6,7 +8,7 @@ from sklearn.cluster import KMeans
 from damage_identification.clustering.base import Clustering
 
 
-class KmeansClustering:
+class KmeansClustering(Clustering):
     """
     This class Clusters the data according to the K-means clustering method
     
@@ -15,6 +17,10 @@ class KmeansClustering:
         self.n_clusters = n_clusters
         self.model = KMeans(self.n_clusters)
         self.name = name
+
+    def save(self, directory):
+        with open(os.path.join(directory, "model.pickle"), "wb") as f:
+            pickle.dump(self.model, f)
 
     def train(self, testdata):
         kmeans = self.model
