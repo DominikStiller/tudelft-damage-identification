@@ -55,6 +55,7 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 * If it can be avoided, do not merge feature branches into another. This leads to messy pull requests with much manual labor. Instead, use [cherry-picking](https://gitbetter.substack.com/p/how-to-use-git-cherry-pick-effectively) if you need another branches' code before it has been merged into main.
 * Commit often, after finishing a small part of a feature, even if the code does not work fully yet. Since you commit to your own feature branch, no one else is affected, and you can keep a history of your changes in case something goes wrong.
 * Use descriptive commit messages (not just "fix bugs"). Follow [these guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53). Use the imperative ("add" instead of "added") for verbs.
+* No data should ever be committed to Git. The repository is for code only. Store any local data files in the `data/` folder which is ignored by commits.
 
 
 ## Useful topics to learn
