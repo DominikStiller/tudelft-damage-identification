@@ -87,8 +87,10 @@ class Pipeline:
     def run_evaluation(self):
         data, n_rows = self._load_data("evaluation_data_file")
 
+        # TODO add evaluation mode
+
 
 class PipelineMode(Enum):
     TRAINING = auto()
     PREDICTION = auto()
-    EVALUATOIN = auto()
+    EVALUATION = auto()

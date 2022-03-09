@@ -12,7 +12,7 @@ def main():
         pipeline.run_training()
     elif params["mode"] == PipelineMode.PREDICTION:
         pipeline.run_prediction()
-    elif params["mode"] == PipelineMode.EVALUATOIN:
+    elif params["mode"] == PipelineMode.EVALUATION:
         pipeline.run_evaluation()
 
 
