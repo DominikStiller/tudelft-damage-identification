@@ -17,13 +17,12 @@ def load_uncompressed_data(filename: str) -> np.ndarray:
 
 def load_compressed_data(filename: str) -> np.ndarray:
     """
-    Will be updated when compression type is known
-
     Args:
         filename: data file name including file extension
 
     Returns:
-        Numpy array of the data in the data file
+        Numpy array of the data in the data file: n_examples x n_samples
     """
+    # TODO update when compression type is known
     data = np.transpose((pd.read_csv(os.path.join("data", filename))).to_numpy())
     return data
