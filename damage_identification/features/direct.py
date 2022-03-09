@@ -10,6 +10,20 @@ hihihi = 1
 test = "nice program bro"
 thomas = 0
 
+# Data from the machine
+Mts = pd.read_csv("mts.csv")
+print(Mts)
+
+# Displacement and Force values recorded for every AE hit
+Disp_hits = pd.read_csv("Disp_hits.csv")
+Force_hits = pd.read_csv("Force_hits.csv")
+Time_hits = pd.read_csv("Time_hits.csv")
+
+# Waveforms
+WF = pd.read_csv("Waveforms.csv")
+t_samp = np.linspace(0,1, len(WF.iloc[:,1]))
+
+
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
