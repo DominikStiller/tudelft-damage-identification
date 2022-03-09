@@ -17,6 +17,8 @@ class TestKmeansClustering(TestCase):
 class TestKmeansPredict(TestCase):
     def test_kmeans_prediction(self):
         test_point = np.array([[0, 0], [12, 3]])
+        test_set = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
+        KmeansClustering("cluster1", 2).train(test_set)
         parent_cluster = KmeansClustering("cluster1", 2).predict(test_point)
-        self.assertEqual(parent_cluster, np.array([1, 0]))
+        testing.assert_array_equal(parent_cluster, np.array([1, 0]))
 

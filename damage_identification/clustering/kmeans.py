@@ -15,7 +15,7 @@ class KmeansClustering(Clustering):
     """
     def __init__(self, name, n_clusters):
         self.n_clusters = n_clusters
-        self.model = KMeans(self.n_clusters)
+        self.model = KMeans(self.n_clusters, random_state=0)
         self.name = name
 
     def save(self, directory):
@@ -23,12 +23,11 @@ class KmeansClustering(Clustering):
             pickle.dump(self.model, f)
 
     def train(self, testdata):
-        kmeans = self.model
-        kmeans.fit(testdata)
-        print(kmeans.labels_, kmeans.cluster_centers_)
-        return kmeans.labels_, kmeans.cluster_centers_
+        self.model.fit(testdata)
+        print(self.model.labels_, self.model.cluster_centers_)
+        print(self.model)
+        return self.model.labels_, self.model.cluster_centers_
 
     def predict(self, data):
-        kmeans = self.model
-        print(kmeans.predict(data))
-        return kmeans.predict(data)
+        print(self.model.predict(data))
+        return self.model.predict(data)
