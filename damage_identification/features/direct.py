@@ -7,12 +7,18 @@ from damage_identification.features.base import FeatureExtractor
 test = "hi"
 number = 2
 hihihi = 1
+
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
 
     List of features:
         - peak_amplitude: maximum absolute value of the waveform
+        - counts: number of upwards crossings of the threshold
+        - duration: length in time
+        - rise_time: time required to increase from one specified value (eg 10% amplitude) to another (eg 90% amplitude)
+        - energy: the energy of certain frequency bands in different section of the waveform
+        - first_n_samples: baseline to compare other features
     """
 
     def __init__(self, params: Optional[Dict[str, Any]] = None):
