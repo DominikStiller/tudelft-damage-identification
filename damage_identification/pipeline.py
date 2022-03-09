@@ -1,3 +1,4 @@
+import os.path
 from enum import auto, Enum
 from typing import Dict, Any, List, Tuple
 
@@ -16,7 +17,7 @@ class Pipeline:
     def __init__(self, params: Dict[str, Any]):
         self.params = params
         self.feature_extractors: List[FeatureExtractor] = [DirectFeatureExtractor(params)]
-        self.clustering: List[Clustering] = []
+        self.clusterers: List[Clustering] = []
 
     def _load_data(self, param_name) -> Tuple[np.ndarray, int]:
         filename: str = self.params[param_name]
@@ -34,19 +35,15 @@ class Pipeline:
         return data, n_rows
 
     def _extract_features(self, data: np.ndarray) -> pd.DataFrame:
-        all_features = None
+        all_features = []
 
         for example in data:
             features = {}
             for feature_extractor in self.feature_extractors:
                 features.update(feature_extractor.extract_features(example))
+            all_features.append(features)
 
-            if all_features is None:
-                all_features = pd.DataFrame(features, index=[0])
-            else:
-                all_features.append(features, ignore_index=True)
-
-        all_features.reset_index()
+        all_features = pd.DataFrame(all_features)
 
         return all_features
 
@@ -58,21 +55,34 @@ class Pipeline:
         # Train feature extractor and save model
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
-            feature_extractor.save(self.PIPELINE_PERSISTENCE_FOLDER)
+            feature_extractor.save(
+                os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
+            )
 
         # Extract features to training of PCA and features
-        all_features = self._extract_features(examples)
+        examples_features = self._extract_features(examples)
 
-        print(all_features)
+        # Train clustering
+        for clusterer in self.clusterers:
+            clusterer.train(examples_features)
+            clusterer.save(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
 
     def run_prediction(self):
         data, _ = self._load_data("prediction_data_file")
 
         # Load trained model
         for feature_extractor in self.feature_extractors:
-            feature_extractor.load(self.PIPELINE_PERSISTENCE_FOLDER)
+            feature_extractor.load(
+                os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
+            )
 
-        all_features = self._extract_features(data)
+        data_features = self._extract_features(data)
+
+        predictions = []
+        for clusterer in self.clusterers:
+            clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
+            # TODO change to iteration over single examples
+            predictions.append(clusterer.predict(data_features))
 
     def run_evaluation(self):
         data, n_rows = self._load_data("evaluation_data_file")
