@@ -181,3 +181,5 @@ fabric.properties
 
 plots/
 data/
+/damage_identification/features/Waveforms.csv
+/damage_identification/features/Time_Hits.csv
