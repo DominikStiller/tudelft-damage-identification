@@ -48,6 +48,7 @@ class Clustering(ABC):
         """
         pass
 
+    @abstractmethod
     def train(self, examples: pd.DataFrame):
         """
         Train the clustering method.
