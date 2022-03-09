@@ -8,6 +8,7 @@ test = "hi"
 number = 2
 hihihi = 1
 test = "nice program bro"
+thomas = 0
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
