@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 
 def load_uncompressed_data(filename: str) -> np.ndarray:
     """
@@ -9,7 +10,7 @@ def load_uncompressed_data(filename: str) -> np.ndarray:
     Returns:
         Numpy array of the data in the data file
     """
-    data = np.loadtxt(f"data\{filename}", delimiter = ",")
+    data = (pd.read_csv(f"data\{filename}")).to_numpy()
     return data
 
 def load_compressed_data(filename: str) -> np.ndarray:
