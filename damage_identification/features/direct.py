@@ -1,14 +1,11 @@
 from typing import Dict, Any, Optional
 
 import numpy as np
+import pandas as pd
 
 from damage_identification.features.base import FeatureExtractor
 
-test = "hi"
-number = 2
-hihihi = 1
-test = "nice program bro"
-thomas = 0
+
 
 # Data from the machine
 Mts = pd.read_csv("mts.csv")
@@ -31,8 +28,9 @@ class DirectFeatureExtractor(FeatureExtractor):
     List of features:
         - peak_amplitude: maximum absolute value of the waveform
         - counts: number of upwards crossings of the threshold
-        - duration: length in time
-        - rise_time: time required to increase from one specified value (eg 10% amplitude) to another (eg 90% amplitude)
+        !- duration: length in time
+        !- rise_time: time required to increase from one specified value (e.g. 10% amplitude) to another
+        (e.g. 90% amplitude)
         - energy: the energy of certain frequency bands in different section of the waveform
         - first_n_samples: baseline to compare other features
     """
