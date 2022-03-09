@@ -6,7 +6,6 @@ import pandas as pd
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.io import load_uncompressed_data
 example = load_uncompressed_data("1column.csv")
-print(example)
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
