@@ -9,7 +9,6 @@ from damage_identification.features.base import FeatureExtractor
 
 # Data from the machine
 Mts = pd.read_csv("mts.csv")
-print(Mts)
 
 # Displacement and Force values recorded for every AE hit
 Disp_hits = pd.read_csv("Disp_hits.csv")
