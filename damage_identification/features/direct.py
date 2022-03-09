@@ -7,7 +7,8 @@ from damage_identification.features.base import FeatureExtractor
 test = "hi"
 number = 2
 hihihi = 1
-thomas = 0
+test = "nice program bro"
+
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
