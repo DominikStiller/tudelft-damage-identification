@@ -58,6 +58,20 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 * No data should ever be committed to Git. The repository is for code only. Store any local data files in the `data/` folder which is ignored by commits.
 
 
+
+## Data folder layout
+All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
+* `data/Waveforms.csv`: first AE recording that Davide gave us
+* `data/pipeline/`: trained pipeline models for feature extraction and clustering
+
+
+
+## Configuration parameters
+Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
+* `feature_extraction_direct_threshold`: threshold for direct features like counts and duration
+
+
+
 ## Useful topics to learn
 In decreasing order of relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
