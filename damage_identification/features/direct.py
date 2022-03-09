@@ -4,6 +4,25 @@ import numpy as np
 
 from damage_identification.features.base import FeatureExtractor
 
+test = "hi"
+number = 2
+hihihi = 1
+test = "nice program bro"
+thomas = 0
+
+# Data from the machine
+Mts = pd.read_csv("mts.csv")
+print(Mts)
+
+# Displacement and Force values recorded for every AE hit
+Disp_hits = pd.read_csv("Disp_hits.csv")
+Force_hits = pd.read_csv("Force_hits.csv")
+Time_hits = pd.read_csv("Time_hits.csv")
+
+# Waveforms
+WF = pd.read_csv("Waveforms.csv")
+t_samp = np.linspace(0,1, len(WF.iloc[:,1]))
+
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
@@ -11,6 +30,11 @@ class DirectFeatureExtractor(FeatureExtractor):
 
     List of features:
         - peak_amplitude: maximum absolute value of the waveform
+        - counts: number of upwards crossings of the threshold
+        - duration: length in time
+        - rise_time: time required to increase from one specified value (eg 10% amplitude) to another (eg 90% amplitude)
+        - energy: the energy of certain frequency bands in different section of the waveform
+        - first_n_samples: baseline to compare other features
     """
 
     def __init__(self, params: Optional[Dict[str, Any]] = None):
