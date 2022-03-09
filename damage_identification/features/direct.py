@@ -5,8 +5,9 @@ import pandas as pd
 
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.io import load_uncompressed_data
-example = load_uncompressed_data("1column.csv")
-print(example)
+waveform = load_uncompressed_data("1column.csv")
+
+
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
@@ -28,6 +29,8 @@ class DirectFeatureExtractor(FeatureExtractor):
         Args:
             params: parameters for the feature extractor, uses default parameters if None
         """
+        if params is None:
+            params = {"feature_extractor_direct_threshold": 2.5e-2}
         super().__init__("direct", params)
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
@@ -40,6 +43,16 @@ class DirectFeatureExtractor(FeatureExtractor):
         Returns:
             A dictionary containing items with each feature name value for the input example.
         """
-        
+        threshold = self.params["feature_extractor_direct_threshold"]
+        above_threshold = example >= threshold
+        count = 0
+        for i in range(len(above_threshold)):
+            if above_threshold[i] and not above_threshold[i + 1]:
+                count = count + 1
         peak_amplitude = np.max(np.abs(example))
-        return {"peak_amplitude": peak_amplitude}
+        return {"peak_amplitude": peak_amplitude, "count": count}
+
+results = DirectFeatureExtractor()
+
+
+print(results.extract_features(waveform))
