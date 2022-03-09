@@ -29,5 +29,3 @@ def load_compressed_data(filename: str) -> np.ndarray:
     """
     data = (pd.read_csv(os.path.join("data", filename))).to_numpy()
     return data
-
-print(load_compressed_data("Waveforms.zip"))
