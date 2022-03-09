@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 import pandas as pd
-import time
 
 
 def load_uncompressed_data(filename: str) -> np.ndarray:
