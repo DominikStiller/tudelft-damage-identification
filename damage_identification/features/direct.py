@@ -4,7 +4,6 @@ import numpy as np
 
 from damage_identification.features.base import FeatureExtractor
 
-
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
