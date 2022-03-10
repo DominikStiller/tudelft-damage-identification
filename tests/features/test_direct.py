@@ -11,4 +11,4 @@ class TestDirectFeatureExtractor(TestCase):
         features = DirectFeatureExtractor().extract_features(example)
         # Expect 10 since peak amplitude is maximum *absolute* value
         self.assertEqual(features["peak_amplitude"], 10)
-        self.assertTrue(False)
+        self.assertEqual(5, 10)
