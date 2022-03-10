@@ -4,7 +4,7 @@ This is the repository for the AE2223-I project of group D5. The goal is the ide
 
 ## Setup
 To get started with development:
-1. Ensure that Python 3.9 is installed.
+1. Ensure that Python 3.8 or 3.9 is installed.
 2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
 3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
 4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
@@ -55,6 +55,21 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 * If it can be avoided, do not merge feature branches into another. This leads to messy pull requests with much manual labor. Instead, use [cherry-picking](https://gitbetter.substack.com/p/how-to-use-git-cherry-pick-effectively) if you need another branches' code before it has been merged into main.
 * Commit often, after finishing a small part of a feature, even if the code does not work fully yet. Since you commit to your own feature branch, no one else is affected, and you can keep a history of your changes in case something goes wrong.
 * Use descriptive commit messages (not just "fix bugs"). Follow [these guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53). Use the imperative ("add" instead of "added") for verbs.
+* No data should ever be committed to Git. The repository is for code only. Store any local data files in the `data/` folder which is ignored by commits.
+
+
+
+## Data folder layout
+All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
+* `data/Waveforms.csv`: first AE recording that Davide gave us
+* `data/pipeline/`: trained pipeline models for feature extraction and clustering
+
+
+
+## Configuration parameters
+Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
+* `feature_extraction_direct_threshold`: threshold for direct features like counts and duration
+
 
 
 ## Useful topics to learn
