@@ -62,6 +62,8 @@ class Pipeline:
         # Extract features to training of PCA and features
         examples_features = self._extract_features(examples)
 
+        # TODO run PCA
+
         # Train clustering
         for clusterer in self.clusterers:
             clusterer.train(examples_features)
@@ -77,6 +79,8 @@ class Pipeline:
             )
 
         data_features = self._extract_features(data)
+
+        # TODO run PCA
 
         predictions = []
         for clusterer in self.clusterers:
