@@ -15,7 +15,7 @@ class DirectFeatureExtractor(FeatureExtractor):
     List of features:
         - peak_amplitude: maximum absolute value of the waveform
         - counts: number of upwards crossings of the threshold
-        !- duration: length in time
+        - duration: length in time
         !- rise_time: time required to increase from one specified value (e.g. 10% amplitude) to another
         (e.g. 90% amplitude)
         - energy: the energy of certain frequency bands in different section of the waveform
@@ -43,14 +43,27 @@ class DirectFeatureExtractor(FeatureExtractor):
         Returns:
             A dictionary containing items with each feature name value for the input example.
         """
+        #counts
         threshold = self.params["feature_extractor_direct_threshold"]
         above_threshold = example >= threshold
         count = 0
+        iarray = np.array((0,0))
         for i in range(len(above_threshold)):
-            if above_threshold[i] and not above_threshold[i + 1]:
+            if above_threshold[i] and not above_threshold[i - 1]:
                 count = count + 1
+                if count ==1:
+                    iarray[0] = i
+            if above_threshold[i]:
+                iarray[-1] = i
+        #duration
+        duration = (iarray[-1]-iarray[0])*1/2048 #in ms!
+        #peak amplitude
         peak_amplitude = np.max(np.abs(example))
-        return {"peak_amplitude": peak_amplitude, "count": count}
+        print(iarray[:])
+        return {"peak_amplitude": peak_amplitude, "count": count, "duration": duration}
+        #rise time
+
+
 
 results = DirectFeatureExtractor()
 
