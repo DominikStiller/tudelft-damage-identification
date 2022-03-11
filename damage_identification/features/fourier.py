@@ -21,6 +21,7 @@ class FourierExtractor(FeatureExtractor):
         features = Extractor.extract_features(example) with example a np.ndarray
         peak_frequency = features['peak-freq']
     """
+
     def __init__(self):
         super().__init__("fourier", {})
 
