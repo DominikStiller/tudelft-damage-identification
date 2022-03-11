@@ -1,48 +1,42 @@
 import pandas as pd
 import numpy as np
-from scipy.fft import fft, ifft, fftfreq
-from scipy.interpolate import interp1d
-from abc import ABC, abstractmethod
+from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
-from typing import Dict, Any
+from typing import Dict
 from base import FeatureExtractor
 
 
-class Fourier(FeatureExtractor):
-    def __init__(self, name: str, params: Dict[str, Any]):
-        self.name = name
-        self.params = params
+class FourierExtractor(FeatureExtractor):
+    def __init__(self):
+        super().__init__("fourier", {})
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
         length_example = np.size(example)
         ft = fft(example)
-        ftfreq = fftfreq(example)
-        amp = np.abs(ft)/length_example
-        ang = np.angle(ft)
+        print(ft)
+        freqs = fftfreq(length_example, d=0.001 / 2048)
+        ft[freqs < 0] = 0
+        amp = np.abs(ft) / length_example
+        peakfreq = freqs[np.argmax(amp)]
+        avgfreq = np.average(freqs, weights=amp)
 
-        return amp
+        return {"peak-freq": peakfreq, "central-freq": avgfreq, "amp": amp, "ft-freq": freqs}
 
-
-extractor = Fourier("Fourier", None)
 
 # Reading csvs WILL BE REMOVED
-WAV = pd.read_csv('Waveforms.csv', header=None)
-wav_data = WAV.values
-
-TIME = pd.read_csv('Time_hits.csv', header=None)
-time_data = TIME.values
-
 # testing 1 waveform
+WAV = pd.read_csv("Waveforms.csv", header=None)
+wav_data = WAV.values
 N_row = 100  # select 1 row for analysis
 row = WAV.iloc[:, N_row].to_numpy()
-tspace = np.linspace(0, 1, np.size(row))
 
-length_example = np.size(row)
-ft = fft(row)
-ftfreq = fftfreq(length_example)
-amp = np.abs(ft)/length_example
-ang = np.angle(ft)
-plt.plot(ftfreq, ft)
+Fextractor = FourierExtractor()
 
+features = Fextractor.extract_features(row)
 
+print(f"Peak frequency: {features['peak-freq']} Hz, {features['central-freq']}")
+
+plt.plot(features["ft-freq"], features["amp"])
+plt.vlines(features["peak-freq"], 0, np.max(features["amp"]), linestyles="dotted", colors="r")
+plt.vlines(features["central-freq"], 0, np.max(features["amp"]), linestyles="dashed", colors="g")
 plt.show()
