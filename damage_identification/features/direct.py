@@ -1,6 +1,8 @@
 from typing import Dict, Any, Optional
 
 import numpy as np
+from scipy.interpolate import CubicSpline
+from scipy.integrate import quad
 import pandas as pd
 
 from damage_identification.features.base import FeatureExtractor
@@ -8,6 +10,7 @@ from damage_identification.io import load_uncompressed_data
 
 example = load_uncompressed_data("1column.csv")
 waveform = load_uncompressed_data("1column.csv")
+
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
@@ -57,18 +60,19 @@ class DirectFeatureExtractor(FeatureExtractor):
             if above_threshold[i]:
                 iarray[-1] = i
         #duration
-        duration = (iarray[-1]-iarray[0])*1/2048 #in ms!
+        duration = (iarray[-1]-iarray[0])*1/2048/1000 #in m!
         #peak amplitude
         peak_amplitude = np.max(np.abs(example))
         peakamplitudeindex = np.argmax(example)
-        print(peakamplitudeindex)
-        print(iarray[:])
         #rise time
-        risetime = (peakamplitudeindex-iarray[0])*1/2048
+        risetime = (peakamplitudeindex-iarray[0])*1/2048/1000 #in s
         #energy
-        return {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": risetime}
-
-
+        timestamps = np.linspace(0, 1/1000, len(example)) #in s
+        cs = CubicSpline(timestamps, example)
+        f = lambda x: cs(x)**2
+        print(f(timestamps))
+        energy = quad(f, timestamps[0], timestamps[-1], limit=100, epsabs=1e-10)
+        return {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": risetime, "energy": energy}
 
 results = DirectFeatureExtractor()
 
