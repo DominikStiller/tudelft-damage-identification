@@ -2,7 +2,7 @@ from unittest import TestCase
 from numpy import testing
 
 import numpy as np
-import os
+import tempfile
 
 from damage_identification.clustering.kmeans import KmeansClustering
 
@@ -30,9 +30,9 @@ class TestDumpFileLoading(TestCase):
         test_set = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
         kmeans = KmeansClustering(2)
         kmeans.train(test_set)
-        directory = os.path.dirname(os.path.abspath(__file__))
-        kmeans.save(directory)
-        kmeans_model = KmeansClustering(2)
-        kmeans_model.load(directory)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kmeans.save(tmpdir)
+            kmeans_model = KmeansClustering(2)
+            kmeans_model.load(tmpdir)
         point_prediction = kmeans_model.predict(test_point)
         testing.assert_array_equal(point_prediction, np.array([1, 0]))
