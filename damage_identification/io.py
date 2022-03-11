@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import vallenae as vae
 
+
 def load_uncompressed_data(filename: str) -> np.ndarray:
     """
     Args:
