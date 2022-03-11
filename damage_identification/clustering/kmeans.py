@@ -11,8 +11,9 @@ from damage_identification.clustering.base import Clustering
 class KmeansClustering(Clustering):
     """
     This class Clusters the data according to the K-means clustering method
-    
+
     """
+
     def __init__(self, n_clusters):
         """
         This method initializes the kmeans class and sets the amount of clusters that the data needs to be grouped into.
@@ -66,5 +67,3 @@ class KmeansClustering(Clustering):
         """
         prediction = self.model.predict(data)
         return prediction
-
-
