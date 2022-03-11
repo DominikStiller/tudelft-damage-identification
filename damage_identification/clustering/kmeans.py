@@ -1,9 +1,7 @@
 import os
 import pickle
-from abc import ABC
-from typing import Dict, Any, Optional
-import pandas as pd
-import numpy as np
+from typing import Dict, Any
+
 from sklearn.cluster import KMeans
 from damage_identification.clustering.base import Clustering
 
@@ -12,18 +10,20 @@ class KmeansClustering(Clustering):
     """
     This class Clusters the data according to the K-means clustering method
 
+    Parameters:
+        - n_clusters: number of clusters
     """
 
-    def __init__(self, n_clusters):
+    def __init__(self, params: Dict[str, Any]):
         """
         This method initializes the kmeans class and sets the amount of clusters that the data needs to be grouped into.
         For example: the n-dimensional data must be clustered into 3 distinct groups
 
         Args:
-            n_clusters: number of clusters
+            params: parameters for the clustering method
         """
-        self.n_clusters = n_clusters
-        self.model = KMeans(self.n_clusters, random_state=0)
+        super(KmeansClustering, self).__init__("kmeans", params)
+        self.model = KMeans(self.params["n_clusters"], random_state=0)
 
     def save(self, directory):
         """
