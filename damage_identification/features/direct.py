@@ -34,7 +34,7 @@ class DirectFeatureExtractor(FeatureExtractor):
             params: parameters for the feature extractor, uses default parameters if None
         """
         if params is None:
-            params = {"feature_extractor_direct_threshold": 2.5e-2, "feature_extractor_direct_n_sample": 200}
+            params = {"feature_extractor_direct_threshold": 2.5e-2, "feature_extractor_direct_n_sample": 6}
 
         super().__init__("direct", params)
 
