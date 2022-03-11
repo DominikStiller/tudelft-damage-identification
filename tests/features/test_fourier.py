@@ -15,4 +15,3 @@ class TestFourierFeatureExtractor(TestCase):
         features = FourierExtractor().extract_features(example)
         # Expected value: 562.31 Hz according to manual calc
         self.assertTrue(np.abs(features["central-freq"] - 562.3106514) < 0.001)
-
