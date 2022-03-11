@@ -1,6 +1,8 @@
+from typing import Dict
+
 import numpy as np
 from scipy.fft import fft, fftfreq
-from typing import Dict
+
 from damage_identification.features.base import FeatureExtractor
 
 
@@ -11,15 +13,13 @@ class FourierExtractor(FeatureExtractor):
     init arguments: none needed
 
     The extract_features method returns a Dict with the following data:
-    - Peak frequency as "peak-freq"
-    - Central frequency as "central-freq"
-    - Amplitude array as "amp" (for plotting)
-    - Frequency domain array as "ft-freq" (for plotting)
+    - Peak frequency as "peak_frequency"
+    - Central frequency as "central_frequency"
 
-        Typical usage example:
-        Extractor = FourierExtractor()
-        features = Extractor.extract_features(example) with example a np.ndarray
-        peak_frequency = features['peak-freq']
+    Typical usage example:
+    Extractor = FourierExtractor()
+    features = Extractor.extract_features(example) with example a np.ndarray
+    peak_frequency = features["peak_frequency"]
     """
 
     def __init__(self):
@@ -29,9 +29,10 @@ class FourierExtractor(FeatureExtractor):
         """
         Uses Fourier transform to extract peak frequency and central frequency features
 
-        Args: 1-dimensional np.ndarray containing 1 example with (2048) samples of the waveform data
-        Returns: dictionary containing peak frequency ("peak-freq"), central frequency ("central-freq")
-        and amplitude np.ndarray ("amp") and the frequency domain ("ft-freq") for plotting.
+        Args:
+            example: a single example (shape 1 x length_example)
+        Returns:
+            dictionary containing peak frequency ("peak-freq") and central frequency ("central-freq")
         """
 
         length_example = np.size(example)
@@ -42,4 +43,4 @@ class FourierExtractor(FeatureExtractor):
         peakfreq = freqs[np.argmax(amp)]
         avgfreq = np.average(freqs, weights=amp)
 
-        return {"peak-freq": peakfreq, "central-freq": avgfreq, "amp": amp, "ft-freq": freqs}
+        return {"peak_frequency": peakfreq, "central_frequency": avgfreq}
