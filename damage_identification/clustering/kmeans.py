@@ -19,15 +19,22 @@ class KmeansClustering(Clustering):
         self.name = name
 
     def save(self, directory):
+        print(directory)
         with open(os.path.join(directory, "model.pickle"), "wb") as f:
             pickle.dump(self.model, f)
 
+    def load(self, directory):
+        with open(os.path.join(directory, "model.pickle"), "rb") as f:
+            pickle.load(f)
+
     def train(self, testdata):
-        self.model.fit(testdata)
-        print(self.model.labels_, self.model.cluster_centers_)
-        print(self.model)
-        return self.model.labels_, self.model.cluster_centers_
+        self.model = self.model.fit(testdata)
+        # print(self.model.labels_, self.model.cluster_centers_)
+        # print(self.model)
+        return self.model, self.model.labels_, self.model.cluster_centers_
 
     def predict(self, data):
-        print(self.model.predict(data))
-        return self.model.predict(data)
+        prediction = self.model.predict(data)
+        return prediction
+
+
