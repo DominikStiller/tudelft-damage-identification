@@ -1,6 +1,7 @@
 from unittest import TestCase
 import numpy as np
-from damage_identification.features.fourier_transform import FourierExtractor
+from damage_identification.features.fourier import FourierExtractor
+
 
 class TestFourierFeatureExtractor(TestCase):
     def test_extract_features_peak_freq(self):

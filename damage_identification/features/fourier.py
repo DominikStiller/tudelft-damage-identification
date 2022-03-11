@@ -1,9 +1,8 @@
-import pandas as pd
 import numpy as np
 from scipy.fft import fft, fftfreq
-import matplotlib.pyplot as plt
 from typing import Dict
 from damage_identification.features.base import FeatureExtractor
+
 
 class FourierExtractor(FeatureExtractor):
     """
@@ -21,9 +20,6 @@ class FourierExtractor(FeatureExtractor):
         Extractor = FourierExtractor()
         features = Extractor.extract_features(example) with example a np.ndarray
         peak_frequency = features['peak-freq']
-
-
-
     """
     def __init__(self):
         super().__init__("fourier", {})
@@ -46,34 +42,3 @@ class FourierExtractor(FeatureExtractor):
         avgfreq = np.average(freqs, weights=amp)
 
         return {"peak-freq": peakfreq, "central-freq": avgfreq, "amp": amp, "ft-freq": freqs}
-
-
-'''
-# testing 1 waveform and plotting it
-# Reading csvs is temporary until the I/O is set up
-
-WAV = pd.read_csv("Waveforms.csv", header=None)
-wav_data = WAV.values
-N_row = 100  # select 1 row for analysis
-row = WAV.iloc[:, N_row].to_numpy()
-
-Fextractor = FourierExtractor()
-
-features = Fextractor.extract_features(row)
-
-print(f"Peak frequency: {features['peak-freq']} Hz, {features['central-freq']}")
-
-plt.plot(features["ft-freq"], features["amp"])
-plt.vlines(features["peak-freq"], 0, np.max(features["amp"]), linestyles="dotted", colors="r")
-plt.vlines(features["central-freq"], 0, np.max(features["amp"]), linestyles="dashed", colors="g")
-plt.show()
-'''
-
-'''
-amp = np.abs(fft(np.array([0, -5, 6, 16])))
-freq = fftfreq(4, d=0.001/4)
-amp[freq < 0] = 0
-avgfreq = np.average(freq, weights=amp)
-print(freq, amp)
-print(avgfreq)
-'''
