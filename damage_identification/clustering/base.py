@@ -58,6 +58,7 @@ class Clustering(ABC):
         """
         pass
 
+    @abstractmethod
     def predict(self, example: pd.DataFrame) -> DamageMode:
         """
         Predict using the clustering method.
