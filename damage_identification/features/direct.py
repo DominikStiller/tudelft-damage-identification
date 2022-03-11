@@ -60,9 +60,13 @@ class DirectFeatureExtractor(FeatureExtractor):
         duration = (iarray[-1]-iarray[0])*1/2048 #in ms!
         #peak amplitude
         peak_amplitude = np.max(np.abs(example))
+        peakamplitudeindex = np.argmax(example)
+        print(peakamplitudeindex)
         print(iarray[:])
-        return {"peak_amplitude": peak_amplitude, "count": count, "duration": duration}
         #rise time
+        risetime = (peakamplitudeindex-iarray[0])*1/2048
+        #energy
+        return {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": risetime}
 
 
 
