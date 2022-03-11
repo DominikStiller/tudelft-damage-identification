@@ -61,24 +61,30 @@ class DirectFeatureExtractor(FeatureExtractor):
                     iarray[0] = i
             if above_threshold[i]:
                 iarray[-1] = i
-        #duration
-        duration = (iarray[-1]-iarray[0])*1/2048/1000 #in m!
-        #peak amplitude
+
+        # duration
+        duration = (iarray[-1]-iarray[0])*1/2048/1000    # in m!
+
+        # peak amplitude
         peak_amplitude = np.max(np.abs(example))
         peakamplitudeindex = np.argmax(example)
-        #rise time
-        risetime = (peakamplitudeindex-iarray[0])*1/2048/1000 #in s
-        #energy (squared microvolt for 1/1000th second --> 10e-12V)
-        timestamps = np.linspace(0, 1/1000, len(example)) #in s
-        cs = CubicSpline(timestamps, example*1000) #in microvolt!
+
+        # rise time
+        risetime = (peakamplitudeindex-iarray[0])*1/2048/1000  # in s
+
+        # energy (squared microvolt for 1/1000th second --> 10e-12V)
+        timestamps = np.linspace(0, 1/1000, len(example))       # in s
+        cs = CubicSpline(timestamps, example*1000)    # in microvolt!
         f = lambda x: cs(x)**2
         print(f(timestamps))
         energy = quad(f, timestamps[0], timestamps[-1], limit=100, epsabs=1e-10)
-        #n-sample
+
+        # n-sample
         new_dict = {"nsample_"+str(n+1): example[n] for n in range(nsample)}
         return_dict = {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": risetime, "energy": energy[0]}
         final_dict = return_dict | new_dict
         return final_dict
+
 
 results = DirectFeatureExtractor()
 
