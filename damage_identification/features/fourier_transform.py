@@ -1,13 +1,12 @@
 import pandas as pd
 import numpy as np
-from scipy.fft import fft, ifft
+from scipy.fft import fft, ifft, fftfreq
+from scipy.interpolate import interp1d
 from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 from typing import Dict, Any
-
-import numpy as np
-
 from base import FeatureExtractor
+
 
 class Fourier(FeatureExtractor):
     def __init__(self, name: str, params: Dict[str, Any]):
@@ -15,12 +14,14 @@ class Fourier(FeatureExtractor):
         self.params = params
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
-        N = np.size(example)
-        ts = np.linspace(0, 1, N)
-        trans = fft(example)
-        Amplitude = np.abs(trans)
-        Angle = np.angle(trans)
-        print(Amplitude, Angle)
+        length_example = np.size(example)
+        ft = fft(example)
+        ftfreq = fftfreq(example)
+        amp = np.abs(ft)/length_example
+        ang = np.angle(ft)
+
+        return amp
+
 
 extractor = Fourier("Fourier", None)
 
@@ -33,6 +34,15 @@ time_data = TIME.values
 
 # testing 1 waveform
 N_row = 100  # select 1 row for analysis
-samples = WAV.iloc[:, N_row].to_numpy()
-extractor.extract_features(samples)
+row = WAV.iloc[:, N_row].to_numpy()
+tspace = np.linspace(0, 1, np.size(row))
 
+length_example = np.size(row)
+ft = fft(row)
+ftfreq = fftfreq(length_example)
+amp = np.abs(ft)/length_example
+ang = np.angle(ft)
+plt.plot(ftfreq, ft)
+
+
+plt.show()
