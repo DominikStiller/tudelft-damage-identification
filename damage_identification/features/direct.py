@@ -5,8 +5,9 @@ import pandas as pd
 
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.io import load_uncompressed_data
-waveform = load_uncompressed_data("1column.csv")
 
+example = load_uncompressed_data("1column.csv")
+waveform = load_uncompressed_data("1column.csv")
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
