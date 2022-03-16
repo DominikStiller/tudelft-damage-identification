@@ -1,16 +1,19 @@
 from sklearn.decomposition import PCA
+import pickle
 import numpy as np
+import os
+from typing import Dict, Any
 
 
 class PricipalComponents:
-    def __init__(self):
+    def __init__(self, params: Dict[str, Any]):
         """
         Initialize the PCA dimensionality reductor.
 
         Args:
             name: name of the PCA reductor.
         """
-        pass
+        self.pca = PCA(n_components=params['explained_variance'])
 
     def save(self, directory):
         """
@@ -21,6 +24,9 @@ class PricipalComponents:
         Args:
             directory: the directory to save the state to
         """
+        with open(os.path.join(directory, "pca.pickle"), "wb") as f:
+            pickle.dump(self.pca, f)
+
         pass
 
     def load(self, directory):
@@ -28,10 +34,11 @@ class PricipalComponents:
                 Loads the state of the PCA.
 
                 This method should only load files from the directory specified in the argument.
-        z
+
                 Args:
                     directory: the directory to load the state from
         """
+
         pass
 
     def transform(self, data: np.ndarray) -> np.ndarray:
@@ -43,10 +50,10 @@ class PricipalComponents:
         Returns:
             a NumPy array (shape 1 x n_features_reduced)
         """
+        reduced = self.pca.transform(data)
+        return reduced
 
-        pass
-
-    def train(self, data: np.ndarray, explained_variance: float):
+    def train(self, data: np.ndarray):
         """
         Identify the principal components.
 
@@ -54,12 +61,12 @@ class PricipalComponents:
             data: all data for training (shape n_examples x n_features)
             explained_variance: the desired explained variance to select the number of principal components to return (i.e. n_features_reduced)
         """
-        pca = PCA(n_components=explained_variance)
-        pca.fit(data)
-        reduced = pca.transform(data)
-        return reduced
+        self.pca = self.pca.fit(data)
 
 
-principal = PricipalComponents("PCA")
+
+principal = PricipalComponents({'explained_variance': 0.95})
 X = np.random.rand(5000, 2000)
-print(np.shape(principal.train(X, 0.95)))
+Y = np.random.rand(1, 2000)
+principal.train(X)
+print(np.shape(principal.transform(Y)))
