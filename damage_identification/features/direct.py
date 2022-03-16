@@ -34,7 +34,7 @@ class DirectFeatureExtractor(FeatureExtractor):
             params: parameters for the feature extractor, uses default parameters if None
         """
         if params is None:
-            params = {"feature_extractor_direct_threshold": 2.5e-2, "feature_extractor_direct_n_sample": 6}
+            params = {"feature_extractor_direct_threshold": -2.5e-2, "feature_extractor_direct_n_sample": 6}
 
         super().__init__("direct", params)
 
@@ -51,7 +51,10 @@ class DirectFeatureExtractor(FeatureExtractor):
         # counts
         threshold = self.params["feature_extractor_direct_threshold"]
         n_sample = self.params["feature_extractor_direct_n_sample"]
-        above_threshold = example >= threshold
+        if threshold>0:
+            above_threshold = example >= threshold
+        else:
+            above_threshold = example <= threshold
         count = 0
         i_array = np.array((0,0))
         for i in range(len(above_threshold)):
