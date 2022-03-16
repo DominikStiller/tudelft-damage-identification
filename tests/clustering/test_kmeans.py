@@ -53,13 +53,13 @@ class TestKmeansPredict(TestCase):
 
 class TestDumpFileLoading(TestCase):
     def test_dump_file_load(self):
-        test_point = np.array([[0, 0], [12, 3]])
+        test_point = np.array([[12, 3]])
         test_set = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
         kmeans = KmeansClustering({"n_clusters": 6})
         kmeans.train(test_set)
         with tempfile.TemporaryDirectory() as tmpdir:
             kmeans.save(tmpdir)
-            kmeans_model = KmeansClustering({"n_clusters": 6})
+            kmeans_model = KmeansClustering({})
             kmeans_model.load(tmpdir)
         point_prediction = kmeans_model.predict(test_point)
-        testing.assert_array_equal(point_prediction, np.array([1, 0]))
+        testing.assert_array_equal(point_prediction, 0)
