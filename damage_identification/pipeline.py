@@ -53,6 +53,7 @@ class Pipeline:
     def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
         all_features = []
 
+        print("Extracting features...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
             for i, example in enumerate(data):
                 features = {}
@@ -68,10 +69,12 @@ class Pipeline:
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
+        print("Extracted features")
 
         return all_features
 
     def _predict(self, features, n_examples):
+        print("Predicting clusters...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
             def do_predict(series):
@@ -87,6 +90,7 @@ class Pipeline:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1)
+        print("Predicted clusters")
 
         return predictions
 
@@ -131,15 +135,11 @@ class Pipeline:
 
         # TODO run filtering
 
-        print("Extracting features...")
         features = self._extract_features(data, n_examples)
-        print("Extracted features")
 
         # TODO run PCA
 
-        print("Predicting clusters...")
         predictions = self._predict(features, n_examples)
-        print("Predicted clusters")
 
         print(predictions)
 
