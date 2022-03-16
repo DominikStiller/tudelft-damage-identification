@@ -73,6 +73,7 @@ class Pipeline:
 
     def _predict(self, features, n_examples):
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
+
             def do_predict(series):
                 pbar.update()
                 # Skip prediction for invalid examples
