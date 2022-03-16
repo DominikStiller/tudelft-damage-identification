@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import vallenae as vae
