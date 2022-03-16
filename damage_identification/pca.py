@@ -1,4 +1,3 @@
-import pandas as pd
 from sklearn.decomposition import PCA
 import pickle
 import numpy as np
