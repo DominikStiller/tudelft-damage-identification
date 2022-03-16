@@ -53,6 +53,7 @@ class Pipeline:
     def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
         all_features = []
 
+        print("Extracting features...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
             for i, example in enumerate(data):
                 features = {}
@@ -68,10 +69,12 @@ class Pipeline:
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
+        print("Extracted features")
 
         return all_features
 
     def _predict(self, features, n_examples):
+        print("Predicting clusters...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
             def do_predict(series):
@@ -87,6 +90,7 @@ class Pipeline:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1)
+        print("Predicted clusters")
 
         return predictions
 
@@ -99,6 +103,7 @@ class Pipeline:
         # Train feature extractor and save model
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
+
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
             os.makedirs(save_directory, exist_ok=True)
             feature_extractor.save(save_directory)
@@ -106,21 +111,18 @@ class Pipeline:
 
         # Extract features to training of PCA and features
         features = self._extract_features(examples, n_examples)
+        features = features.dropna()
 
         # TODO run PCA training
 
         # Train clustering
         for clusterer in self.clusterers:
             clusterer.train(features)
+
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name)
             os.makedirs(save_directory, exist_ok=True)
             clusterer.save(save_directory)
         print("Trained clusterers")
-
-        # Get predictions for training of cluster identification
-        predictions = self._predict(features, n_examples)
-
-        # TODO run cluster identification training
 
     def run_prediction(self):
         data, n_examples = self._load_data("prediction_data_file")
@@ -131,15 +133,11 @@ class Pipeline:
 
         # TODO run filtering
 
-        print("Extracting features...")
         features = self._extract_features(data, n_examples)
-        print("Extracted features")
 
         # TODO run PCA
 
-        print("Predicting clusters...")
         predictions = self._predict(features, n_examples)
-        print("Predicted clusters")
 
         print(predictions)
 
