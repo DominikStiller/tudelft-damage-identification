@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from damage_identification.clustering.base import Clustering
-from damage_identification.clustering.kmeans import KmeansClustering
+from damage_identification.clustering.base import Clusterer
+from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.damage_mode import DamageMode
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
@@ -25,7 +25,7 @@ class Pipeline:
             DirectFeatureExtractor(params),
             FourierExtractor(params),
         ]
-        self.clusterers: List[Clustering] = [KmeansClustering(params)]
+        self.clusterers: List[Clusterer] = [KmeansClusterer(params)]
 
     def _load_data(self, param_name) -> Tuple[np.ndarray, int]:
         filename: str = self.params[param_name]

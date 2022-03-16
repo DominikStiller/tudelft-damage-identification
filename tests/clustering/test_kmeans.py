@@ -5,12 +5,11 @@ import numpy as np
 import tempfile
 
 
-from damage_identification.clustering.kmeans import KmeansClustering
+from damage_identification.clustering.kmeans import KmeansClusterer
 
 
-class TestKmeansClustering(TestCase):
+class TestKmeansClusterer(TestCase):
     def test_kmeans_clustering(self):
-
         test_set = np.array(
             [
                 [0, 0, 0, 0, 0, 1],
@@ -27,7 +26,9 @@ class TestKmeansClustering(TestCase):
                 [18, 18, 18, 18, 18, 18],
             ]
         )
-        kmeans_model = KmeansClustering({"n_clusters": 6}).train(test_set)
+
+        kmeans_model = KmeansClusterer({"n_clusters": 6}).train(test_set)
+
         testing.assert_array_equal(kmeans_model.labels_, [2, 2, 4, 4, 0, 0, 3, 3, 5, 5, 1, 1])
         testing.assert_array_equal(
             kmeans_model.cluster_centers_,
@@ -41,25 +42,26 @@ class TestKmeansClustering(TestCase):
             ],
         )
 
-
-class TestKmeansPredict(TestCase):
     def test_kmeans_prediction(self):
         test_point = np.array([[0, 0], [12, 3]])
         test_set = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
-        kmeans_model = KmeansClustering({"n_clusters": 6}).train(test_set)
+
+        kmeans_model = KmeansClusterer({"n_clusters": 6}).train(test_set)
         parent_cluster = kmeans_model.predict(test_point)
+
         testing.assert_array_equal(parent_cluster, np.array([1, 0]))
 
-
-class TestDumpFileLoading(TestCase):
     def test_dump_file_load(self):
         test_point = np.array([[12, 3]])
         test_set = np.array([[1, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]])
-        kmeans = KmeansClustering({"n_clusters": 6})
+
+        kmeans = KmeansClusterer({"n_clusters": 6})
         kmeans.train(test_set)
+
         with tempfile.TemporaryDirectory() as tmpdir:
             kmeans.save(tmpdir)
-            kmeans_model = KmeansClustering({})
+            kmeans_model = KmeansClusterer({})
             kmeans_model.load(tmpdir)
+
         point_prediction = kmeans_model.predict(test_point)
         testing.assert_array_equal(point_prediction, 0)
