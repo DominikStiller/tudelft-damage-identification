@@ -22,7 +22,6 @@ class PricipalComponents():
             a NumPy array (shape 1 x n_features_reduced)
         """
 
-
         pass
 
 
