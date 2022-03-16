@@ -45,9 +45,9 @@ class PricipalComponents:
         Reduce the feature dimension of an example based on principal components identified in train().
 
         Args:
-            data: the single example (shape 1 x n_features)
+            data: the single example (shape 1 x n_features) or all examples (n_examples x n_features)
         Returns:
-            a NumPy array (shape 1 x n_features_reduced)
+            a NumPy array (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
         """
         if data.ndim == 1:
             data = np.reshape(data, (1, np.size(y)))
@@ -67,9 +67,14 @@ class PricipalComponents:
 
 principal = PricipalComponents({'explained_variance': 0.95})
 
+'''
 os.chdir("C:/Users/jakub/Desktop/CAI_test")
 x = np.transpose(np.genfromtxt("Waveforms.csv", delimiter=','))
 principal.train(x)
+
+os.chdir("C:/Users/jakub/Desktop/Test")
+principal.save("")
+principal.load("")
 
 y = x[1000]
 print(y)
@@ -78,3 +83,5 @@ print(np.size(y))
 trans = principal.transform(y)
 
 print(np.shape(trans))
+'''
+
