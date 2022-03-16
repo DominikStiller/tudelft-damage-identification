@@ -22,8 +22,8 @@ class KmeansClustering(Clustering):
         Args:
             params: parameters for the clustering method
         """
+        self.model = None
         super(KmeansClustering, self).__init__("kmeans", params)
-        self.model = KMeans(self.params["n_clusters"], random_state=0)
 
     def save(self, directory):
         """
@@ -55,15 +55,16 @@ class KmeansClustering(Clustering):
         Args:
             testdata: data used to create the clusters to train the kmeans model
         """
+        self.model = KMeans(self.params["n_clusters"], random_state=0)
         self.model = self.model.fit(testdata)
         return self.model
 
-    def predict(self, data):
+    def predict(self, data) -> int:
         """
         Uses the created kmeans model to predict which cluster the data point is a part of.
 
         Args:
-            data: datapoint(S) for which the label should be predicted using the created kmeans model
+            data: datapoint for which the label should be predicted using the created kmeans model
         """
-        prediction = self.model.predict(data)
+        prediction = self.model.predict(data)[0]
         return prediction

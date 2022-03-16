@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 from scipy.fft import fft, fftfreq
@@ -22,8 +22,10 @@ class FourierExtractor(FeatureExtractor):
     peak_frequency = features["peak_frequency"]
     """
 
-    def __init__(self):
-        super().__init__("fourier", {})
+    def __init__(self, params: Optional[Dict[str, Any]] = None):
+        if params is None:
+            params = {}
+        super().__init__("fourier", params)
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
         """
@@ -32,7 +34,7 @@ class FourierExtractor(FeatureExtractor):
         Args:
             example: a single example (shape 1 x length_example)
         Returns:
-            dictionary containing peak frequency ("peak-freq") and central frequency ("central-freq")
+            dictionary containing peak frequency ("peak_frequency") and central frequency ("central_frequency")
         """
 
         length_example = np.size(example)
