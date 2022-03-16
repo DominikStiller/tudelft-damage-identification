@@ -30,6 +30,8 @@ class Pipeline:
     def _load_data(self, param_name) -> Tuple[np.ndarray, int]:
         filename: str = self.params[param_name]
 
+        print("Loading data set...")
+
         if filename.endswith(".csv"):
             data = load_uncompressed_data(filename)
         elif filename.endswith(".tradb"):
@@ -69,7 +71,7 @@ class Pipeline:
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
-        print("Extracted features")
+        print("-> Extracted features")
 
         return all_features
 
@@ -90,24 +92,25 @@ class Pipeline:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1)
-        print("Predicted clusters")
+        print("-> Predicted clusters")
 
         return predictions
 
     def run_training(self):
         examples, n_examples = self._load_data("training_data_file")
-        print(f"Loaded training data set ({n_examples} examples)")
+        print(f"-> Loaded training data set ({n_examples} examples)")
 
         # TODO run filtering
 
         # Train feature extractor and save model
+        print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
 
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
             os.makedirs(save_directory, exist_ok=True)
             feature_extractor.save(save_directory)
-        print("Trained feature extractors")
+        print("-> Trained feature extractors")
 
         # Extract features to training of PCA and features
         features = self._extract_features(examples, n_examples)
@@ -116,20 +119,21 @@ class Pipeline:
         # TODO run PCA training
 
         # Train clustering
+        print("Training clusterers...")
         for clusterer in self.clusterers:
             clusterer.train(features)
 
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name)
             os.makedirs(save_directory, exist_ok=True)
             clusterer.save(save_directory)
-        print("Trained clusterers")
+        print("-> Trained clusterers")
 
     def run_prediction(self):
         data, n_examples = self._load_data("prediction_data_file")
-        print(f"Loaded prediction data set ({n_examples} examples)")
+        print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         self._load_pipeline()
-        print("Loaded trained pipeline")
+        print("-> Loaded trained pipeline")
 
         # TODO run filtering
 
@@ -145,7 +149,7 @@ class Pipeline:
 
     def run_evaluation(self):
         data, n_examples = self._load_data("evaluation_data_file")
-        print(f"Loaded evaluation data set ({n_examples} examples)")
+        print(f"-> Loaded evaluation data set ({n_examples} examples)")
 
         # TODO add evaluation mode
 
