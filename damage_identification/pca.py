@@ -36,13 +36,11 @@ class PricipalComponents():
         Returns:
            a NumPy array (shape n_examples x n_features_reduced)
         """
-        for c in range(2, 20):
-            pca = PCA(n_components=c)
-            pca.fit(data)
-            print(pca.explained_variance_)
-
-        pass
+        pca = PCA(n_components=explained_variance)
+        pca.fit(data)
+        reduced = pca.transform(data)
+        return reduced
 
 principal = PricipalComponents("PCA")
 X = np.random.rand(5000, 2000)
-principal.train(X, 0.9)
+print(np.shape(principal.train(X, 0.95)))
