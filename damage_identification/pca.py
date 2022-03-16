@@ -9,11 +9,10 @@ class PricipalComponents():
 
         Args:
             name: name of the PCA reductor.
-            params: parameters for the reductor
         """
         self.name = name
 
-    def transform(data: np.ndarray) -> np.ndarray:
+    def transform(self, data: np.ndarray) -> np.ndarray:
         """
         Reduce the feature dimension of an example based on principal components identified in train().
 
@@ -27,9 +26,7 @@ class PricipalComponents():
         pass
 
 
-    def train(data: np.ndarray, explained_variance: float) -> np.ndarray:
-
-
+    def train(self, data: np.ndarray, explained_variance: float) -> np.ndarray:
         """
         Identify the principal components.
 
@@ -39,10 +36,14 @@ class PricipalComponents():
         Returns:
            a NumPy array (shape n_examples x n_features_reduced)
         """
-        pca = PCA(n_components=2)
-        print(pca.explained_variance_)
+        for c in range(2, 20):
+            pca = PCA(n_components=c)
+            pca.fit(data)
+            print(pca.explained_variance_)
 
         pass
 
 principal = PricipalComponents("PCA")
-principal.train(np.array([1,0,1,0,1]), 0)
+rng = np.random.RandomState(1)
+X = np.random.rand(5000, 2000)
+principal.train(X, 0.9)
