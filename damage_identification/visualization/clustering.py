@@ -29,6 +29,8 @@ def generate_example_data():
     )
     return features, predictions
 
+testdata = generate_example_data()
+
 def classify_data(dataset, dmg_mode):
     features, predictions = dataset
     points = predictions.loc[predictions["mode_kmeans"] == dmg_mode]
