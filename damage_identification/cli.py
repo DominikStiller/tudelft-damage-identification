@@ -15,10 +15,13 @@ def parse_cli_args() -> Dict[str, Any]:
     parser_params = argparse.ArgumentParser(add_help=False)
 
     # Training mode
-    parser_training = subparsers.add_parser("train", parents=[parser_params])
+    parser_training = subparsers.add_parser("train", parents=[parser_params], argument_default=argparse.SUPPRESS)
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
-    parser_training.add_argument("--n_clusters", type=int)
+
+    parser_training.add_argument("--n_clusters", type=int, required=True)
+    parser_training.add_argument("--direct_features_threshold", type=float)
+    parser_training.add_argument("--direct_features_n_samples", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])

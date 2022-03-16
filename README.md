@@ -67,7 +67,7 @@ All data files (e.g. AE recordings and trained pipeline models) should be stored
 
 
 ## Configuration parameters
-Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
+Configurable parameters are passed to the pipeline as command line arguments during training using `--parameter_name value`. The following parameters are available:
 * `direct_features_threshold`: threshold for direct features like counts and duration
 * `direct_features_n_samples`: how many raw first `n` samples should be used as features, without further transformation
 * `n_clusters`: number of clusters (e.g. for k-means)
