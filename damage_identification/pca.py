@@ -26,7 +26,6 @@ class PricipalComponents:
         """
         with open(os.path.join(directory, "pca.pickle"), "wb") as f:
             pickle.dump(self.pca, f)
-
         pass
 
     def load(self, directory):
@@ -38,7 +37,8 @@ class PricipalComponents:
                 Args:
                     directory: the directory to load the state from
         """
-
+        with open(os.path.join(directory, "pca.pickle"), "rb") as f:
+            self.pca = pickle.load(f)
         pass
 
     def transform(self, data: np.ndarray) -> np.ndarray:
@@ -62,6 +62,7 @@ class PricipalComponents:
             explained_variance: the desired explained variance to select the number of principal components to return (i.e. n_features_reduced)
         """
         self.pca = self.pca.fit(data)
+        pass
 
 
 
