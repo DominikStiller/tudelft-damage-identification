@@ -3,10 +3,11 @@ import pickle
 from typing import Dict, Any
 
 from sklearn.cluster import KMeans
-from damage_identification.clustering.base import Clustering
+
+from damage_identification.clustering.base import Clusterer
 
 
-class KmeansClustering(Clustering):
+class KmeansClusterer(Clusterer):
     """
     This class Clusters the data according to the K-means clustering method
 
@@ -23,7 +24,7 @@ class KmeansClustering(Clustering):
             params: parameters for the clustering method
         """
         self.model = None
-        super(KmeansClustering, self).__init__("kmeans", params)
+        super(KmeansClusterer, self).__init__("kmeans", params)
 
     def save(self, directory):
         """

@@ -3,10 +3,8 @@ from typing import Dict, Any
 
 import pandas as pd
 
-from damage_identification.damage_mode import DamageMode
 
-
-class Clustering(ABC):
+class Clusterer(ABC):
     """
     A base class for all clustering methods.
     """
