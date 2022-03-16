@@ -3,23 +3,43 @@ import numpy as np
 
 
 class PricipalComponents():
-    def __init__(self, name: str):
+    def __init__(self):
         """
         Initialize the PCA dimensionality reductor.
 
         Args:
             name: name of the PCA reductor.
         """
-        self.name = name
+        pass
 
-    def transform(self, data: np.ndarray) -> np.ndarray:
+    def save(self, directory):
+        """
+        Saves the state of the PCA.
+
+        This method should only save files to the directory specified in the argument.
+
+        Args:
+            directory: the directory to save the state to
+        """
+        pass
+
+    def load(self, directory):
+        """
+        Loads the state of the PCA.
+
+        This method should only load files from the directory specified in the argument.
+
+        Args:
+            directory: the directory to load the state from
+        """
+        pass
+
+    def transform(self, data: np.ndarray):
         """
         Reduce the feature dimension of an example based on principal components identified in train().
 
         Args:
             data: the single example (shape 1 x n_features)
-        Returns:
-            a NumPy array (shape 1 x n_features_reduced)
         """
 
         pass
