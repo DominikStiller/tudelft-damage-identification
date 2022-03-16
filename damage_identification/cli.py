@@ -15,7 +15,9 @@ def parse_cli_args() -> Dict[str, Any]:
     parser_params = argparse.ArgumentParser(add_help=False)
 
     # Training mode
-    parser_training = subparsers.add_parser("train", parents=[parser_params], argument_default=argparse.SUPPRESS)
+    parser_training = subparsers.add_parser(
+        "train", parents=[parser_params], argument_default=argparse.SUPPRESS
+    )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
 
