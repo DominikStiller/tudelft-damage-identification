@@ -103,5 +103,6 @@ class DirectFeatureExtractor(FeatureExtractor):
             / max(example[peakamplitude_2_index], example[peakamplitude_1_index])
             < 0.6
         ):
-            return None
+            # Setting any feature to None marks this example as invalid
+            return_dict["duration"] = None
         return return_dict
