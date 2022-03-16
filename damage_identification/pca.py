@@ -28,3 +28,17 @@ class PricipalComponents():
         """
 
         pass
+
+    def train(data: np.ndarray, explained_variance: float) -> np.ndarray:
+
+
+        """
+        Identify the principal components.
+
+        Args:
+            data: all data for training (shape n_examples x n_features)
+            explained_variance: the desired explained variance to select the number of principal components to return (i.e. n_features_reduced)
+        Returns:
+           a NumPy array (shape n_examples x n_features_reduced)
+        """
+        pass
