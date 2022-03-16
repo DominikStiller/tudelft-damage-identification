@@ -4,7 +4,7 @@ This is the repository for the AE2223-I project of group D5. The goal is the ide
 
 ## Setup
 To get started with development:
-1. Ensure that Python 3.9 is installed.
+1. Ensure that Python 3.8 or 3.9 is installed.
 2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
 3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
 4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
@@ -58,8 +58,23 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 * No data should ever be committed to Git. The repository is for code only. Store any local data files in the `data/` folder which is ignored by commits.
 
 
+
+## Data folder layout
+All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
+* `data/Waveforms.csv`: first AE recording that Davide gave us
+* `data/pipeline/`: trained pipeline models for feature extraction and clustering
+
+
+
+## Configuration parameters
+Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
+* `direct_features_threshold`: threshold for direct features like counts and duration
+* `n_clusters`: number of clusters (e.g. for k-means)
+
+
+
 ## Useful topics to learn
-In decreasing order of relevance:
+In order of decreasing relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
 * [Unit testing](https://docs.python.org/3/library/unittest.html)
 * [GitHub](https://docs.github.com/en/get-started/quickstart/hello-world) and [Git](https://docs.github.com/en/get-started/using-git/about-git)
