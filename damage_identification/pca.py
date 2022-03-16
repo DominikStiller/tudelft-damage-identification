@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.decomposition import PCA
 import pickle
 import numpy as np
@@ -8,10 +9,10 @@ from typing import Dict, Any
 class PricipalComponents:
     def __init__(self, params: Dict[str, Any]):
         """
-        Initialize the PCA dimensionality reductor.
+        Initialize the PCA dimensionality reducer.
 
         Args:
-            name: name of the PCA reductor.
+            params containing {'explained_variance' : float}
         """
         self.pca = PCA(n_components=params['explained_variance'])
 
@@ -26,7 +27,6 @@ class PricipalComponents:
         """
         with open(os.path.join(directory, "pca.pickle"), "wb") as f:
             pickle.dump(self.pca, f)
-        pass
 
     def load(self, directory):
         """
@@ -39,7 +39,6 @@ class PricipalComponents:
         """
         with open(os.path.join(directory, "pca.pickle"), "rb") as f:
             self.pca = pickle.load(f)
-        pass
 
     def transform(self, data: np.ndarray) -> np.ndarray:
         """
@@ -50,6 +49,9 @@ class PricipalComponents:
         Returns:
             a NumPy array (shape 1 x n_features_reduced)
         """
+        if data.ndim == 1:
+            data = np.reshape(data, (1, np.size(y)))
+
         reduced = self.pca.transform(data)
         return reduced
 
@@ -59,15 +61,20 @@ class PricipalComponents:
 
         Args:
             data: all data for training (shape n_examples x n_features)
-            explained_variance: the desired explained variance to select the number of principal components to return (i.e. n_features_reduced)
         """
         self.pca = self.pca.fit(data)
-        pass
-
-
+        return self.pca
 
 principal = PricipalComponents({'explained_variance': 0.95})
-X = np.random.rand(5000, 2000)
-Y = np.random.rand(1, 2000)
-principal.train(X)
-print(np.shape(principal.transform(Y)))
+
+os.chdir("C:/Users/jakub/Desktop/CAI_test")
+x = np.transpose(np.genfromtxt("Waveforms.csv", delimiter=','))
+principal.train(x)
+
+y = x[1000]
+print(y)
+print(np.size(y))
+
+trans = principal.transform(y)
+
+print(np.shape(trans))
