@@ -103,6 +103,7 @@ class Pipeline:
         # Train feature extractor and save model
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
+
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
             os.makedirs(save_directory, exist_ok=True)
             feature_extractor.save(save_directory)
@@ -110,21 +111,18 @@ class Pipeline:
 
         # Extract features to training of PCA and features
         features = self._extract_features(examples, n_examples)
+        features = features.dropna()
 
         # TODO run PCA training
 
         # Train clustering
         for clusterer in self.clusterers:
             clusterer.train(features)
+
             save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name)
             os.makedirs(save_directory, exist_ok=True)
             clusterer.save(save_directory)
         print("Trained clusterers")
-
-        # Get predictions for training of cluster identification
-        predictions = self._predict(features, n_examples)
-
-        # TODO run cluster identification training
 
     def run_prediction(self):
         data, n_examples = self._load_data("prediction_data_file")
