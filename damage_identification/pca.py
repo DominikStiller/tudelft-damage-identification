@@ -1,21 +1,17 @@
 from sklearn.decomposition import PCA
+import numpy as np
 
 
 class PricipalComponents():
-
-    def __init__(self, name: str, params: Dict[str, Any]):
+    def __init__(self, name: str):
         """
-        Initialize the feature extractor.
-
-        The name will be used in log outputs and for state directories. Use a human-readable name without feature
-        extractor as suffix. Examples are "fourier transform", "multiresolution analysis" or "autoencoder".
+        Initialize the PCA dimensionality reductor.
 
         Args:
-            name: name of the feature extractor
-            params: parameters for the feature extractor, uses default parameters if None
+            name: name of the PCA reductor.
+            params: parameters for the reductor
         """
         self.name = name
-        self.params = params
 
     def transform(data: np.ndarray) -> np.ndarray:
         """
@@ -27,7 +23,9 @@ class PricipalComponents():
             a NumPy array (shape 1 x n_features_reduced)
         """
 
+
         pass
+
 
     def train(data: np.ndarray, explained_variance: float) -> np.ndarray:
 
@@ -41,4 +39,10 @@ class PricipalComponents():
         Returns:
            a NumPy array (shape n_examples x n_features_reduced)
         """
+        pca = PCA(n_components=2)
+        print(pca.explained_variance_)
+
         pass
+
+principal = PricipalComponents("PCA")
+principal.train(np.array([1,0,1,0,1]), 0)
