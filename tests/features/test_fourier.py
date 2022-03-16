@@ -1,5 +1,7 @@
 from unittest import TestCase
+
 import numpy as np
+
 from damage_identification.features.fourier import FourierExtractor
 
 

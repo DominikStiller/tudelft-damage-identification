@@ -3,6 +3,7 @@ import pickle
 from typing import Dict, Any
 
 from sklearn.cluster import KMeans
+
 from damage_identification.clustering.base import Clusterer
 
 

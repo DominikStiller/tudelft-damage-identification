@@ -1,9 +1,8 @@
+import tempfile
 from unittest import TestCase
-from numpy import testing
 
 import numpy as np
-import tempfile
-
+from numpy import testing
 
 from damage_identification.clustering.kmeans import KmeansClusterer
 
