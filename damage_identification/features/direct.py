@@ -83,6 +83,16 @@ class DirectFeatureExtractor(FeatureExtractor):
         new_dict = {"n_sample_"+str(n+1): example[n] for n in range(n_sample)}
         return_dict = {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": rise_time, "energy": energy[0]}
         final_dict = return_dict | new_dict
+
+        #Testing for signal peak in signal:
+        boundary_index = round(2048*0.2) #Boundary of first damage mode in signal
+        cut_waveform_1 = example[: boundary_index]
+        peakamplitude_1_index = np.argmax(np.abs(cut_waveform_1))
+        cut_waveform_2 = example[boundary_index :]
+        peakamplitude_2_index = np.argmax(np.abs(cut_waveform_2)) + boundary_index
+        #Check if we have two peaks with 60% difference in the same signal
+        if abs(example[peakamplitude_2_index] - example[peakamplitude_1_index])/max(example[peakamplitude_2_index], example[peakamplitude_1_index])<0.6:
+            return None
         return final_dict
 
 
