@@ -84,5 +84,6 @@ testdata = generate_example_data()
 ClusteringVisualization(testdata).visualize_kmeans()
 
 n_pc = 3
-n_exampl
+n_examples = 6
+
 pcadata = pd.dataframe( ,columns=[f"pca_{i + 1}" for i in range(0, n_pc)])
