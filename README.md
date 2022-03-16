@@ -68,12 +68,13 @@ All data files (e.g. AE recordings and trained pipeline models) should be stored
 
 ## Configuration parameters
 Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
-* `feature_extraction_direct_threshold`: threshold for direct features like counts and duration
+* `direct_features_threshold`: threshold for direct features like counts and duration
+* `n_clusters`: number of clusters (e.g. for k-means)
 
 
 
 ## Useful topics to learn
-In decreasing order of relevance:
+In order of decreasing relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
 * [Unit testing](https://docs.python.org/3/library/unittest.html)
 * [GitHub](https://docs.github.com/en/get-started/quickstart/hello-world) and [Git](https://docs.github.com/en/get-started/using-git/about-git)

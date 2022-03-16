@@ -72,7 +72,7 @@ class FeatureExtractor(ABC):
         Extracts features from a single waveform.
 
         Args:
-            example: a single example (shape length_example)
+            example: a single example (shape 1 x length_example)
 
         Returns:
             A dictionary containing items with each feature name value for the input example.
