@@ -38,7 +38,6 @@ def classify_data(dataset, dmg_mode):
     return classed_data
 
 def visualize_data(data):
-    fig = plt.figure()
     ax = plt.axes(projection = "3d")
     dmgmodes = data[1]["mode_kmeans"]
     clusters = dmgmodes.drop_duplicates()
