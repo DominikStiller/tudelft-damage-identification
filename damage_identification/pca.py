@@ -14,7 +14,7 @@ class PricipalComponents:
         Args:
             params containing {'explained_variance' : float}
         """
-        self.pca = PCA(n_components=params['explained_variance'])
+        self.pca = PCA(n_components=params['explained_variance'], svd_solver='full')
 
     def save(self, directory):
         """
@@ -30,12 +30,12 @@ class PricipalComponents:
 
     def load(self, directory):
         """
-                Loads the state of the PCA.
+        Loads the state of the PCA.
 
-                This method should only load files from the directory specified in the argument.
+        This method should only load files from the directory specified in the argument.
 
-                Args:
-                    directory: the directory to load the state from
+        Args:
+            directory: the directory to load the state from
         """
         with open(os.path.join(directory, "pca.pickle"), "rb") as f:
             self.pca = pickle.load(f)
@@ -50,10 +50,8 @@ class PricipalComponents:
             a NumPy array (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
         """
         if data.ndim == 1:
-            data = np.reshape(data, (1, np.size(y)))
-
-        reduced = self.pca.transform(data)
-        return reduced
+            data = np.reshape(data, (1, np.size(data))) # deals slices of data being 1-D arrays[] not 2d arrays [[]]
+        return self.pca.transform(data)
 
     def train(self, data: np.ndarray):
         """
@@ -63,25 +61,3 @@ class PricipalComponents:
             data: all data for training (shape n_examples x n_features)
         """
         self.pca = self.pca.fit(data)
-        return self.pca
-
-principal = PricipalComponents({'explained_variance': 0.95})
-
-'''
-os.chdir("C:/Users/jakub/Desktop/CAI_test")
-x = np.transpose(np.genfromtxt("Waveforms.csv", delimiter=','))
-principal.train(x)
-
-os.chdir("C:/Users/jakub/Desktop/Test")
-principal.save("")
-principal.load("")
-
-y = x[1000]
-print(y)
-print(np.size(y))
-
-trans = principal.transform(y)
-
-print(np.shape(trans))
-'''
-
