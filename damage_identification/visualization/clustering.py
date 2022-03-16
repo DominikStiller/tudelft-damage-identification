@@ -4,7 +4,8 @@ import pandas as pd
 
 class ClusteringVisualization:
     """
-    Performs visualization of clustered data based on a tuple of the first three primary components and their predicted damage modes
+    Performs visualization of clustered data based on a tuple of the first three primary components and their predicted
+    damage modes
 
     Typical usage example:
         ClusteringVisualization().visualize_data()
@@ -59,5 +60,3 @@ class ClusteringVisualization:
         ax.set_ylabel("pca_2")
         ax.set_zlabel("pca_3")
         plt.show()
-
-pcadata = pd.dataframe( ,columns=[f"pca_{i + 1}" for i in range(0, n_pc)])
