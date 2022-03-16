@@ -44,6 +44,5 @@ class PricipalComponents():
         pass
 
 principal = PricipalComponents("PCA")
-rng = np.random.RandomState(1)
 X = np.random.rand(5000, 2000)
 principal.train(X, 0.9)
