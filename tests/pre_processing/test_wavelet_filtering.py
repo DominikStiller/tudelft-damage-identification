@@ -11,9 +11,5 @@ from damage_identification.pre_processing.wavelet_filtering import WaveletFilter
 
 class TestWaveletFiltering(TestCase):
     def test_wavelet_filtering(self):
-
-        data = WaveletFiltering().load_data('../../data/Waveforms.csv')
-        print(data.dtype)
-        test = WaveletFiltering().filtering(data[1,:])
-        print(test)
-        testing.assert_array_equal(test, [1, 2, 3, 5, 6])
+        data = WaveletFiltering().load_data('data/Waveforms.csv')
+        WaveletFiltering().filtering(data[0, :], 'db4', 'optimal')
