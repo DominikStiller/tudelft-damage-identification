@@ -8,7 +8,7 @@ class ClusteringVisualization:
     damage modes
 
     Typical usage example:
-        ClusteringVisualization().visualize_data()
+        ClusteringVisualization().visualize_kmeans()
     """
 
     def __init__(self, data: tuple):
