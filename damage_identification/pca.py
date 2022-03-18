@@ -5,7 +5,7 @@ import os
 from typing import Dict, Any
 
 
-class PricipalComponents:
+class PrincipalComponents:
     def __init__(self, params: Dict[str, Any]):
         """
         Initialize the PCA dimensionality reducer.
@@ -49,7 +49,7 @@ class PricipalComponents:
             a NumPy array (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
         """
         if data.ndim == 1:
-            data = np.reshape(data, (1, np.size(data))) # deals slices of data being 1-D arrays[] not 2d arrays [[]]
+            data = np.reshape(data, (1, np.size(data)))  # makes sliced 1-D arrays[] into 2d arrays [[]]
         return self.pca.transform(data)
 
     def train(self, data: np.ndarray):
