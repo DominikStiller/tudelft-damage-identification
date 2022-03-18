@@ -28,9 +28,7 @@ class TestDirectFeatureExtractor(TestCase):
         features = DirectFeatureExtractor().extract_features(example_1)
         self.assertEqual(features["rise_time"], 2 / 10 / 1000)
 
-    def test_extract_features_energy(self):
-        example_1 = np.array([0, 1, 0, -2, 0, 1, 0, 0.4, -0.4, 0])
+    def test_extract_features_2peaks(self):
+        example_1 = np.array([0, 2, 0, -1, 0, 1, 0, 1.8, -0.4, 0])
         features = DirectFeatureExtractor().extract_features(example_1)
-        time_stamps = np.linspace(0, 1 / 1000, 10)  # in s
-        energy = simpson(np.square(example_1 * 1000), time_stamps)
-        self.assertEqual(features["energy"], energy)
+        self.assertEqual(features["duration"], None)
