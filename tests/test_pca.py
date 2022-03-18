@@ -8,6 +8,4 @@ class TestPCA(TestCase):
         model = PrincipalComponents({"explained_variance": 0.9})
         model.train(example)
         result = model.transform(example)
-        # print(len(result[0]))
-        # Expected value: 1000 Hz
         self.assertTrue(np.array_equal(result[-1], result[-2]))
