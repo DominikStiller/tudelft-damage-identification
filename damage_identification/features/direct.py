@@ -48,7 +48,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         Returns:
             A dictionary containing items with each feature name value for the input example.
         """
-        # counts, only upwards positive crossings of threshold
+        # counts, crossing of the threshold both positive and negative
         example = example.flatten()
         n_samples = len(example)
 
