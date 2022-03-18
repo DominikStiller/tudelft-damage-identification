@@ -11,7 +11,7 @@ def load_uncompressed_data(filename: str) -> np.ndarray:
     Returns:
         Numpy array of the data in the data file
     """
-    data = np.transpose((pd.read_csv(filename)).to_numpy())
+    data = np.transpose((pd.read_csv(filename, header=None)).to_numpy())
     # Remove rows that are only zeros
     data = data[~np.all(data == 0, axis=1)]
     return data
