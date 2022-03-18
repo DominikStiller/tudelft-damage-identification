@@ -26,14 +26,15 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
     # Compare all results and find the single optimal number
     maximize = [0, 1, 3, 4, 5, 7]
     minimize = [2, 6]
-    #Normalize indices that need to be maximized
+
+    # Normalize indices that need to be maximized
     for i in maximize:
         maximum = np.max(indices[i][:])
         minimum = np.min(indices[i][:])
         for j in range(n_end-n_start+1):
             indices[i][j] = (indices[i][j] - minimum)/(maximum-minimum)
-    #Normalize indices that need to be minimized
 
+    # Normalize indices that need to be minimized
     for i in minimize:
         minimum = np.min(indices[i][:])
         maximum = np.max(indices[i][:])
@@ -45,7 +46,7 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
 
 
 
-    return
+    return {}
 
 
 dummy_data, _ = make_blobs(n_samples=100, centers=4, n_features=30, random_state=0)
