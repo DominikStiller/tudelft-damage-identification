@@ -1,13 +1,15 @@
 import numpy as np
 import pandas as pd
-import random as rnd
-
-
+import os
 
 class Normalization():
+    """
+    This class normalizes all the features from the direct feature extraction.
 
-    def __init__(self, train_data):
-        self.train_data = train_data
+    The train function is used with a training dataset to 
+
+    """
+    def __init__(self):
         self.bounds = None
 
 
@@ -35,12 +37,15 @@ class Normalization():
         pass
 
 
-    def train(self):
+    def train(self, train_data):
         """
-        Train
+        Creates bounds based on some training data
 
         Args:
-            examples: the training set with all training examples (shape n_examples x length_example)
+            train_data: pandas dataframe of the training data
+
+        Returns:
+            bounds: pandas dataframe containing the min and max of each column of train_data
         """
 
         columns = pd.DataFrame({
@@ -53,24 +58,23 @@ class Normalization():
             })
         self.bounds = pd.DataFrame(columns,
                               index = pd.Index(["min", "max"]))
-        for column in self.train_data.columns:
-            self.bounds.loc["max", column] = self.train_data[column].max()
-            self.bounds.loc["min", column] = self.train_data[column].min()
+        for column in train_data.columns:
+            self.bounds.loc["max", column] = train_data[column].max()
+            self.bounds.loc["min", column] = train_data[column].min()
 
         #Normalization.save()
 
     def transform(self, data):
         """
-        Extracts features from a single waveform.
+        Transforms data based on the bounds from training data
 
         Args:
-            example: a single example (shape 1 x length_example)
+            data: data to be transformed
 
         Returns:
-            A dictionary containing items with each feature name value for the input example.
-            Example: {"duration": 30.4, "average_amplitude": 3.7}
-            An example can be marked as invalid by setting at least one of the features to None.
+            normalize_data: pandas dataframe of the input data normalize between -1 and 1
         """
+
         normalize_data = 2*(data - self.bounds.min())/(self.bounds.max() - self.bounds.min()) - 1
         return normalize_data
 
@@ -98,6 +102,8 @@ randomset = pd.DataFrame({
 print(randomset['duration'])
 
 
-nrml = Normalization(testdata)
-nrml.train()
+nrml = Normalization()
+nrml.train(testdata)
 
+
+print(nrml.transform(randomset))
