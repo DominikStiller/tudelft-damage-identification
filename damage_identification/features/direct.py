@@ -67,7 +67,7 @@ class DirectFeatureExtractor(FeatureExtractor):
                 i_array[-1] = i
 
         # duration
-        duration = (i_array[-1] - i_array[0]) * 1 / n_samples / 1000  # in m!
+        duration = (i_array[-1] - i_array[0]) * 1 / n_samples / 1000  # in s!
 
         # peak amplitude
         peak_amplitude = np.max(np.abs(example))
