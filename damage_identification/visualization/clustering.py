@@ -11,10 +11,7 @@ class ClusteringVisualization:
         ClusteringVisualization().visualize_kmeans()
     """
 
-    def __init__(self, data: tuple):
-        self.pca, self.mode = data
-
-    def classify_data(self, dmg_mode):
+    def _classify_data(self, dmg_mode, modes, features):
         """
         Takes the dataset, and extracts the datapoints that correspond to a certain damage mode.
 
@@ -26,32 +23,34 @@ class ClusteringVisualization:
             damage mode.
         """
 
-        points = self.mode.loc[self.mode["mode_kmeans"] == dmg_mode]
-        classed_data = pd.merge(self.pca, points, left_index=True, right_index=True)
+        points = modes.loc[modes["mode_kmeans"] == dmg_mode]
+        classed_data = pd.merge(features, points, left_index=True, right_index=True)
         return classed_data
 
-    def visualize_kmeans(self):
+    def visualize_kmeans(self, features: pd.DataFrame, modes: pd.DataFrame):
         """
         To visualize clustering from kmeans. Loops over all the damage modes present in the data, and plots the
         datapoints for each of these in a different
         colour, in 3D space.
 
         Args:
-            self
+            features: the features of each example after PCA (shape n_examples x n_features_reduced
+            modes: the damage mode of each example predicted by each clusterer (shape n_examples x n_clusters)
 
         Returns:
             matplotlib visualization of the clusters
         """
 
         ax = plt.axes(projection="3d")
-        clusters = self.mode["mode_kmeans"].drop_duplicates()
+        clusters = modes["mode_kmeans"].drop_duplicates()
         colour = ["b", "g", "r", "c", "m"]
         colourpicker = 0
         for cluster in clusters:
+            current_features = self._classify_data(cluster, modes, features)
             ax.scatter3D(
-                self.classify_data(cluster)["pca_1"],
-                self.classify_data(cluster)["pca_2"],
-                self.classify_data(cluster)["pca_3"],
+                current_features["pca_1"],
+                current_features["pca_2"],
+                current_features["pca_3"],
                 c=colour[colourpicker],
             )
             colourpicker += 1
