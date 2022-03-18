@@ -8,6 +8,7 @@ from damage_identification.io import load_uncompressed_data
 
 waveform = load_uncompressed_data("data/1column.csv")
 
+
 class DirectFeatureExtractor(FeatureExtractor):
     """
     This class extracts all features that can be obtained directly from the waveform without further transformation.
@@ -105,6 +106,7 @@ class DirectFeatureExtractor(FeatureExtractor):
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
+
 
 results = DirectFeatureExtractor()
 print(results.extract_features(waveform))
