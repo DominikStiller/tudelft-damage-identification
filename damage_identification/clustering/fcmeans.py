@@ -2,13 +2,13 @@ import os
 import numpy as np
 from fcmeans import FCM
 from typing import Dict, Any
-from base import Clusterer
+from damage_identification.clustering.base import Clusterer
 import pickle
 
 
-class FuzzycmeansClusterer(Clusterer):
+class FCMeansClusterer(Clusterer):
     def __init__(self, params: Dict[str, Any]):
-        super(FuzzycmeansClusterer, self).__init__("cmeans", params)
+        super(FCMeansClusterer, self).__init__("fcmeans", params)
         self.model = None
 
     def save(self, directory):
@@ -39,7 +39,7 @@ class FuzzycmeansClusterer(Clusterer):
         self.model.fit(data)
 
     def predict(self, data: np.ndarray) -> int:
-        prediction = self.model.predict(data)[0]
+        prediction = self.model.predict(data)
         return prediction
 
 
