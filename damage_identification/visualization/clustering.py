@@ -55,7 +55,7 @@ class ClusteringVisualization:
                 c=colour[colourpicker],
             )
             colourpicker += 1
-        ax.set_title("First three PCA directions")
+        ax.set_title("First three PCA directions - K-means")
         ax.set_xlabel("pca_1")
         ax.set_ylabel("pca_2")
         ax.set_zlabel("pca_3")
