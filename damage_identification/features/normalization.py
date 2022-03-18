@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import random as rnd
 
 
 
@@ -29,6 +30,8 @@ class Normalization():
         Args:
             directory: the directory to load the state from
         """
+        self.bounds = pd.read_csv(directory)
+
         pass
 
 
@@ -54,7 +57,7 @@ class Normalization():
             self.bounds.loc["max", column] = self.train_data[column].max()
             self.bounds.loc["min", column] = self.train_data[column].min()
 
-        Normalization.save()
+        #Normalization.save()
 
     def transform(self, data):
         """
@@ -81,6 +84,20 @@ testdata = pd.DataFrame({
             "rise_time": np.linspace(1000,10000, 10),
             "energy": np.linspace(-1000,1000, 10)
             })
+
+print(s(np.random.rand(1, 10)))
+
+randomset = pd.DataFrame({
+            "first_n_samples": np.random.rand(1, 10),
+            "peak_amplitude": np.random.rand(1, 10)*10,
+            "counts": np.random.rand(1, 10)*150 - 50,
+            "duration": np.random.rand(1, 10)* 1000 + 100,
+            "rise_time": np.random.rand(1, 10)*90000 + 1000,
+            "energy": np.random.rand(1, 10)*2000 -1000
+            })
+print(randomset['duration'])
+
+
 nrml = Normalization(testdata)
 nrml.train()
 
