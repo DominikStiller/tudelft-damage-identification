@@ -1,9 +1,7 @@
 from typing import Dict
 import pandas as pd
 import validclust as vld
-from sklearn.datasets import make_blobs
 import numpy as np
-import matplotlib as plt
 
 
 def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> Dict[str, float]:
@@ -42,13 +40,10 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
             indices[i][j] = (indices[i][j]-maximum)/(minimum-maximum)
     #Get two matrices for each clistering method, do averages on columns and get dictionaries for best numeber of clusters
     kmeans_array = indices[:4][:]
-    hierarchical = indices[4:][:]
+    hierarchical_array = indices[4:][:]
+    kmeansaverages = np.mean(kmeans_array, axis=0)
+    hierarchicalaverages = np.mean(hierarchical_array, axis=0)
+    kmeansindex = np.argmax(kmeansaverages)
+    hierarchicalindex = np.argmax(hierarchicalaverages)
 
-
-
-
-    return {}
-
-
-dummy_data, _ = make_blobs(n_samples=100, centers=4, n_features=30, random_state=0)
-find_optimal_number_of_clusters(dummy_data, 3, 6)
+    return {"Clusters kmeans": kmeansindex+n_start, "Clusters hierarchical": hierarchicalindex+n_start}
