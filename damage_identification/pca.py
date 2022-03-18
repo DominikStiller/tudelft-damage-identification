@@ -1,8 +1,9 @@
+import os
+import pickle
+from typing import Dict, Any
+
 import pandas as pd
 from sklearn.decomposition import PCA
-import pickle
-import os
-from typing import Dict, Any
 
 
 class PrincipalComponents:
