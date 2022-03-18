@@ -54,6 +54,8 @@ that can be hard to find. The following names are used in docstrings for this pu
 * `n_examples`: the number of examples in this array
 * `length_example`: the number of samples in a single example
 * `n_features`: the number of features
+* `n_features_reduced`: the number of features after PCA
+* `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
 time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
