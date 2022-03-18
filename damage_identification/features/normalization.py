@@ -13,28 +13,26 @@ class Normalization():
         self.bounds = None
 
 
-    def save(self, directory):
+    def save(self, directory:str):
         """
-        Saves
+        Saves the normalization bounds to a csv
 
         Args:
-            directory: the directory to save the state to
+            directory: the directory to save the bounds to
         """
         self.bounds.to_csv(directory)
 
         pass
 
 
-    def load(self, directory):
+    def load(self, directory:str):
         """
-        Loads
+        Loads the bounds of the normalization
 
         Args:
-            directory: the directory to load the state from
+            directory: the directory to load the bounds from
         """
         self.bounds = pd.read_csv(directory)
-
-        pass
 
 
     def train(self, train_data):
@@ -62,7 +60,8 @@ class Normalization():
             self.bounds.loc["max", column] = train_data[column].max()
             self.bounds.loc["min", column] = train_data[column].min()
 
-        #Normalization.save()
+
+
 
     def transform(self, data):
         """
@@ -89,17 +88,15 @@ testdata = pd.DataFrame({
             "energy": np.linspace(-1000,1000, 10)
             })
 
-print(s(np.random.rand(1, 10)))
-
 randomset = pd.DataFrame({
-            "first_n_samples": np.random.rand(1, 10),
-            "peak_amplitude": np.random.rand(1, 10)*10,
-            "counts": np.random.rand(1, 10)*150 - 50,
-            "duration": np.random.rand(1, 10)* 1000 + 100,
-            "rise_time": np.random.rand(1, 10)*90000 + 1000,
-            "energy": np.random.rand(1, 10)*2000 -1000
+            "first_n_samples": np.random.rand(1, 10)[0],
+            "peak_amplitude": np.random.rand(1, 10)[0]*10,
+            "counts": np.random.rand(1, 10)[0]*150 - 50,
+            "duration": np.random.rand(1, 10)[0]* 1000 + 100,
+            "rise_time": np.random.rand(1, 10)[0]*9000 + 1000,
+            "energy": np.random.rand(1, 10)[0]*2000 - 1000
             })
-print(randomset['duration'])
+
 
 
 nrml = Normalization()
