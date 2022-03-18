@@ -124,14 +124,14 @@ class Pipeline:
 
         # TODO run filtering
 
-        # Train feature extractor and save model
+        # Train feature extractor
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
             self._save_component(feature_extractor.name, feature_extractor)
         print("-> Trained feature extractors")
 
-        # Extract features to training of PCA and features
+        # Extract features for PCA training
         print("Extracting features for PCA training...")
         features = self._extract_features(examples, n_examples)
         features = features.dropna()
@@ -141,13 +141,14 @@ class Pipeline:
         features /= features.max()
         print("-> Extracted features")
 
-        # Train and execute PCA
+        # Train PCA
         print("Training PCA...")
         self.pca.train(features)
         self._save_component("pca", self.pca)
-        print("-> Trained PCA")
 
+        # Perform PCA for cluster training
         features_reduced = self._reduce_features(features)
+        print("-> Trained PCA")
 
         # Train clustering
         print("Training clusterers...")
@@ -159,11 +160,12 @@ class Pipeline:
         print("PIPELINE TRAINING COMPLETED")
 
     def run_prediction(self):
-        data, n_examples = self._load_data("prediction_data_file", 500)
-        print(f"-> Loaded prediction data set ({n_examples} examples)")
-
+        print("Loading pipeline...")
         self._load_pipeline()
         print("-> Loaded trained pipeline")
+
+        data, n_examples = self._load_data("prediction_data_file", 500)
+        print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         # TODO run filtering
 
