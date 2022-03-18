@@ -34,11 +34,12 @@ class FuzzycmeansClusterer(Clusterer):
         with open(os.path.join(directory, "fcmeans.pickle"), "rb") as f:
             self.model = pickle.load(f)
 
-    def gen_functions(self, data: np.ndarray):
+    def train(self, data: np.ndarray):
         self.model = FCM(n_clusters=self.params["n_clusters"])
-
+        self.model.fit(data)
 
     def predict(self, data: np.ndarray) -> int:
-
+        prediction = self.model.predict(data)[0]
+        return prediction
 
 
