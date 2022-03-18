@@ -46,4 +46,4 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
     kmeansindex = np.argmax(kmeansaverages)
     hierarchicalindex = np.argmax(hierarchicalaverages)
 
-    return {"Clusters kmeans": kmeansindex+n_start, "Clusters hierarchical": hierarchicalindex+n_start}
+    return {"Clusters kmeans": kmeansindex+n_start, "Clusters hierarchical": hierarchicalindex+n_start, "Clusters fuzzy cmeans": kmeansindex+n_start}
