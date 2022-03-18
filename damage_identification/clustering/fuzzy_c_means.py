@@ -8,9 +8,8 @@ import pickle
 
 class FuzzycmeansClusterer(Clusterer):
     def __init__(self, params: Dict[str, Any]):
-        self.n_clusters = params["n_clusters"]
         super(FuzzycmeansClusterer, self).__init__("cmeans", params)
-        self.model = FCM(n_clusters=self.n_clusters)
+        self.model = None
 
     def save(self, directory):
         """
@@ -36,9 +35,10 @@ class FuzzycmeansClusterer(Clusterer):
             self.model = pickle.load(f)
 
     def gen_functions(self, data: np.ndarray):
-
+        self.model = FCM(n_clusters=self.params["n_clusters"])
 
 
     def predict(self, data: np.ndarray) -> int:
+
 
 
