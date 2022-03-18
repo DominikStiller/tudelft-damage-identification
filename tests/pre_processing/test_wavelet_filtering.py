@@ -1,5 +1,6 @@
 from unittest import TestCase
-
+import tempfile
+import os
 import pandas as pd
 from numpy import testing
 
@@ -12,4 +13,10 @@ from damage_identification.pre_processing.wavelet_filtering import WaveletFilter
 class TestWaveletFiltering(TestCase):
     def test_wavelet_filtering(self):
         data = WaveletFiltering().load_data('data/Waveforms.csv')
-        WaveletFiltering().filtering(data[0, :], 'db4', 'optimal')
+        WaveletFiltering().filtering(data[0, :], 'db', 5, 'optimal')
+
+    def test_signal_prep(self):
+        wave = WaveletFiltering()
+        wave.waveform = wave.load_data('data/Waveforms.csv')
+        waves = wave.prep('db', 5, 'optimal')
+        # wave.wavelet_plot(wave.waveform[1,:], waves[1,:])
