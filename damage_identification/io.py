@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import vallenae as vae
@@ -13,6 +12,8 @@ def load_uncompressed_data(filename: str) -> np.ndarray:
         Numpy array of the data in the data file
     """
     data = np.transpose((pd.read_csv(filename)).to_numpy())
+    # Remove rows that are only zeros
+    data = data[~np.all(data == 0, axis=1)]
     return data
 
 
