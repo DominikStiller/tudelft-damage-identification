@@ -5,10 +5,11 @@ import os
 
 os.chdir("C:/Users/jakub/Desktop/Test")
 
+
 class TestPCA(TestCase):
     def test_pca(self):
         example = np.array([[1, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]])
-        model = PrincipalComponents({'explained_variance': 0.9})
+        model = PrincipalComponents({"explained_variance": 0.9})
         model.train(example)
         model.save("")
         model.load("")

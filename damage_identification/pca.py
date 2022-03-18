@@ -13,7 +13,7 @@ class PrincipalComponents:
         Args:
             params containing {'explained_variance' : float}
         """
-        self.pca = PCA(n_components=params['explained_variance'], svd_solver='full')
+        self.pca = PCA(n_components=params["explained_variance"], svd_solver="full")
 
     def save(self, directory):
         """
@@ -49,7 +49,9 @@ class PrincipalComponents:
             a NumPy array (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
         """
         if data.ndim == 1:
-            data = np.reshape(data, (1, np.size(data)))  # makes sliced 1-D arrays[] into 2d arrays [[]]
+            data = np.reshape(
+                data, (1, np.size(data))
+            )  # makes sliced 1-D arrays[] into 2d arrays [[]]
         return self.pca.transform(data)
 
     def train(self, data: np.ndarray):
