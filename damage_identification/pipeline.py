@@ -14,6 +14,8 @@ from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
 from damage_identification.io import load_uncompressed_data, load_compressed_data
+from damage_identification.pca import PrincipalComponents
+from damage_identification.visualization.clustering import ClusteringVisualization
 
 
 class Pipeline:
@@ -26,8 +28,10 @@ class Pipeline:
             FourierExtractor(params),
         ]
         self.clusterers: List[Clusterer] = [KmeansClusterer(params)]
+        self.pca = PrincipalComponents(params)
+        self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self, param_name) -> Tuple[np.ndarray, int]:
+    def _load_data(self, param_name, limit=None) -> Tuple[np.ndarray, int]:
         filename: str = self.params[param_name]
 
         print("Loading data set...")
@@ -38,6 +42,9 @@ class Pipeline:
             data = load_compressed_data(filename)
         else:
             raise Exception("Unsupported data file type")
+
+        if limit is not None:
+            data = data[:limit, :]
 
         n_examples = data.shape[0]
 
@@ -51,6 +58,13 @@ class Pipeline:
 
         for clusterer in self.clusterers:
             clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
+
+        self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
+
+    def _save_component(self, name, component):
+        save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
+        os.makedirs(save_directory, exist_ok=True)
+        component.save(save_directory)
 
     def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
         all_features = []
@@ -74,6 +88,14 @@ class Pipeline:
         print("-> Extracted features")
 
         return all_features
+
+    def _reduce_features(self, features: pd.DataFrame) -> pd.DataFrame:
+        features_reduced = self.pca.transform(features)
+        n_features_reduced = features_reduced.shape[1]
+        features_reduced = pd.DataFrame(
+            features_reduced, columns=[f"pca_{i + 1}" for i in range(n_features_reduced)]
+        )
+        return features_reduced
 
     def _predict(self, features, n_examples):
         print("Predicting clusters...")
@@ -106,30 +128,38 @@ class Pipeline:
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
-
-            save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
-            os.makedirs(save_directory, exist_ok=True)
-            feature_extractor.save(save_directory)
+            self._save_component(feature_extractor.name, feature_extractor)
         print("-> Trained feature extractors")
 
         # Extract features to training of PCA and features
+        print("Extracting features for PCA training...")
         features = self._extract_features(examples, n_examples)
         features = features.dropna()
 
-        # TODO run PCA training
+        # Normalize features
+        # TODO run actual normalization
+        features /= features.max()
+        print("-> Extracted features")
+
+        # Train and execute PCA
+        print("Training PCA...")
+        self.pca.train(features)
+        self._save_component("pca", self.pca)
+        print("-> Trained PCA")
+
+        features_reduced = self._reduce_features(features)
 
         # Train clustering
         print("Training clusterers...")
         for clusterer in self.clusterers:
-            clusterer.train(features)
-
-            save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name)
-            os.makedirs(save_directory, exist_ok=True)
-            clusterer.save(save_directory)
+            clusterer.train(features_reduced)
+            self._save_component(clusterer.name, clusterer)
         print("-> Trained clusterers")
 
+        print("PIPELINE TRAINING COMPLETED")
+
     def run_prediction(self):
-        data, n_examples = self._load_data("prediction_data_file")
+        data, n_examples = self._load_data("prediction_data_file", 500)
         print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         self._load_pipeline()
@@ -139,11 +169,14 @@ class Pipeline:
 
         features = self._extract_features(data, n_examples)
 
-        # TODO run PCA
+        # TODO run actual normalization
+        features /= features.max()
 
-        predictions = self._predict(features, n_examples)
+        features_reduced = self._reduce_features(features)
 
-        print(predictions)
+        predictions = self._predict(features_reduced, n_examples)
+
+        self.visualization_clustering.visualize_kmeans(features_reduced, predictions)
 
         # TODO run cluster identification
 

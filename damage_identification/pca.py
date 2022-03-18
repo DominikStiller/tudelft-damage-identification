@@ -1,6 +1,6 @@
+import pandas as pd
 from sklearn.decomposition import PCA
 import pickle
-import numpy as np
 import os
 from typing import Dict, Any
 
@@ -46,22 +46,18 @@ class PrincipalComponents:
         with open(os.path.join(directory, "pca.pickle"), "rb") as f:
             self.pca = pickle.load(f)
 
-    def transform(self, data: np.ndarray) -> np.ndarray:
+    def transform(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Reduce the feature dimension of an example based on principal components identified in train().
 
         Args:
             data: the single example (shape 1 x n_features) or all examples (n_examples x n_features)
         Returns:
-            a NumPy array (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
+            a DataFrame (shape 1 x n_features_reduced) or all examples (n_examples x n_features)
         """
-        if data.ndim == 1:
-            data = np.reshape(
-                data, (1, np.size(data))
-            )  # makes sliced 1-D arrays[] into 2d arrays [[]]
         return self.pca.transform(data)
 
-    def train(self, data: np.ndarray):
+    def train(self, data: pd.DataFrame):
         """
         Identify the principal components.
 

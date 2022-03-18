@@ -19,6 +19,7 @@ def parse_cli_args() -> Dict[str, Any]:
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
     parser_training.add_argument("--n_clusters", type=int)
+    parser_training.add_argument("--explained_variance", type=float)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])

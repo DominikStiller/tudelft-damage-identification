@@ -29,6 +29,7 @@ using `--parameter_name value`. The following parameters are available:
 * `direct_features_threshold`: threshold for direct features like counts and duration
 * `direct_features_n_samples`: how many raw first `n` samples should be used as features, without further transformation
 * `n_clusters`: number of clusters (e.g. for k-means)
+* `explained_variance`: desired level of explained variance for PCA selection
 
 
 

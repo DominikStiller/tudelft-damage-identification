@@ -23,7 +23,7 @@ class ClusteringVisualization:
             damage mode.
         """
 
-        points = modes.loc[modes["mode_kmeans"] == dmg_mode]
+        points = modes.loc[modes["kmeans"] == dmg_mode]
         classed_data = pd.merge(features, points, left_index=True, right_index=True)
         return classed_data
 
@@ -40,9 +40,14 @@ class ClusteringVisualization:
         Returns:
             matplotlib visualization of the clusters
         """
+        # Add dimensions if PCA components are not long enough
+        for i in [1, 2, 3]:
+            col = f"pca_{i}"
+            if col not in features.columns:
+                features[col] = 0
 
         ax = plt.axes(projection="3d")
-        clusters = modes["mode_kmeans"].drop_duplicates()
+        clusters = modes["kmeans"].drop_duplicates()
         colour = ["b", "g", "r", "c", "m"]
         colourpicker = 0
         for cluster in clusters:
@@ -52,6 +57,7 @@ class ClusteringVisualization:
                 current_features["pca_2"],
                 current_features["pca_3"],
                 c=colour[colourpicker],
+                depthshade=False,
             )
             colourpicker += 1
         ax.set_title("First three PCA directions - K-means")
