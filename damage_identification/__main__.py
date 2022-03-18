@@ -14,6 +14,8 @@ def main():
         pipeline.run_prediction()
     elif params["mode"] == PipelineMode.EVALUATION:
         pipeline.run_evaluation()
+    else:
+        print("Please run the tool with a valid mode.")
 
 
 if __name__ == "__main__":
