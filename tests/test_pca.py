@@ -7,13 +7,12 @@ os.chdir("C:/Users/jakub/Desktop/Test")
 
 class TestPCA(TestCase):
     def test_pca(self):
-        example = np.array([[10, 1000, 1000, 0, 0], [0, 0, 10, 100, 1000], [10, 1000, 1000, 0, 0], [10, 1000, 1000, 0, 0]])
-        model = PrincipalComponents({'explained_variance': 0.90})
+        example = np.array([[1, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]])
+        model = PrincipalComponents({'explained_variance': 0.9})
         model.train(example)
         model.save("")
         model.load("")
         result = model.transform(example)
-        print(len(result))
-        print(result)
+        # print(len(result[0]))
         # Expected value: 1000 Hz
-        self.assertEqual(result[0], result[2])
+        self.assertTrue(np.array_equal(result[-1], result[-2]))
