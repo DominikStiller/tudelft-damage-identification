@@ -1,19 +1,18 @@
 import os
 import numpy as np
-import skfuzzy as fuzz
+from fcmeans import FCM
+from typing import Dict, Any
+from base import Clusterer
 import pickle
 
+
 class FuzzycmeansClusterer(Clusterer):
-
     def __init__(self, params: Dict[str, Any]):
+        self.ncluster = params["n_clusters"]
+        super(FuzzycmeansClusterer, self).__init__("cmeans", params)
+
+    def gen_functions(self, data: np.ndarray):
 
 
-        super(KmeansClusterer, self).__init__("kmeans", params)
+    def predict(self, data: np.ndarray) -> int:
 
-    def save
-
-    def load
-
-    def Gen_Functions
-
-    def Predict

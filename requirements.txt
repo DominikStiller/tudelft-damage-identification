@@ -18,7 +18,7 @@ python-dateutil==2.8.2
 python-picard==0.7
 pytz==2021.3
 scikit-learn==1.0.2
-scikit-fuzzy==0.4.2
+fuzzy-c-means==1.6.4
 scipy==1.8.0
 seaborn==0.11.2
 six==1.16.0
