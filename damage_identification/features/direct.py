@@ -4,9 +4,7 @@ import numpy as np
 from scipy.integrate import simpson
 
 from damage_identification.features.base import FeatureExtractor
-from damage_identification.io import load_uncompressed_data
 
-waveform = load_uncompressed_data("data/1column.csv")
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
@@ -35,7 +33,10 @@ class DirectFeatureExtractor(FeatureExtractor):
             params["direct_features_threshold"] = 0.5
         if "direct_features_n_samples" not in params:
             params["direct_features_n_samples"] = 6
-
+        if "direct_features_max_relative_peak_error" not in params:
+            params["direct_features_max_relative_peak_error"] = 0.6
+        if "direct_features_first_peak_domain" not in params:
+            params["direct_features_first_peak_domain"] = 0.2
         super().__init__("direct", params)
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
@@ -53,6 +54,8 @@ class DirectFeatureExtractor(FeatureExtractor):
         n_samples = len(example)
 
         threshold = self.params["direct_features_threshold"]
+        max_relative_peak_error = self.params["direct_features_max_relative_peak_error"]
+        first_peak_domain = self.params["direct_features_first_peak_domain"]
         n_sample = min(self.params["direct_features_n_samples"], n_samples)
         above_threshold = np.abs(example) >= abs(threshold)
         count = 0
@@ -91,7 +94,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         return_dict.update({"n_sample_" + str(n + 1): example[n] for n in range(n_sample)})
 
         # Testing for signal peaks in signal:
-        boundary_index = round(n_samples * 0.2)  # Boundary of first damage mode in signal
+        boundary_index = round(n_samples * first_peak_domain)  # Boundary of first damage mode in signal
         cut_waveform_1 = example[:boundary_index]
         peakamplitude_1_index = np.argmax(np.abs(cut_waveform_1))
         cut_waveform_2 = example[boundary_index:]
@@ -100,11 +103,8 @@ class DirectFeatureExtractor(FeatureExtractor):
         if (
             abs(example[peakamplitude_2_index] - example[peakamplitude_1_index])
             / max(example[peakamplitude_2_index], example[peakamplitude_1_index])
-            < 0.6
+            < max_relative_peak_error
         ):
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
-
-results = DirectFeatureExtractor()
-print(results.extract_features(waveform))
