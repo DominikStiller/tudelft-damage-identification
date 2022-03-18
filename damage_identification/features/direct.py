@@ -90,7 +90,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         # n-sample
         return_dict.update({"n_sample_" + str(n + 1): example[n] for n in range(n_sample)})
 
-        # Testing for signal peak in signal:
+        # Testing for signal peaks in signal:
         boundary_index = round(n_samples * 0.2)  # Boundary of first damage mode in signal
         cut_waveform_1 = example[:boundary_index]
         peakamplitude_1_index = np.argmax(np.abs(cut_waveform_1))
