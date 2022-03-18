@@ -1,14 +1,10 @@
 from typing import Dict, Any, Optional
-
 import numpy as np
 from scipy.interpolate import CubicSpline
 from scipy.integrate import quad
-import pandas as pd
-
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.io import load_uncompressed_data
 
-example = load_uncompressed_data("1column.csv")
 waveform = load_uncompressed_data("1column.csv")
 
 
@@ -51,12 +47,12 @@ class DirectFeatureExtractor(FeatureExtractor):
         # counts
         threshold = self.params["feature_extractor_direct_threshold"]
         n_sample = self.params["feature_extractor_direct_n_sample"]
-        if threshold>0:
+        if threshold > 0:
             above_threshold = example >= threshold
         else:
             above_threshold = example <= threshold
         count = 0
-        i_array = np.array((0,0))
+        i_array = np.array((0, 0))
         for i in range(len(above_threshold)):
             if above_threshold[i] and not above_threshold[i - 1]:
                 count = count + 1
@@ -87,19 +83,17 @@ class DirectFeatureExtractor(FeatureExtractor):
         return_dict = {"peak_amplitude": peak_amplitude, "count": count, "duration": duration, "rise_time": rise_time, "energy": energy[0]}
         final_dict = return_dict | new_dict
 
-        #Testing for signal peak in signal:
-        boundary_index = round(2048*0.2) #Boundary of first damage mode in signal
+        # Testing for signal peak in signal
+        boundary_index = round(2048*0.2)  # Boundary of first damage mode in signal
         cut_waveform_1 = example[: boundary_index]
-        peakamplitude_1_index = np.argmax(np.abs(cut_waveform_1))
-        cut_waveform_2 = example[boundary_index :]
-        peakamplitude_2_index = np.argmax(np.abs(cut_waveform_2)) + boundary_index
-        #Check if we have two peaks with 60% difference in the same signal
-        if abs(example[peakamplitude_2_index] - example[peakamplitude_1_index])/max(example[peakamplitude_2_index], example[peakamplitude_1_index])<0.6:
-            return None
+        peak_amplitude_1_index = np.argmax(np.abs(cut_waveform_1))
+        cut_waveform_2 = example[boundary_index:]
+        peak_amplitude_2_index = np.argmax(np.abs(cut_waveform_2)) + boundary_index
+        # Check if we have two peaks with 60% difference in the same signal
+        if abs(example[peak_amplitude_2_index] - example[peak_amplitude_1_index])/max(example[peak_amplitude_2_index], example[peak_amplitude_1_index]) < 0.6:
+            return {}
         return final_dict
 
 
 results = DirectFeatureExtractor()
-
-
 print(results.extract_features(waveform))
