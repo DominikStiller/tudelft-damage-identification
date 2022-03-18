@@ -6,7 +6,7 @@ class Normalization():
     """
     This class normalizes all the features from the direct feature extraction.
 
-    The train function is used with a training dataset to 
+    The train function is used with a training dataset to
 
     """
     def __init__(self):
