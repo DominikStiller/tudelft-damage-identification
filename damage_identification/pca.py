@@ -13,6 +13,13 @@ class PrincipalComponents:
         Args:
             params containing {'explained_variance' : float}
         """
+        if params is None:
+            params = {}
+        if "explained_variance" not in params:
+            params["explained_variance"] = 0.95
+        if not 0 < params["explained_variance"] < 1:
+            raise Exception("Explained variance has to be between 0 and 1")
+
         self.pca = PCA(n_components=params["explained_variance"], svd_solver="full")
 
     def save(self, directory):
