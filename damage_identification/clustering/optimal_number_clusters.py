@@ -40,7 +40,7 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
         maximum = np.max(indices[i][:])
         for j in range(n_end-n_start+1):
             indices[i][j] = (indices[i][j]-maximum)/(minimum-maximum)
-    
+    #Get two matrices for each clistering method, do averages on columns and get dictionaries for best numeber of clusters
 
 
 
