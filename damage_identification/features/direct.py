@@ -4,7 +4,9 @@ import numpy as np
 from scipy.integrate import simpson
 
 from damage_identification.features.base import FeatureExtractor
+from damage_identification.io import load_uncompressed_data
 
+waveform = load_uncompressed_data("data/1column.csv")
 
 class DirectFeatureExtractor(FeatureExtractor):
     """
@@ -30,7 +32,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         if params is None:
             params = {}
         if "direct_features_threshold" not in params:
-            params["direct_features_threshold"] = -2.5e-2
+            params["direct_features_threshold"] = 0.5
         if "direct_features_n_samples" not in params:
             params["direct_features_n_samples"] = 6
 
@@ -46,16 +48,13 @@ class DirectFeatureExtractor(FeatureExtractor):
         Returns:
             A dictionary containing items with each feature name value for the input example.
         """
-        # counts
+        # counts, only upwards positive crossings of threshold
         example = example.flatten()
         n_samples = len(example)
 
         threshold = self.params["direct_features_threshold"]
         n_sample = min(self.params["direct_features_n_samples"], n_samples)
-        if threshold > 0:
-            above_threshold = example >= threshold
-        else:
-            above_threshold = example <= threshold
+        above_threshold = np.abs(example) >= abs(threshold)
         count = 0
         i_array = np.array((0, 0))
         for i in range(len(above_threshold)):
@@ -67,11 +66,11 @@ class DirectFeatureExtractor(FeatureExtractor):
                 i_array[-1] = i
 
         # duration
-        duration = (i_array[-1] - i_array[0]) * 1 / n_samples / 1000  # in m!
+        duration = (i_array[-1] - i_array[0]) * 1 / n_samples / 1000  # in s!
 
         # peak amplitude
         peak_amplitude = np.max(np.abs(example))
-        peak_amplitude_index = np.argmax(example)
+        peak_amplitude_index = np.argmax(np.abs(example))
 
         # rise time
         rise_time = (peak_amplitude_index - i_array[0]) * 1 / n_samples / 1000  # in s
@@ -106,3 +105,6 @@ class DirectFeatureExtractor(FeatureExtractor):
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
+
+results = DirectFeatureExtractor()
+print(results.extract_features(waveform))
