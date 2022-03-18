@@ -6,7 +6,9 @@ class Normalization():
     """
     This class normalizes all the features from the direct feature extraction.
 
-    The train function is used with a training dataset to
+    The train function is used with a training dataset to determine maximum or minimum bounds to normalize to.
+    These bounds can be saved with the save function, and loaded from a csv with the load function.
+    The transform function can be used to normalize a new dataset based on the bounds of the training set.
 
     """
     def __init__(self):
