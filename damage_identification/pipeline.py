@@ -81,6 +81,7 @@ class Pipeline:
 
     def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
         all_features = []
+        n_invalid = 0
 
         print("Extracting features...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
@@ -93,12 +94,13 @@ class Pipeline:
                 if None in features.values():
                     # Set all other features to None as well
                     features = dict.fromkeys(features, None)
+                    n_invalid += 1
                 all_features.append(features)
 
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
-        print("-> Extracted features")
+        print(f"-> Extracted features ({n_invalid} examples were invalid)")
 
         return all_features
 
@@ -111,7 +113,7 @@ class Pipeline:
         return features_reduced
 
     def _predict(self, features, n_examples):
-        print(f"Predicting clusters (k = {self.params['n_clusters']})...")
+        print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
             def do_predict(series):
@@ -127,7 +129,7 @@ class Pipeline:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1)
-        print("-> Predicted clusters")
+        print("-> Predicted cluster memberships")
 
         return predictions
 
@@ -146,7 +148,6 @@ class Pipeline:
         print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        print("Extracting features for PCA training...")
         features = self._extract_features(examples, n_examples)
         features = features.dropna()
 
@@ -161,7 +162,10 @@ class Pipeline:
 
         # Perform PCA for cluster training
         features_reduced = self._reduce_features(features)
-        print("-> Trained PCA")
+        print(
+            f"-> Trained PCA ({self.params['explained_variance']:.0%} of variance "
+            f"explained by {self.pca.n_components} principal components)"
+        )
 
         # Find optimal number of clusters if desired by user
         if self.params["n_clusters"] == "auto":
