@@ -33,6 +33,13 @@ class TestDirectFeatureExtractor(TestCase):
         features = self.extractor.extract_features(example_1)
         self.assertEqual(features["duration"], 4 / 10 / 1000)
 
+    def test_extract_features_zero_duration(self):
+        # If there is only a single count above the threshold, duration should be zero
+        example_1 = np.array([0, 0.1, -0.1, 0.5, 0.3, 0, 0])
+        features = self.extractor.extract_features(example_1)
+        self.assertEqual(features["count"], 1)
+        self.assertEqual(features["duration"], 0)
+
     def test_extract_features_rise_time(self):
         example_1 = np.array([0, 1, 0, -2, 0, 1, 0, 0.4, -0.4, 0])
         features = self.extractor.extract_features(example_1)
