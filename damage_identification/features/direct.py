@@ -33,10 +33,10 @@ class DirectFeatureExtractor(FeatureExtractor):
             params["direct_features_threshold"] = 0.02
         if "direct_features_n_samples" not in params:
             params["direct_features_n_samples"] = 200
-        if "direct_features_max_relative_peak_error" not in params:
-            params["direct_features_max_relative_peak_error"] = 0.6
-        if "direct_features_first_peak_domain" not in params:
-            params["direct_features_first_peak_domain"] = 0.2
+        if "max_relative_peak_amplitude" not in params:
+            params["max_relative_peak_amplitude"] = 0.5
+        if "first_peak_domain" not in params:
+            params["first_peak_domain"] = 0.2
         super().__init__("direct", params)
 
     def extract_features(self, example: np.ndarray) -> Dict[str, float]:
@@ -55,9 +55,8 @@ class DirectFeatureExtractor(FeatureExtractor):
         sampling_rate = n_samples * 1000
 
         threshold = self.params["direct_features_threshold"]
-        max_relative_peak_error = self.params["direct_features_max_relative_peak_error"]
-        first_peak_domain = self.params["direct_features_first_peak_domain"]
-        n_sample = min(self.params["direct_features_n_samples"], n_samples)
+        max_relative_peak_amplitude = self.params["max_relative_peak_amplitude"]
+        first_peak_domain = self.params["first_peak_domain"]
 
         assert 0 < first_peak_domain < 1, "First peak domain boundary must be between 0 and 1"
 
@@ -98,7 +97,12 @@ class DirectFeatureExtractor(FeatureExtractor):
         }
 
         # n-sample
-        return_dict.update({"sample_" + str(n + 1): example[n] for n in range(n_sample)})
+        return_dict.update(
+            {
+                "sample_" + str(n + 1): example[n]
+                for n in range(min(self.params["direct_features_n_samples"], n_samples))
+            }
+        )
 
         # Testing for signal peaks in signal:
         boundary_index = round(
@@ -107,13 +111,13 @@ class DirectFeatureExtractor(FeatureExtractor):
         cut_waveform_1 = example[:boundary_index]
         peakamplitude_1 = np.max(np.abs(cut_waveform_1))
         cut_waveform_2 = example[boundary_index:]
-        peakamplitude_2 = np.max(np.abs(cut_waveform_2)) + boundary_index
-        relative_peak_error = abs(peakamplitude_2 - peakamplitude_1) / max(
+        peakamplitude_2 = np.max(np.abs(cut_waveform_2))
+        relative_peak_amplitude = min(peakamplitude_2, peakamplitude_1) / max(
             peakamplitude_2, peakamplitude_1
         )
 
-        # Check if we have two peaks with max_relative_peak_error difference (60% by default) in the same signal
-        if relative_peak_error < max_relative_peak_error:
+        # Check if we have two peaks with smaller one being max_relative_peak_amplitude of larger one in the same signal
+        if counts >= 2 and relative_peak_amplitude > max_relative_peak_amplitude:
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
