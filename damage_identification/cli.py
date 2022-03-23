@@ -1,5 +1,5 @@
 """Parsing of command-line arguments"""
-from argparse import ArgumentParser
+from argparse import ArgumentParser, SUPPRESS
 from typing import Any, Dict
 
 from damage_identification.pipeline import PipelineMode
@@ -18,10 +18,17 @@ def _construct_parser() -> ArgumentParser:
     parser_params = ArgumentParser(add_help=False)
 
     # Training mode
-    parser_training = subparsers.add_parser("train", parents=[parser_params])
+    parser_training = subparsers.add_parser(
+        "train", parents=[parser_params], argument_default=SUPPRESS
+    )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
-    parser_training.add_argument("--n_clusters", type=int)
+
+    parser_training.add_argument("--n_clusters", type=int, required=True)
+    parser_training.add_argument("--direct_features_threshold", type=float)
+    parser_training.add_argument("--direct_features_n_samples", type=int)
+    parser_training.add_argument("--direct_features_max_relative_peak_error", type=float)
+    parser_training.add_argument("--direct_features_first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
 
     # Prediction mode
