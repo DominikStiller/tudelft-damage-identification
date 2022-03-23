@@ -1,3 +1,0 @@
-,first_n_samples,peak_amplitude,counts,duration,rise_time,energy,peak_frequency,central_frequency
-min,0.0,0.0,-50.0,100.0,1000.0,-1000.0,100.0,1000.0
-max,1.0,10.0,100.0,1000.0,10000.0,1000.0,1000.0,10000.0
