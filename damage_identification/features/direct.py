@@ -49,10 +49,9 @@ class DirectFeatureExtractor(FeatureExtractor):
         Returns:
             A dictionary containing items with each feature name value for the input example.
         """
-        # counts, crossing of the threshold both positive and negative
         example = example.flatten()
         n_samples = len(example)
-        sampling_rate = n_samples * 1000
+        sampling_rate = n_samples * 1000  # n_samples per millisecond
 
         threshold = self.params["direct_features_threshold"]
         max_relative_peak_amplitude = self.params["max_relative_peak_amplitude"]
@@ -60,7 +59,7 @@ class DirectFeatureExtractor(FeatureExtractor):
 
         assert 0 < first_peak_domain < 1, "First peak domain boundary must be between 0 and 1"
 
-        # peak amplitude
+        # Peak amplitude
         peak_amplitude = np.max(np.abs(example))
         peak_amplitude_index = np.argmax(np.abs(example))
 
@@ -71,22 +70,22 @@ class DirectFeatureExtractor(FeatureExtractor):
         #    (i.e. positive crossings on positive side, negative crossing on negative side)
         counts = np.sum(diffs == 1)
 
-        # duration
+        # Duration
         if diffs.any():
             # Only calculate duration if there is at least one sample above threshold
             duration_start_index = 1 + np.nonzero(diffs)[0][0]
             duration_end_index = np.argwhere(above_threshold)[-1][0]
             duration = (duration_end_index - duration_start_index) / sampling_rate
 
-            # rise time
+            # Rise time
             rise_time = (peak_amplitude_index - duration_start_index) / sampling_rate  # in s
         else:
             duration = 0
             rise_time = 0
 
-        # energy (squared micro-volt for 1/1000th second --> 10e-12V)
-        time_stamps = np.linspace(0, 1 / 1000, n_samples)  # in s
-        energy = simpson(np.square(example * 1000), time_stamps)
+        # Energy (squared micro-volt for 1/1000th second --> 10e-12V)
+        timestamps = np.linspace(0, 1 / 1000, n_samples)  # in s
+        energy = simpson(np.square(example * 1000), timestamps)
 
         return_dict = {
             "peak_amplitude": peak_amplitude,
@@ -96,7 +95,7 @@ class DirectFeatureExtractor(FeatureExtractor):
             "energy": energy,
         }
 
-        # n-sample
+        # First n samples
         return_dict.update(
             {
                 "sample_" + str(n + 1): example[n]
@@ -104,20 +103,19 @@ class DirectFeatureExtractor(FeatureExtractor):
             }
         )
 
-        # Testing for signal peaks in signal:
-        boundary_index = round(
-            n_samples * first_peak_domain
-        )  # Boundary of first damage mode in signal
-        cut_waveform_1 = example[:boundary_index]
-        peakamplitude_1 = np.max(np.abs(cut_waveform_1))
-        cut_waveform_2 = example[boundary_index:]
-        peakamplitude_2 = np.max(np.abs(cut_waveform_2))
-        relative_peak_amplitude = min(peakamplitude_2, peakamplitude_1) / max(
-            peakamplitude_2, peakamplitude_1
+        # Testing for double peaks which make an example invalid
+        # Boundary between domains where first and second peak are searched
+        boundary_index = round(n_samples * first_peak_domain)
+        peak_amplitude_1 = np.max(np.abs(example[:boundary_index]))
+        peak_amplitude_2 = np.max(np.abs(example[boundary_index:]))
+        relative_peak_amplitude = min(peak_amplitude_2, peak_amplitude_1) / max(
+            peak_amplitude_2, peak_amplitude_1
         )
 
-        # Check if we have two peaks with smaller one being max_relative_peak_amplitude of larger one in the same signal
+        # Check if we have two peaks with smaller one being
+        #    max_relative_peak_amplitude of larger one in the same signal
         if counts >= 2 and relative_peak_amplitude > max_relative_peak_amplitude:
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
+
         return return_dict
