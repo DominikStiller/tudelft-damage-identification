@@ -6,19 +6,15 @@ import numpy as np
 
 def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> Dict[str, float]:
     """
-    Find the optimal number of clusters k based on a voting scheme of Davies-Bouldin, Silhouette and Dunn indexes.
-
-    Based on https://doi.org/10.1016/j.ymssp.2021.108301
+    Find the optimal number of clusters k based on average of Davies-Bouldin, Silhouette and Dunn indexes.
 
     Args:
         features: the features of all examples
         n_start: start of the range of k's to try
         n_end: end of the range of k's to try
     Returns:
-        Optimal number of clusters
+        Optimal number of clusters k
     """
-    # Call validclust
-
     vclust = vld.ValidClust(k=list(range(n_start, n_end + 1)), methods=["kmeans", "hierarchical"])
     cvi_vals = vclust.fit_predict(features)
     indices = cvi_vals.to_numpy()
@@ -41,16 +37,21 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
         for j in range(n_end - n_start + 1):
             indices[i][j] = (indices[i][j] - maximum) / (minimum - maximum)
 
-    # Get two matrices for each clistering method, do averages on columns and get dictionaries for best numeber of clusters
-    kmeans_array = indices[:4][:]
-    hierarchical_array = indices[4:][:]
+    # Find optimal k for each clustering method based on maximum normalized mean of indices
+    kmeans_array = indices[:4]
     kmeansaverages = np.mean(kmeans_array, axis=0)
-    hierarchicalaverages = np.mean(hierarchical_array, axis=0)
     kmeansindex = np.argmax(kmeansaverages)
+
+    hierarchical_array = indices[4:]
+    hierarchicalaverages = np.mean(hierarchical_array, axis=0)
     hierarchicalindex = np.argmax(hierarchicalaverages)
+
+    overallaverages = np.mean(indices, axis=0)
+    overallindex = np.argmax(overallaverages)
 
     return {
         "kmeans": kmeansindex + n_start,
         "hierarchical": hierarchicalindex + n_start,
         "fuzzy-cmeans": kmeansindex + n_start,
+        "overall": overallindex + n_start
     }
