@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
+from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
@@ -110,7 +111,7 @@ class Pipeline:
         return features_reduced
 
     def _predict(self, features, n_examples):
-        print("Predicting clusters...")
+        print(f"Predicting clusters (k = {self.params['n_clusters']})...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
             def do_predict(series):
@@ -131,7 +132,6 @@ class Pipeline:
         return predictions
 
     def run_training(self):
-        self._save_params()
 
         examples, n_examples = self._load_data("training_data_file")
         print(f"-> Loaded training data set ({n_examples} examples)")
@@ -153,7 +153,6 @@ class Pipeline:
         # Normalize features
         # TODO run actual normalization
         features /= features.max()
-        print("-> Extracted features")
 
         # Train PCA
         print("Training PCA...")
@@ -164,12 +163,23 @@ class Pipeline:
         features_reduced = self._reduce_features(features)
         print("-> Trained PCA")
 
+        # Find optimal number of clusters if desired by user
+        if self.params["n_clusters"] == "auto":
+            print("Finding optimal number of clusters...")
+            self.params["n_clusters"] = find_optimal_number_of_clusters(
+                features_reduced, self.params["n_clusters_start"], self.params["n_clusters_end"]
+            )["kmeans"]
+            # TODO possibly change kmeans to overall or make method-specific
+            print(f"-> Found optimal number of clusters (k = {self.params['n_clusters']})")
+
         # Train clustering
         print("Training clusterers...")
         for clusterer in self.clusterers:
             clusterer.train(features_reduced)
             self._save_component(clusterer.name, clusterer)
         print("-> Trained clusterers")
+
+        self._save_params()
 
         print("PIPELINE TRAINING COMPLETED")
 
