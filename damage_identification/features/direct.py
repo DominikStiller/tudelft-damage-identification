@@ -102,7 +102,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         cut_waveform_1 = example[:boundary_index]
         peakamplitude_1 = np.max(np.abs(cut_waveform_1))
         cut_waveform_2 = example[boundary_index:]
-        peakamplitude_2 = np.max(np.abs(cut_waveform_2)) + boundary_index
+        peakamplitude_2 = np.max(np.abs(cut_waveform_2))
         relative_peak_error = abs(peakamplitude_2 - peakamplitude_1) / max(
             peakamplitude_2, peakamplitude_1
         )
