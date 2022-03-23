@@ -26,9 +26,12 @@ The main script can then be executed using `python -m damage_identification [mod
 Configurable parameters are passed to the pipeline as command line arguments during training
 using `--parameter_name value`. The following parameters are available:
 
-* `direct_features_threshold`: threshold for direct features like counts and duration
-* `direct_features_n_samples`: how many raw first `n` samples should be used as features, without further transformation
-* `n_clusters`: number of clusters (e.g. for k-means)
+* `direct_features_threshold` (float): threshold for direct features like counts and duration
+* `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
+* `direct_features_max_relative_peak_error` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak to not be rejected
+* `direct_features_first_peak_domain` (float between 0 and 1): for double peak rejection, determines at which
+* `n_clusters` (int): number of clusters (e.g. for k-means)
+* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
 
 
 
@@ -54,10 +57,13 @@ that can be hard to find. The following names are used in docstrings for this pu
 * `n_examples`: the number of examples in this array
 * `length_example`: the number of samples in a single example
 * `n_features`: the number of features
+* `n_features_reduced`: the number of features after PCA
+* `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
 time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
+
 
 
 ## Git Guidelines
@@ -80,13 +86,6 @@ All data files (e.g. AE recordings and trained pipeline models) should be stored
 
 
 
-## Configuration parameters
-Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
-* `direct_features_threshold`: threshold for direct features like counts and duration
-* `n_clusters`: number of clusters (e.g. for k-means)
-
-
-
 ## Useful topics to learn
 In order of decreasing relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
@@ -99,6 +98,7 @@ In order of decreasing relevance:
 * [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
+
 ## Glossary:
 * Example: a single waveform, term is commonly used in machine learning
 * Pipeline: the collective term for all components and the flow of data between them, starting from raw waveforms and ending at the identified damage mode
@@ -106,6 +106,7 @@ In order of decreasing relevance:
 * Training set: the set of examples used to train the pipeline
 * Validation set: the set of examples used to evaluate the performance of the pipeline
 * Waveform: the acoustic emission measurement recorded by the sensor, made up of samples
+
 
 
 ## Pipeline
