@@ -1,4 +1,5 @@
 import os.path
+import pickle
 import sys
 from enum import auto, Enum
 from typing import Dict, Any, List, Tuple
@@ -51,6 +52,9 @@ class Pipeline:
         return data, n_examples
 
     def _load_pipeline(self):
+        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
+            self.params.update(pickle.load(f))
+
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
                 os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
@@ -60,6 +64,14 @@ class Pipeline:
             clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
 
         self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
+
+    def _save_params(self):
+        os.makedirs(self.PIPELINE_PERSISTENCE_FOLDER, exist_ok=True)
+        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
+            params_to_store = self.params.copy()
+            del params_to_store["mode"]
+            del params_to_store["training_data_file"]
+            pickle.dump(params_to_store, f)
 
     def _save_component(self, name, component):
         save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
@@ -119,6 +131,8 @@ class Pipeline:
         return predictions
 
     def run_training(self):
+        self._save_params()
+
         examples, n_examples = self._load_data("training_data_file")
         print(f"-> Loaded training data set ({n_examples} examples)")
 

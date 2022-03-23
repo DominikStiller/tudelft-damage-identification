@@ -4,7 +4,6 @@ import numpy as np
 from scipy.integrate import simpson
 
 from damage_identification.features.base import FeatureExtractor
-from damage_identification.io import load_uncompressed_data
 
 
 class DirectFeatureExtractor(FeatureExtractor):
@@ -118,6 +117,3 @@ class DirectFeatureExtractor(FeatureExtractor):
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
-
-
-DirectFeatureExtractor().extract_features(load_uncompressed_data("data/Waveforms.csv")[0, :])
