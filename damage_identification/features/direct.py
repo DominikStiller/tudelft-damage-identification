@@ -17,7 +17,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         !- rise_time: time required to increase from one specified value (e.g. 10% amplitude) to another
         (e.g. 90% amplitude)
         - energy: the energy of certain frequency bands in different section of the waveform
-        - first_n_samples: baseline to compare other features
+        - sample_X: first n samples as baseline to compare other features
     """
 
     def __init__(self, params: Optional[Dict[str, Any]] = None):
@@ -61,24 +61,29 @@ class DirectFeatureExtractor(FeatureExtractor):
 
         assert 0 < first_peak_domain < 1, "First peak domain boundary must be between 0 and 1"
 
+        # peak amplitude
+        peak_amplitude = np.max(np.abs(example))
+        peak_amplitude_index = np.argmax(np.abs(example))
+
         above_threshold = (np.abs(example) >= abs(threshold)).astype(int)
         diffs = above_threshold[1:] - above_threshold[:-1]
 
         # Only count inner to outer crossings
         #    (i.e. positive crossings on positive side, negative crossing on negative side)
-        count = np.sum(diffs == 1)
+        counts = np.sum(diffs == 1)
 
         # duration
-        duration_start_index = 1 + np.argwhere(diffs)[0][0]
-        duration_end_index = np.argwhere(above_threshold)[-1][0]
-        duration = (duration_end_index - duration_start_index) / sampling_rate
+        if diffs.any():
+            # Only calculate duration if there is at least one sample above threshold
+            duration_start_index = 1 + np.nonzero(diffs)[0][0]
+            duration_end_index = np.argwhere(above_threshold)[-1][0]
+            duration = (duration_end_index - duration_start_index) / sampling_rate
 
-        # peak amplitude
-        peak_amplitude = np.max(np.abs(example))
-        peak_amplitude_index = np.argmax(np.abs(example))
-
-        # rise time
-        rise_time = (peak_amplitude_index - duration_start_index) / sampling_rate  # in s
+            # rise time
+            rise_time = (peak_amplitude_index - duration_start_index) / sampling_rate  # in s
+        else:
+            duration = 0
+            rise_time = 0
 
         # energy (squared micro-volt for 1/1000th second --> 10e-12V)
         time_stamps = np.linspace(0, 1 / 1000, n_samples)  # in s
@@ -86,14 +91,14 @@ class DirectFeatureExtractor(FeatureExtractor):
 
         return_dict = {
             "peak_amplitude": peak_amplitude,
-            "count": count,
+            "counts": counts,
             "duration": duration,
             "rise_time": rise_time,
             "energy": energy,
         }
 
         # n-sample
-        return_dict.update({"n_sample_" + str(n + 1): example[n] for n in range(n_sample)})
+        return_dict.update({"sample_" + str(n + 1): example[n] for n in range(n_sample)})
 
         # Testing for signal peaks in signal:
         boundary_index = round(

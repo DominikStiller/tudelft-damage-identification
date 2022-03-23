@@ -30,7 +30,7 @@ using `--parameter_name value`. The following parameters are available:
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
 * `direct_features_max_relative_peak_error` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak to not be rejected
 * `direct_features_first_peak_domain` (float between 0 and 1): for double peak rejection, determines at which
-* `n_clusters` (int): number of clusters (e.g. for k-means)
+* `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
 
 
