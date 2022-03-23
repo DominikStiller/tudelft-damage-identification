@@ -12,4 +12,4 @@ class TestFCMeans(TestCase):
         model.train(test_set)
         result = model.predict(test_point)
         print(result)
-        #self.assertEqual(result, np.array([[1,0]]))
+        self.assertEqual(result, np.array([0, 1]))

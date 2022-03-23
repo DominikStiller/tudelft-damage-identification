@@ -35,11 +35,9 @@ class FCMeansClusterer(Clusterer):
             self.model = pickle.load(f)
 
     def train(self, data: np.ndarray):
-        self.model = FCM(n_clusters=self.params["n_clusters"])
+        self.model = FCM(n_clusters=self.params["n_clusters"], random_state=0)
         self.model.fit(data)
 
     def predict(self, data: np.ndarray) -> int:
         prediction = self.model.predict(data)
         return prediction
-
-
