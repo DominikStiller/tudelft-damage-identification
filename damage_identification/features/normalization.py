@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 
 class Normalization:
@@ -65,4 +64,3 @@ class Normalization:
             2 * (data - self.bounds.min()) / (self.bounds.max() - self.bounds.min()) - 1
         )
         return normalize_data
-
