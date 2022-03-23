@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 import numpy as np
 
@@ -67,15 +67,16 @@ class FeatureExtractor(ABC):
         pass
 
     @abstractmethod
-    def extract_features(self, example: np.ndarray) -> Dict[str, float]:
+    def extract_features(self, example: np.ndarray) -> Dict[str, Optional[float]]:
         """
         Extracts features from a single waveform.
 
         Args:
-            example: a single example (shape length_example)
+            example: a single example (shape 1 x length_example)
 
         Returns:
             A dictionary containing items with each feature name value for the input example.
             Example: {"duration": 30.4, "average_amplitude": 3.7}
+            An example can be marked as invalid by setting at least one of the features to None.
         """
         pass

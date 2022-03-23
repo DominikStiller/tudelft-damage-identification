@@ -3,10 +3,8 @@ from typing import Dict, Any
 
 import pandas as pd
 
-from damage_identification.damage_mode import DamageMode
 
-
-class Clustering(ABC):
+class Clusterer(ABC):
     """
     A base class for all clustering methods.
     """
@@ -58,7 +56,8 @@ class Clustering(ABC):
         """
         pass
 
-    def predict(self, example: pd.DataFrame) -> DamageMode:
+    @abstractmethod
+    def predict(self, example: pd.DataFrame) -> int:
         """
         Predict using the clustering method.
 
@@ -66,6 +65,6 @@ class Clustering(ABC):
             example: the features of a single example (shape 1 x n_features)
 
         Returns:
-            The predicted damage mode
+            The cluster index
         """
         pass
