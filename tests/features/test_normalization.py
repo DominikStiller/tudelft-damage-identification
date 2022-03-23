@@ -3,16 +3,17 @@ import pandas as pd
 
 from damage_identification.features.normalization import Normalization
 
+
 class TestNormalization(TestCase):
     def test_normalize_features(self):
         train_data = pd.DataFrame(
             {
                 "first_n_samples": [1, 10],
-                "peak_amplitude": [1,10],
-                "counts": [1,10],
-                "duration": [1,10],
-                "rise_time": [1,10],
-                "energy": [1,10],
+                "peak_amplitude": [1, 10],
+                "counts": [1, 10],
+                "duration": [1, 10],
+                "rise_time": [1, 10],
+                "energy": [1, 10],
                 "peak_frequency": [1, 10],
                 "central_frequency": [1, 10],
             }
@@ -20,7 +21,7 @@ class TestNormalization(TestCase):
 
         test_data = pd.DataFrame(
             {
-                "first_n_samples": [8], #
+                "first_n_samples": [8],  #
                 "peak_amplitude": [8],
                 "counts": [8],
                 "duration": [8],
