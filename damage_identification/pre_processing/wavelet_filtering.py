@@ -88,13 +88,16 @@ class WaveletFiltering(PreProcessing):
         else:
             raise ValueError("Not a valid wavelet, scale configuration")
 
-    def wavelet_plot(self):
+    def wavelet_plot(self, n):
         """
         Plots the first signal of the (preprocessed) waveform.
+
+        Args:
+            n: the column in the waveform data to plot.
         """
         plt.figure(figsize=(10, 6))
-        plt.plot(self.waveform[0, :], label="Raw", color="b")
-        plt.plot(self.prep_waveform[0, :], label="Filtered", color="r")
+        plt.plot(self.waveform[n, :], label="Raw", color="b")
+        plt.plot(self.prep_waveform[n, :], label="Filtered", color="r")
         plt.legend()
         # plt.title(f"DWT Denoising with {self.wave_fam+str(self.wave_scale)} Wavelet", size=15)
         return plt.show()
