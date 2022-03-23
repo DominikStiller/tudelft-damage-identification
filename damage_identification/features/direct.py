@@ -52,31 +52,33 @@ class DirectFeatureExtractor(FeatureExtractor):
         # counts, crossing of the threshold both positive and negative
         example = example.flatten()
         n_samples = len(example)
+        sampling_rate = n_samples * 1000
 
         threshold = self.params["direct_features_threshold"]
         max_relative_peak_error = self.params["direct_features_max_relative_peak_error"]
         first_peak_domain = self.params["direct_features_first_peak_domain"]
         n_sample = min(self.params["direct_features_n_samples"], n_samples)
-        above_threshold = np.abs(example) >= abs(threshold)
-        count = 0
-        i_array = np.array((0, 0))
-        for i in range(len(above_threshold)):
-            if above_threshold[i] and not above_threshold[i - 1]:
-                count = count + 1
-                if count == 1:
-                    i_array[0] = i
-            if above_threshold[i]:
-                i_array[-1] = i
+
+        assert 0 < first_peak_domain < 1, "First peak domain boundary must be between 0 and 1"
+
+        above_threshold = (np.abs(example) >= abs(threshold)).astype(int)
+        diffs = above_threshold[1:] - above_threshold[:-1]
+
+        # Only count inner to outer crossings
+        #    (i.e. positive crossings on positive side, negative crossing on negative side)
+        count = np.sum(diffs == 1)
 
         # duration
-        duration = (i_array[-1] - i_array[0]) * 1 / n_samples / 1000  # in s!
+        duration_start_index = 1 + np.argwhere(diffs)[0][0]
+        duration_end_index = np.argwhere(above_threshold)[-1][0]
+        duration = (duration_end_index - duration_start_index) / sampling_rate
 
         # peak amplitude
         peak_amplitude = np.max(np.abs(example))
         peak_amplitude_index = np.argmax(np.abs(example))
 
         # rise time
-        rise_time = (peak_amplitude_index - i_array[0]) * 1 / n_samples / 1000  # in s
+        rise_time = (peak_amplitude_index - duration_start_index) / sampling_rate  # in s
 
         # energy (squared micro-volt for 1/1000th second --> 10e-12V)
         time_stamps = np.linspace(0, 1 / 1000, n_samples)  # in s
@@ -98,15 +100,15 @@ class DirectFeatureExtractor(FeatureExtractor):
             n_samples * first_peak_domain
         )  # Boundary of first damage mode in signal
         cut_waveform_1 = example[:boundary_index]
-        peakamplitude_1_index = np.argmax(np.abs(cut_waveform_1))
+        peakamplitude_1 = np.max(np.abs(cut_waveform_1))
         cut_waveform_2 = example[boundary_index:]
-        peakamplitude_2_index = np.argmax(np.abs(cut_waveform_2)) + boundary_index
-        # Check if we have two peaks with 60% difference in the same signal
-        if (
-            abs(example[peakamplitude_2_index] - example[peakamplitude_1_index])
-            / max(example[peakamplitude_2_index], example[peakamplitude_1_index])
-            < max_relative_peak_error
-        ):
+        peakamplitude_2 = np.max(np.abs(cut_waveform_2)) + boundary_index
+        relative_peak_error = abs(peakamplitude_2 - peakamplitude_1) / max(
+            peakamplitude_2, peakamplitude_1
+        )
+
+        # Check if we have two peaks with max_relative_peak_error difference (60% by default) in the same signal
+        if relative_peak_error < max_relative_peak_error:
             # Setting any feature to None marks this example as invalid
             return_dict["duration"] = None
         return return_dict
