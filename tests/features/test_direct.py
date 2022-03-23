@@ -11,8 +11,8 @@ class TestDirectFeatureExtractor(TestCase):
             params={
                 "direct_features_threshold": 0.5,
                 "direct_features_n_samples": 6,
-                "direct_features_max_relative_peak_error": 0.6,
-                "direct_features_first_peak_domain": 0.2,
+                "max_relative_peak_error": 0.5,
+                "first_peak_domain": 0.2,
             }
         )
 
