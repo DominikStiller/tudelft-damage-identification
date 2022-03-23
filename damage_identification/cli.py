@@ -27,8 +27,8 @@ def _construct_parser() -> ArgumentParser:
     parser_training.add_argument("--n_clusters", required=True)
     parser_training.add_argument("--direct_features_threshold", type=float)
     parser_training.add_argument("--direct_features_n_samples", type=int)
-    parser_training.add_argument("--direct_features_max_relative_peak_error", type=float)
-    parser_training.add_argument("--direct_features_first_peak_domain", type=float)
+    parser_training.add_argument("--max_relative_peak_amplitude", type=float)
+    parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
 
     # Prediction mode
