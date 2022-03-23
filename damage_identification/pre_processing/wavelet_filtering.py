@@ -57,28 +57,44 @@ class WaveletFiltering(PreProcessing):
         """
         x = data
 
-        if self.wavelet_fam != 'db' and self.wavelet_fam != 'coif':
-            raise ValueError('Not a valid wavelet family.')
-        elif (17 >= self.wavelet_scale >= 3) or (3 > self.wavelet_scale >= 1 and self.wavelet_fam == 'coif') or (38 >= self.wavelet_scale > 17 and self.wavelet_fam == 'db'):
+        if self.wavelet_fam != "db" and self.wavelet_fam != "coif":
+            raise ValueError("Not a valid wavelet family.")
+        elif (
+            (17 >= self.wavelet_scale >= 3)
+            or (3 > self.wavelet_scale >= 1 and self.wavelet_fam == "coif")
+            or (38 >= self.wavelet_scale > 17 and self.wavelet_fam == "db")
+        ):
             if type(threshold) != float and int:
-                if threshold == 'optimal' or 'iqr' or 'sd':
-                    xf = sp.wavelet_filtering(x.copy(), wv=self.wavelet_fam+str(self.wavelet_scale), threshold=threshold, verbose=0, WPD=False)
+                if threshold == "optimal" or "iqr" or "sd":
+                    xf = sp.wavelet_filtering(
+                        x.copy(),
+                        wv=self.wavelet_fam + str(self.wavelet_scale),
+                        threshold=threshold,
+                        verbose=0,
+                        WPD=False,
+                    )
                     return xf
                 else:
-                    raise ValueError('Not a valid threshold method.')
+                    raise ValueError("Not a valid threshold method.")
             else:
-                xf = sp.wavelet_filtering(x.copy(), wv=self.wavelet_fam+str(self.wavelet_scale), threshold=threshold, verbose=0, WPD=False)
+                xf = sp.wavelet_filtering(
+                    x.copy(),
+                    wv=self.wavelet_fam + str(self.wavelet_scale),
+                    threshold=threshold,
+                    verbose=0,
+                    WPD=False,
+                )
                 return xf
         else:
-            raise ValueError('Not a valid wavelet, scale configuration')
+            raise ValueError("Not a valid wavelet, scale configuration")
 
     def wavelet_plot(self):
         """
         Plots the first signal of the (preprocessed) waveform.
         """
         plt.figure(figsize=(10, 6))
-        plt.plot(self.waveform[0,:], label='Raw', color='b')
-        plt.plot(self.prep_waveform[0,:], label='Filtered', color='r')
+        plt.plot(self.waveform[0, :], label="Raw", color="b")
+        plt.plot(self.prep_waveform[0, :], label="Filtered", color="r")
         plt.legend()
         # plt.title(f"DWT Denoising with {self.wave_fam+str(self.wave_scale)} Wavelet", size=15)
         return plt.show()
