@@ -8,7 +8,7 @@ from damage_identification import io
 
 from damage_identification.pre_processing.base import PreProcessing
 
-matplotlib.rcParams["figure.dpi"] = 400
+matplotlib.rcParams["figure.dpi"] = 300
 
 
 class WaveletFiltering(PreProcessing):
@@ -17,7 +17,7 @@ class WaveletFiltering(PreProcessing):
     mathematically determined threshold.
 
     Parameters:
-        - wavelet_family: the wavelet family name; either db for daubechies or coif for coiflet
+        - wavelet_family: the wavelet family name; either db for daubechies or coif for Coiflet
         - wavelet_scale: the magnification scale of the wavelet family from 3-38 for daubechies or 1-17 for coiflet
     """
 
@@ -72,17 +72,13 @@ class WaveletFiltering(PreProcessing):
         else:
             raise ValueError('Not a valid wavelet, scale configuration')
 
-    def wavelet_plot(self, x, xf):
+    def wavelet_plot(self):
         """
-        Plots the (preprocessed) waveform.
-
-        Args:
-            x: unfiltered waveform signal
-            xf: filtered waveform signal
+        Plots the first signal of the (preprocessed) waveform.
         """
         plt.figure(figsize=(10, 6))
-        plt.plot(x, label='Raw', color='b')
-        plt.plot(xf, label='Filtered', color='r')
+        plt.plot(self.waveform[0,:], label='Raw', color='b')
+        plt.plot(self.prep_waveform[0,:], label='Filtered', color='r')
         plt.legend()
         # plt.title(f"DWT Denoising with {self.wave_fam+str(self.wave_scale)} Wavelet", size=15)
         return plt.show()
