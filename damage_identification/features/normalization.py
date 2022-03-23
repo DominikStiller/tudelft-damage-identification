@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 class Normalization:
@@ -45,22 +46,9 @@ class Normalization:
             bounds: pandas dataframe containing the min and max of each column of train_data
         """
 
-        columns = pd.DataFrame(
-            {
-                "first_n_samples": [],
-                "peak_amplitude": [],
-                "counts": [],
-                "duration": [],
-                "rise_time": [],
-                "energy": [],
-                "peak_frequency": [],
-                "central_frequency": [],
-            }
-        )
-        self.bounds = pd.DataFrame(columns, index=pd.Index(["min", "max"]))
-        for column in train_data.columns:
-            self.bounds.loc["max", column] = train_data[column].max()
-            self.bounds.loc["min", column] = train_data[column].min()
+        self.bounds = pd.DataFrame(columns=train_data.columns)
+        self.bounds.loc[0] = train_data.max()
+        self.bounds.loc[1] = train_data.min()
 
     def transform(self, data):
         """
@@ -77,3 +65,4 @@ class Normalization:
             2 * (data - self.bounds.min()) / (self.bounds.max() - self.bounds.min()) - 1
         )
         return normalize_data
+
