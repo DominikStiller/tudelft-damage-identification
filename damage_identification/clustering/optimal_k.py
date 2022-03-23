@@ -6,7 +6,9 @@ import numpy as np
 
 def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> Dict[str, float]:
     """
-    Find the optimal number of clusters based on a voting scheme of Davies-Bouldin, Silhouette and Dunn indexes.
+    Find the optimal number of clusters k based on a voting scheme of Davies-Bouldin, Silhouette and Dunn indexes.
+
+    Based on https://doi.org/10.1016/j.ymssp.2021.108301
 
     Args:
         features: the features of all examples
@@ -38,6 +40,7 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
         maximum = np.max(indices[i][:])
         for j in range(n_end - n_start + 1):
             indices[i][j] = (indices[i][j] - maximum) / (minimum - maximum)
+
     # Get two matrices for each clistering method, do averages on columns and get dictionaries for best numeber of clusters
     kmeans_array = indices[:4][:]
     hierarchical_array = indices[4:][:]
@@ -47,7 +50,7 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
     hierarchicalindex = np.argmax(hierarchicalaverages)
 
     return {
-        "Clusters kmeans": kmeansindex + n_start,
-        "Clusters hierarchical": hierarchicalindex + n_start,
-        "Clusters fuzzy cmeans": kmeansindex + n_start,
+        "kmeans": kmeansindex + n_start,
+        "hierarchical": hierarchicalindex + n_start,
+        "fuzzy-cmeans": kmeansindex + n_start,
     }

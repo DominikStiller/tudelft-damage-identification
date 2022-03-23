@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from damage_identification.clustering.optimal_number_clusters import find_optimal_number_of_clusters
+from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from sklearn.datasets import make_blobs
 
 
