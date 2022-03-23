@@ -1,7 +1,8 @@
 from typing import Dict
+
+import numpy as np
 import pandas as pd
 import validclust as vld
-import numpy as np
 
 
 def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> Dict[str, float]:
