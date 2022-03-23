@@ -1,5 +1,5 @@
 # Damage mode identification for composites
-This is the repository for the AE2223-I project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
+This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
 
 
 ## Setup
