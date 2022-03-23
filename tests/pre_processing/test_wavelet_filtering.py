@@ -12,18 +12,19 @@ from damage_identification.pre_processing.wavelet_filtering import WaveletFilter
 
 class TestWaveletFiltering(TestCase):
     def test_wavelet_filtering(self):
-        data = WaveletFiltering().load_data('data/Waveforms.csv')
-        WaveletFiltering().filtering(data[0, :], 'db', 5, 'optimal')
+        wave_object = WaveletFiltering({"wavelet_family": 'db', "wavelet_scale": 3})
+        wave_object.load_data('data/Waveforms.csv')
+        wave_object.filtering(wave_object.waveform, 'optimal')
 
     def test_signal_prep(self):
-        wave = WaveletFiltering()
+        wave = WaveletFiltering({"wavelet_family": 'db', "wavelet_scale": 3})
         wave.waveform = wave.load_data('data/Waveforms.csv')
-        waves = wave.prep( 5, 'optimal')
-        # wave.wavelet_plot(wave.waveform[1,:], waves[1,:])
+        waves = wave.prep('optimal')
+        wave.wavelet_plot(wave.waveform[1, :], waves[1, :])
 
-    def test_sine(self):
-        wave = WaveletFiltering()
-        wave.waveform = np.transpose(np.array([np.sin(2*np.pi*np.linspace(0, 1, 1000))]))
-        print(wave.waveform)
-        waves = wave.prep( 10, 'optimal')
-        wave.wavelet_plot(wave.waveform, waves)
+    # def test_testing(self):
+    #     wave = WaveletFiltering({"wavelet_family": 'db', "wavelet_scale": 3})
+    #     wave.load_data('data/Wavelet_validate.csv')
+    #     print(wave.waveform)
+    #     waves = wave.prep('optimal')
+    #     wave.wavelet_plot(wave.waveform, waves)
