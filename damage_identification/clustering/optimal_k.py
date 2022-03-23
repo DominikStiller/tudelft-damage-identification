@@ -53,5 +53,5 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> D
         "kmeans": kmeansindex + n_start,
         "hierarchical": hierarchicalindex + n_start,
         "fuzzy-cmeans": kmeansindex + n_start,
-        "overall": overallindex + n_start
+        "overall": overallindex + n_start,
     }
