@@ -32,7 +32,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         if "direct_features_threshold" not in params:
             params["direct_features_threshold"] = 0.02
         if "direct_features_n_samples" not in params:
-            params["direct_features_n_samples"] = 200
+            params["direct_features_n_samples"] = 0
         if "max_relative_peak_amplitude" not in params:
             params["max_relative_peak_amplitude"] = 0.5
         if "first_peak_domain" not in params:
