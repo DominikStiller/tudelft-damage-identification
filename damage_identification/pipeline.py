@@ -91,10 +91,11 @@ class Pipeline:
             del params_to_store["training_data_file"]
             pickle.dump(params_to_store, f)
 
-    def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
+    def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
         """Extract features using all feature extractors and combine into single DataFrame"""
         all_features = []
         n_invalid = 0
+        valid_mask = pd.Series(index=np.arange(n_examples), dtype="boolean").fillna(True)
 
         print("Extracting features...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
@@ -105,8 +106,7 @@ class Pipeline:
 
                 # A None feature means that example is invalid
                 if None in features.values():
-                    # Set all other features to None as well
-                    features = dict.fromkeys(features, None)
+                    valid_mask.iloc[i] = False
                     n_invalid += 1
                 all_features.append(features)
 
@@ -115,7 +115,7 @@ class Pipeline:
         all_features = pd.DataFrame(all_features)
         print(f"-> Extracted features ({n_invalid} examples were invalid)")
 
-        return all_features
+        return all_features, valid_mask
 
     def _reduce_features(self, features: pd.DataFrame) -> pd.DataFrame:
         """Apply PCA to all features"""
@@ -133,11 +133,7 @@ class Pipeline:
 
             def do_predict(series):
                 pbar.update()
-                # Skip prediction for invalid examples
-                if series.isnull().any():
-                    return DamageMode.INVALID
-                else:
-                    return clusterer.predict(series.to_frame().transpose())
+                return clusterer.predict(series.to_frame().transpose())
 
             predictions = {clusterer.name: None for clusterer in self.clusterers}
             for clusterer in self.clusterers:
@@ -161,13 +157,12 @@ class Pipeline:
         print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        features = self._extract_features(examples, n_examples)
-        # Drop invalid examples for training
-        features = features.dropna()
+        features, valid_mask = self._extract_features(examples, n_examples)
+        features_valid = features.loc[valid_mask]
 
         # Normalize features
         # TODO run actual normalization
-        features_normalized = features / features.max()
+        features_normalized = features_valid / features.max()
 
         # Train PCA
         print("Training PCA...")
@@ -211,15 +206,18 @@ class Pipeline:
 
         # TODO run filtering
 
-        features = self._extract_features(data, n_examples)
+        # Extract, normalize and reduce features
+        features, valid_mask = self._extract_features(data, n_examples)
+        features_valid = features.loc[valid_mask]
         # TODO run actual normalization
-        features_normalized = features / features.max()
+        features_normalized = features_valid / features.max()
         features_reduced = self._reduce_features(features_normalized)
-        predictions = self._predict(features_reduced, n_examples)
 
+        # Make and visualize cluster predictions
+        predictions = self._predict(features_reduced, n_examples)
         self.visualization_clustering.visualize_kmeans(features_reduced, predictions)
 
-        # TODO run cluster identification
+        # TODO run cluster identification and apply valid mask
 
     def run_evaluation(self):
         data, n_examples = self._load_data("evaluation_data_file")
