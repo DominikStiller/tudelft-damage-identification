@@ -16,6 +16,7 @@ def _construct_parser() -> ArgumentParser:
 
     # Parent parser for common parameters
     parser_params = ArgumentParser(add_help=False)
+    parser_params.add_argument("--limit_data", type=int)
 
     # Training mode
     parser_training = subparsers.add_parser(

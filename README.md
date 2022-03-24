@@ -23,15 +23,18 @@ The main script can then be executed using `python -m damage_identification [mod
 
 ### Configuration parameters
 
-Configurable parameters are passed to the pipeline as command line arguments during training
-using `--parameter_name value`. The following parameters are available:
+Configurable parameters are passed to the pipeline as command line arguments
+using `--parameter_name value`. The following parameters are available in every mode:
+* `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 
+The following parameters are available during training:
 * `direct_features_threshold` (float): threshold for direct features like counts and duration
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
 * `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
 * `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
+
 
 
 

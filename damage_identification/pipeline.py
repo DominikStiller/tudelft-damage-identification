@@ -11,7 +11,6 @@ from tqdm import tqdm
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
-from damage_identification.damage_mode import DamageMode
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
@@ -33,9 +32,9 @@ class Pipeline:
         self.pca = PrincipalComponents(params)
         self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self, param_name, limit=None) -> Tuple[np.ndarray, int]:
+    def _load_data(self, dataset_param_name) -> Tuple[np.ndarray, int]:
         """Load the dataset for the session"""
-        filename: str = self.params[param_name]
+        filename: str = self.params[dataset_param_name]
 
         print("Loading data set...")
 
@@ -46,8 +45,8 @@ class Pipeline:
         else:
             raise Exception("Unsupported data file type")
 
-        if limit is not None:
-            data = data[:limit, :]
+        if "limit_data" in self.params:
+            data = data[: self.params["limit_data"], :]
 
         n_examples = data.shape[0]
 
@@ -56,7 +55,10 @@ class Pipeline:
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
-            self.params.update(pickle.load(f))
+            stored_params: Dict = pickle.load(f)
+            self.params.update(stored_params)
+            for k, v in stored_params.items():
+                print(f" - {k}: {v}")
 
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
@@ -87,8 +89,9 @@ class Pipeline:
         # Save parameters
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
             params_to_store = self.params.copy()
-            del params_to_store["mode"]
-            del params_to_store["training_data_file"]
+            for param in ["mode", "training_data_file", "limit_data"]:
+                if param in params_to_store:
+                    del params_to_store[param]
             pickle.dump(params_to_store, f)
 
     def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
@@ -201,7 +204,7 @@ class Pipeline:
         self._load_pipeline()
         print("-> Loaded trained pipeline")
 
-        data, n_examples = self._load_data("prediction_data_file", 500)
+        data, n_examples = self._load_data("prediction_data_file")
         print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         # TODO run filtering
