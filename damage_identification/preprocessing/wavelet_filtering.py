@@ -1,9 +1,8 @@
 from typing import Dict, Any, Optional
-import numpy as np
-import matplotlib.pyplot as plt
-import spkit as sp
 
-from damage_identification.io import load_uncompressed_data
+import matplotlib.pyplot as plt
+import numpy as np
+import spkit as sp
 
 
 class WaveletFiltering:
@@ -12,8 +11,9 @@ class WaveletFiltering:
     mathematically determined threshold.
 
     Parameters:
-        - wavelet_family: the wavelet family name; either db for daubechies or coif for Coiflet
+        - wavelet_family: the wavelet family name; either db for Daubechies or coif for Coiflet
         - wavelet_scale: the magnification scale of the wavelet family from 3-38 for daubechies or 1-17 for coiflet
+        - wavelet_threshold: either a numerical value or a threshold optimisation method (optimal, iqr or sd)
 
     Example usage:
     filter = WaveletFiltering()
@@ -65,14 +65,13 @@ class WaveletFiltering:
             except ValueError:
                 raise Exception("Not a valid threshold method for wavelet filtering")
 
-    def _filter_single(self, data: np.ndarray) -> np.ndarray:
+    def filter_single(self, data: np.ndarray) -> np.ndarray:
         """
         Filters the waveform data based on the object filtering parameters set initially, and the noise threshold set as
         either an optimisation method or a numeric value.
 
         Args:
-            data: waveform signal data file name.
-            threshold: Either a numeric value or a threshold optimisation method; optimal or iqr or sd
+            data: waveform signal data
         """
         return sp.wavelet_filtering(
             data.copy(),
@@ -87,9 +86,9 @@ class WaveletFiltering:
         Goes through all waveform rows to process all data rows.
 
         Args:
-            threshold: noise threshold level as numeric value or threshold method; optimal or iqr or sd
+            data: waveform signal data
         """
-        return np.apply_along_axis(self._filter_single, 1, data)
+        return np.apply_along_axis(self.filter_single, axis=1, arr=data)
 
     def wavelet_plot(self, raw, filtered, n):
         """

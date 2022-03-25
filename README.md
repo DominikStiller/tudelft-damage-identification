@@ -28,6 +28,10 @@ using `--parameter_name value`. The following parameters are available in every 
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 
 The following parameters are available during training:
+* `skip_filter`: wavelet filtering is skipped if flag is present
+* `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
+* `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
+* `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
 * `direct_features_threshold` (float): threshold for direct features like counts and duration
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
 * `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected

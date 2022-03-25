@@ -17,11 +17,13 @@ from damage_identification.features.fourier import FourierExtractor
 from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
+from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
 from damage_identification.visualization.clustering import ClusteringVisualization
 
 
 class Pipeline:
     PIPELINE_PERSISTENCE_FOLDER = "data/pipeline/"
+    PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
     def __init__(self, params: Dict[str, Any]):
         self.params = params
@@ -30,6 +32,7 @@ class Pipeline:
             FourierExtractor(params),
         ]
         self.clusterers: List[Clusterer] = [KmeansClusterer(params)]
+        self.wavelet_filter = WaveletFiltering(params)
         self.normalization = Normalization()
         self.pca = PrincipalComponents(params)
         self.visualization_clustering = ClusteringVisualization()
@@ -93,10 +96,23 @@ class Pipeline:
         # Save parameters
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
             params_to_store = self.params.copy()
-            for param in ["mode", "training_data_file", "limit_data"]:
+            for param in self.PER_RUN_PARAMS:
                 if param in params_to_store:
                     del params_to_store[param]
             pickle.dump(params_to_store, f)
+
+    def _apply_wavelet_filtering(self, data: np.ndarray, n_examples) -> np.ndarray:
+        if not self.params["skip_filter"]:
+            print("Applying wavelet filtering...")
+            with tqdm(total=n_examples, file=sys.stdout) as pbar:
+
+                def do_filter(example):
+                    pbar.update()
+                    return self.wavelet_filter.filter_single(example)
+
+                data = np.apply_along_axis(do_filter, axis=1, arr=data)
+            print("-> Applied wavelet filtering")
+        return data
 
     def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
         """Extract features using all feature extractors and combine into single DataFrame"""
@@ -152,18 +168,24 @@ class Pipeline:
         return predictions
 
     def run_training(self):
-        examples, n_examples = self._load_data("training_data_file")
+        print("Parameters:")
+        for k, v in self.params.items():
+            if k not in self.PER_RUN_PARAMS:
+                print(f" - {k}: {v}")
+
+        data, n_examples = self._load_data("training_data_file")
         print(f"-> Loaded training data set ({n_examples} examples)")
 
-        # TODO run filtering
+        # Apply wavelet filtering
+        data = self._apply_wavelet_filtering(data, n_examples)
 
         # Train feature extractor
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
-            feature_extractor.train(examples)
+            feature_extractor.train(data)
 
         # Extract features for PCA training
-        features, valid_mask = self._extract_features(examples, n_examples)
+        features, valid_mask = self._extract_features(data, n_examples)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
@@ -211,7 +233,8 @@ class Pipeline:
         data, n_examples = self._load_data("prediction_data_file")
         print(f"-> Loaded prediction data set ({n_examples} examples)")
 
-        # TODO run filtering
+        # Apply wavelet filtering
+        data = self._apply_wavelet_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
         features, valid_mask = self._extract_features(data, n_examples)

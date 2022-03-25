@@ -25,6 +25,10 @@ def _construct_parser() -> ArgumentParser:
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
 
+    parser_training.add_argument("--skip_filter", action="store_true")
+    parser_training.add_argument("--wavelet_family", type=str)
+    parser_training.add_argument("--wavelet_scale", type=int)
+    parser_training.add_argument("--wavelet_threshold", type=str)
     parser_training.add_argument("--n_clusters", required=True)
     parser_training.add_argument("--direct_features_threshold", type=float)
     parser_training.add_argument("--direct_features_n_samples", type=int)
@@ -59,6 +63,10 @@ def parse_cli_args() -> Dict[str, Any]:
             params["n_clusters_end"] = int(n_clusters.split("...")[1])
         else:
             raise "Invalid value for n_clusters"
+
+    # Fix skip_filter not being stored if absent even though store_true should handle this
+    if "skip_filter" not in params:
+        params["skip_filter"] = False
 
     return params
 
