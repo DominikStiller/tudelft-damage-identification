@@ -14,6 +14,7 @@ from damage_identification.clustering.optimal_k import find_optimal_number_of_cl
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
+from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
 from damage_identification.visualization.clustering import ClusteringVisualization
@@ -29,6 +30,7 @@ class Pipeline:
             FourierExtractor(params),
         ]
         self.clusterers: List[Clusterer] = [KmeansClusterer(params)]
+        self.normalization = Normalization()
         self.pca = PrincipalComponents(params)
         self.visualization_clustering = ClusteringVisualization()
 
@@ -68,6 +70,7 @@ class Pipeline:
         for clusterer in self.clusterers:
             clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
 
+        self.normalization.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "normalization"))
         self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
 
     def _save_pipeline(self):
@@ -84,6 +87,7 @@ class Pipeline:
         for clusterer in self.clusterers:
             clusterer.save(_save_dir(clusterer.name))
 
+        self.normalization.save(_save_dir("normalization"))
         self.pca.save(_save_dir("pca"))
 
         # Save parameters
@@ -157,15 +161,15 @@ class Pipeline:
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
-        print("-> Trained feature extractors")
 
         # Extract features for PCA training
         features, valid_mask = self._extract_features(examples, n_examples)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
-        # TODO run actual normalization
-        features_normalized = features_valid / features.max()
+        self.normalization.train(features_valid)
+        features_normalized = self.normalization.transform(features_valid)
+        print("-> Trained feature extractors")
 
         # Train PCA
         print("Training PCA...")
@@ -212,8 +216,7 @@ class Pipeline:
         # Extract, normalize and reduce features
         features, valid_mask = self._extract_features(data, n_examples)
         features_valid = features.loc[valid_mask]
-        # TODO run actual normalization
-        features_normalized = features_valid / features.max()
+        features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
 
         # Make and visualize cluster predictions
