@@ -46,8 +46,8 @@ class Normalization:
         """
 
         self.bounds = pd.DataFrame(columns=train_data.columns)
-        self.bounds.loc[0] = train_data.max()
-        self.bounds.loc[1] = train_data.min()
+        self.bounds.loc["max"] = train_data.max()
+        self.bounds.loc["min"] = train_data.min()
 
     def transform(self, data):
         """
