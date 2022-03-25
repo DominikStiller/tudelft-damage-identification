@@ -54,5 +54,3 @@ class FourierExtractor(FeatureExtractor):
         amp = amp[freqs > 0]
         freqs = freqs[freqs > 0]
         return np.vstack((freqs, amp))
-
-
