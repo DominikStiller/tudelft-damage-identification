@@ -66,3 +66,7 @@ class PrincipalComponents:
             data: all data for training (shape n_examples x n_features)
         """
         self.pca = self.pca.fit(data)
+
+    @property
+    def n_components(self):
+        return self.pca.n_components_

@@ -1,4 +1,5 @@
 import os.path
+import pickle
 import sys
 from enum import auto, Enum
 from typing import Dict, Any, List, Tuple
@@ -9,7 +10,7 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
-from damage_identification.damage_mode import DamageMode
+from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
@@ -31,8 +32,9 @@ class Pipeline:
         self.pca = PrincipalComponents(params)
         self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self, param_name, limit=None) -> Tuple[np.ndarray, int]:
-        filename: str = self.params[param_name]
+    def _load_data(self, dataset_param_name) -> Tuple[np.ndarray, int]:
+        """Load the dataset for the session"""
+        filename: str = self.params[dataset_param_name]
 
         print("Loading data set...")
 
@@ -43,14 +45,21 @@ class Pipeline:
         else:
             raise Exception("Unsupported data file type")
 
-        if limit is not None:
-            data = data[:limit, :]
+        if "limit_data" in self.params:
+            data = data[: self.params["limit_data"], :]
 
         n_examples = data.shape[0]
 
         return data, n_examples
 
     def _load_pipeline(self):
+        """Load all components of a saved pipeline"""
+        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
+            stored_params: Dict = pickle.load(f)
+            self.params.update(stored_params)
+            for k, v in stored_params.items():
+                print(f" - {k}: {v}")
+
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
                 os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
@@ -61,13 +70,35 @@ class Pipeline:
 
         self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
 
-    def _save_component(self, name, component):
-        save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
-        os.makedirs(save_directory, exist_ok=True)
-        component.save(save_directory)
+    def _save_pipeline(self):
+        """Save all components of the pipeline"""
 
-    def _extract_features(self, data: np.ndarray, n_examples) -> pd.DataFrame:
+        def _save_dir(name):
+            save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
+            os.makedirs(save_directory, exist_ok=True)
+            return save_directory
+
+        for feature_extractor in self.feature_extractors:
+            feature_extractor.save(_save_dir(feature_extractor.name))
+
+        for clusterer in self.clusterers:
+            clusterer.save(_save_dir(clusterer.name))
+
+        self.pca.save(_save_dir("pca"))
+
+        # Save parameters
+        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
+            params_to_store = self.params.copy()
+            for param in ["mode", "training_data_file", "limit_data"]:
+                if param in params_to_store:
+                    del params_to_store[param]
+            pickle.dump(params_to_store, f)
+
+    def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
+        """Extract features using all feature extractors and combine into single DataFrame"""
         all_features = []
+        n_invalid = 0
+        valid_mask = pd.Series(index=np.arange(n_examples), dtype="boolean").fillna(True)
 
         print("Extracting features...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
@@ -78,18 +109,19 @@ class Pipeline:
 
                 # A None feature means that example is invalid
                 if None in features.values():
-                    # Set all other features to None as well
-                    features = dict.fromkeys(features, None)
+                    valid_mask.iloc[i] = False
+                    n_invalid += 1
                 all_features.append(features)
 
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
-        print("-> Extracted features")
+        print(f"-> Extracted features ({n_invalid} examples were invalid)")
 
-        return all_features
+        return all_features, valid_mask
 
     def _reduce_features(self, features: pd.DataFrame) -> pd.DataFrame:
+        """Apply PCA to all features"""
         features_reduced = self.pca.transform(features)
         n_features_reduced = features_reduced.shape[1]
         features_reduced = pd.DataFrame(
@@ -98,23 +130,20 @@ class Pipeline:
         return features_reduced
 
     def _predict(self, features, n_examples):
-        print("Predicting clusters...")
+        """Predict cluster memberships of all examples"""
+        print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
             def do_predict(series):
                 pbar.update()
-                # Skip prediction for invalid examples
-                if series.isnull().any():
-                    return DamageMode.INVALID
-                else:
-                    return clusterer.predict(series.to_frame().transpose())
+                return clusterer.predict(series.to_frame().transpose())
 
             predictions = {clusterer.name: None for clusterer in self.clusterers}
             for clusterer in self.clusterers:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1)
-        print("-> Predicted clusters")
+        print("-> Predicted cluster memberships")
 
         return predictions
 
@@ -128,34 +157,45 @@ class Pipeline:
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(examples)
-            self._save_component(feature_extractor.name, feature_extractor)
         print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        print("Extracting features for PCA training...")
-        features = self._extract_features(examples, n_examples)
-        features = features.dropna()
+        features, valid_mask = self._extract_features(examples, n_examples)
+        features_valid = features.loc[valid_mask]
 
         # Normalize features
         # TODO run actual normalization
-        features /= features.max()
-        print("-> Extracted features")
+        features_normalized = features_valid / features.max()
 
         # Train PCA
         print("Training PCA...")
-        self.pca.train(features)
-        self._save_component("pca", self.pca)
+        self.pca.train(features_normalized)
 
         # Perform PCA for cluster training
-        features_reduced = self._reduce_features(features)
-        print("-> Trained PCA")
+        features_reduced = self._reduce_features(features_normalized)
+        print(
+            f"-> Trained PCA ({self.params['explained_variance']:.0%} of variance "
+            f"explained by {self.pca.n_components} principal components)"
+        )
+
+        # Find optimal number of clusters if desired by user
+        if self.params["n_clusters"] == "auto":
+            print("Finding optimal number of clusters...")
+            self.params["n_clusters"] = find_optimal_number_of_clusters(
+                features_reduced, self.params["n_clusters_start"], self.params["n_clusters_end"]
+            )["kmeans"]
+            # TODO possibly change kmeans to overall or make method-specific
+            print(f"-> Found optimal number of clusters (k = {self.params['n_clusters']})")
 
         # Train clustering
         print("Training clusterers...")
         for clusterer in self.clusterers:
             clusterer.train(features_reduced)
-            self._save_component(clusterer.name, clusterer)
         print("-> Trained clusterers")
+
+        # Save at the end so all modifications of the params by components are stored
+        #    (e.g. setting defaults or number of clusters)
+        self._save_pipeline()
 
         print("PIPELINE TRAINING COMPLETED")
 
@@ -164,23 +204,23 @@ class Pipeline:
         self._load_pipeline()
         print("-> Loaded trained pipeline")
 
-        data, n_examples = self._load_data("prediction_data_file", 500)
+        data, n_examples = self._load_data("prediction_data_file")
         print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         # TODO run filtering
 
-        features = self._extract_features(data, n_examples)
-
+        # Extract, normalize and reduce features
+        features, valid_mask = self._extract_features(data, n_examples)
+        features_valid = features.loc[valid_mask]
         # TODO run actual normalization
-        features /= features.max()
+        features_normalized = features_valid / features.max()
+        features_reduced = self._reduce_features(features_normalized)
 
-        features_reduced = self._reduce_features(features)
-
+        # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_examples)
-
         self.visualization_clustering.visualize_kmeans(features_reduced, predictions)
 
-        # TODO run cluster identification
+        # TODO run cluster identification and apply valid mask
 
     def run_evaluation(self):
         data, n_examples = self._load_data("evaluation_data_file")

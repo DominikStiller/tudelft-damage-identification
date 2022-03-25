@@ -16,6 +16,7 @@ def _construct_parser() -> ArgumentParser:
 
     # Parent parser for common parameters
     parser_params = ArgumentParser(add_help=False)
+    parser_params.add_argument("--limit_data", type=int)
 
     # Training mode
     parser_training = subparsers.add_parser(
@@ -24,11 +25,11 @@ def _construct_parser() -> ArgumentParser:
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
     parser_training.add_argument("training_data_file", metavar="data_file")
 
-    parser_training.add_argument("--n_clusters", type=int, required=True)
+    parser_training.add_argument("--n_clusters", required=True)
     parser_training.add_argument("--direct_features_threshold", type=float)
     parser_training.add_argument("--direct_features_n_samples", type=int)
-    parser_training.add_argument("--direct_features_max_relative_peak_error", type=float)
-    parser_training.add_argument("--direct_features_first_peak_domain", type=float)
+    parser_training.add_argument("--max_relative_peak_amplitude", type=float)
+    parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
 
     # Prediction mode
@@ -45,7 +46,21 @@ def _construct_parser() -> ArgumentParser:
 
 
 def parse_cli_args() -> Dict[str, Any]:
-    return vars(_construct_parser().parse_args())
+    params = vars(_construct_parser().parse_args())
+
+    # Parse number of clusters (single number or find optimum in range
+    if "n_clusters" in params:
+        n_clusters = params["n_clusters"]
+        if n_clusters.isdigit():
+            params["n_clusters"] = int(n_clusters)
+        elif "..." in n_clusters:
+            params["n_clusters"] = "auto"
+            params["n_clusters_start"] = int(n_clusters.split("...")[0])
+            params["n_clusters_end"] = int(n_clusters.split("...")[1])
+        else:
+            raise "Invalid value for n_clusters"
+
+    return params
 
 
 def print_cli_help():

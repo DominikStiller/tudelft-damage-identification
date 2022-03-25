@@ -48,18 +48,14 @@ class ClusteringVisualization:
 
         ax = plt.axes(projection="3d")
         clusters = modes["kmeans"].drop_duplicates()
-        colour = ["b", "g", "r", "c", "m"]
-        colourpicker = 0
         for cluster in clusters:
             current_features = self._classify_data(cluster, modes, features)
             ax.scatter3D(
                 current_features["pca_1"],
                 current_features["pca_2"],
                 current_features["pca_3"],
-                c=colour[colourpicker],
                 depthshade=False,
             )
-            colourpicker += 1
         ax.set_title("First three PCA directions - K-means")
         ax.set_xlabel("pca_1")
         ax.set_ylabel("pca_2")
