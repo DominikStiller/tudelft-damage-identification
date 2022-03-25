@@ -37,9 +37,9 @@ class Pipeline:
         self.pca = PrincipalComponents(params)
         self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self, dataset_param_name) -> Tuple[np.ndarray, int]:
+    def _load_data(self) -> Tuple[np.ndarray, int]:
         """Load the dataset for the session"""
-        filename: str = self.params[dataset_param_name]
+        filename: str = self.params["data_file"]
 
         print("Loading data set...")
 
@@ -173,7 +173,7 @@ class Pipeline:
             if k not in self.PER_RUN_PARAMS:
                 print(f" - {k}: {v}")
 
-        data, n_examples = self._load_data("training_data_file")
+        data, n_examples = self._load_data()
         print(f"-> Loaded training data set ({n_examples} examples)")
 
         # Apply wavelet filtering
@@ -230,7 +230,7 @@ class Pipeline:
         self._load_pipeline()
         print("-> Loaded trained pipeline")
 
-        data, n_examples = self._load_data("prediction_data_file")
+        data, n_examples = self._load_data()
         print(f"-> Loaded prediction data set ({n_examples} examples)")
 
         # Apply wavelet filtering
@@ -249,7 +249,7 @@ class Pipeline:
         # TODO run cluster identification and apply valid mask
 
     def run_evaluation(self):
-        data, n_examples = self._load_data("evaluation_data_file")
+        data, n_examples = self._load_data()
         print(f"-> Loaded evaluation data set ({n_examples} examples)")
 
         # TODO add evaluation mode

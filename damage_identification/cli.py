@@ -17,13 +17,13 @@ def _construct_parser() -> ArgumentParser:
     # Parent parser for common parameters
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
+    parser_params.add_argument("data_file")
 
     # Training mode
     parser_training = subparsers.add_parser(
         "train", parents=[parser_params], argument_default=SUPPRESS
     )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
-    parser_training.add_argument("training_data_file", metavar="data_file")
 
     parser_training.add_argument("--skip_filter", action="store_true")
     parser_training.add_argument("--wavelet_family", type=str)
@@ -39,12 +39,10 @@ def _construct_parser() -> ArgumentParser:
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])
     parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
-    parser_prediction.add_argument("prediction_data_file", metavar="data_file")
 
     # Evaluation mode
     parser_evaluation = subparsers.add_parser("evaluate", parents=[parser_params])
     parser_evaluation.set_defaults(mode=PipelineMode.EVALUATION)
-    parser_evaluation.add_argument("evaluation_data_file", metavar="data_file")
 
     return parser
 
