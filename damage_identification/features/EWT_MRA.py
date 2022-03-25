@@ -14,7 +14,9 @@ matplotlib.rcParams['figure.dpi'] = 300
 # plt.plot(f)
 # plt.plot(ewt)
 # plt.show()
-class MultiResolutionAnalysis():
+
+
+class MultiResolutionAnalysis:
     """
     Description
     """
@@ -25,6 +27,10 @@ class MultiResolutionAnalysis():
         Description
         """
         self.signal_data = []
+        self.decomposed_data = np.ndarray([])
+        self.reconstructed = np.ndarray([])
+        self.mfb = np.ndarray([])
+        self.boundaries = np.ndarray([])
         # super(MultiResolutionAnalysis, self).__init__("EWT_MRA", params)
 
     def load(self, directory):
@@ -38,12 +44,41 @@ class MultiResolutionAnalysis():
         """
         Description
         """
-        ewt, mfb, boundaries = ewtpy.EWT1D(self.signal_data[1, :])
-        print(mfb, boundaries)
-        plt.plot(ewt)
-        plt.show()
-        for i in range(ewt.shape[1]):
-            plt.subplot(8, 1, i+1)
-            plt.plot(ewt[:,i])
+        self.decomposed_data, self.mfb, self.boundaries = ewtpy.EWT1D(self.signal_data[1, :])
+        mfb = self.mfb
+        print(mfb.shape)
+        print(self.mfb)
 
+        return
+
+    def plot_decomposition(self):
+        plt.plot(self.decomposed_data)
+        plt.show()
+        for i in range(self.decomposed_data.shape[1]):
+            plt.subplot(8, 1, i + 1)
+            plt.plot(self.decomposed_data[:, i])
         return plt.show()
+
+    def filtered_constructor(self):
+        for i in range(0, 4):
+            np.append(self.reconstructed, self.decomposed_data[:, i])
+
+        plt.plot(self.reconstructed)
+        plt.show()
+        return
+
+    def iewt1d(self, ewt, mfb):
+        real = all(np.isreal(ewt[:,0]))
+        if real:
+            self.reconstructed = np.zeros(len(ewt[:, 0]))
+            for i in range(0, 4):
+                self.reconstructed += np.real(np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i]))
+        else:
+            self.reconstructed = np.zeros(len(ewt[:, 0])) * 0j
+            for i in range(0, 4):
+                self.reconstructed += np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i])
+        return
+
+    def plot_recon(self):
+        plt.plot(self.reconstructed)
+        plt.show()
