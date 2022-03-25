@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 
@@ -22,7 +24,7 @@ class Normalization:
             directory: the directory to save the bounds to
         """
 
-        self.bounds.to_csv(directory)
+        self.bounds.to_csv(os.path.join(directory, "bounds.csv"))
 
     def load(self, directory: str):
         """
@@ -32,7 +34,7 @@ class Normalization:
             directory: the directory to load the bounds from
         """
 
-        self.bounds = pd.read_csv(directory, index_col=0)
+        self.bounds = pd.read_csv(os.path.join(directory, "bounds.csv"), index_col=0)
 
     def train(self, train_data):
         """
