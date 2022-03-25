@@ -1,5 +1,5 @@
 # Damage mode identification for composites
-This is the repository for the AE2223-I project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
+This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
 
 
 ## Setup
@@ -23,12 +23,22 @@ The main script can then be executed using `python -m damage_identification [mod
 
 ### Configuration parameters
 
-Configurable parameters are passed to the pipeline as command line arguments during training
-using `--parameter_name value`. The following parameters are available:
+Configurable parameters are passed to the pipeline as command line arguments
+using `--parameter_name value`. The following parameters are available in every mode:
+* `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 
-* `direct_features_threshold`: threshold for direct features like counts and duration
-* `direct_features_n_samples`: how many raw first `n` samples should be used as features, without further transformation
-* `n_clusters`: number of clusters (e.g. for k-means)
+The following parameters are available during training:
+* `skip_filter`: wavelet filtering is skipped if flag is present
+* `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
+* `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
+* `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
+* `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
+* `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
+* `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
+* `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
+* `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
+* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
+
 
 
 
@@ -54,10 +64,13 @@ that can be hard to find. The following names are used in docstrings for this pu
 * `n_examples`: the number of examples in this array
 * `length_example`: the number of samples in a single example
 * `n_features`: the number of features
+* `n_features_reduced`: the number of features after PCA
+* `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
 time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
+
 
 
 ## Git Guidelines
@@ -80,13 +93,6 @@ All data files (e.g. AE recordings and trained pipeline models) should be stored
 
 
 
-## Configuration parameters
-Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
-* `direct_features_threshold`: threshold for direct features like counts and duration
-* `n_clusters`: number of clusters (e.g. for k-means)
-
-
-
 ## Useful topics to learn
 In order of decreasing relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
@@ -99,6 +105,7 @@ In order of decreasing relevance:
 * [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
+
 ## Glossary:
 * Example: a single waveform, term is commonly used in machine learning
 * Pipeline: the collective term for all components and the flow of data between them, starting from raw waveforms and ending at the identified damage mode
@@ -106,6 +113,7 @@ In order of decreasing relevance:
 * Training set: the set of examples used to train the pipeline
 * Validation set: the set of examples used to evaluate the performance of the pipeline
 * Waveform: the acoustic emission measurement recorded by the sensor, made up of samples
+
 
 
 ## Pipeline
