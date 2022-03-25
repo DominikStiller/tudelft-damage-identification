@@ -1,5 +1,5 @@
 # Damage mode identification for composites
-This is the repository for the AE2223-I project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
+This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
 
 
 ## Setup
@@ -11,11 +11,31 @@ To get started with development:
 5. Install all required packages by opening `requirements.txt` and clicking "Install requirements". This ensures that everyone uses the same package versions, preventing bugs that might be hard to find.
 6. Read the code and Git guidelines in this document so the code stays consistent and clear.
 
-To run the code from the console:
-1. Make sure you are in the project directory.
-2. Activate the virtual environment (`<venv>\Scripts\activate.bat` on Windows, `source <venv>/bin/activate`).
-3. The program can be executed using `python -m damage_identification`.
-4. All tests can be run using `python -m unittest -v`.
+
+## Usage
+To run the code from the console, make sure you are in the project directory and activated the virtual environment (`<venv>\Scripts\activate.bat` on Windows, `source <venv>/bin/activate` on Linux).
+
+The main script can then be executed using `python -m damage_identification [mode]` where possible modes are:
+* `train`: train the pipeline (mostly feature extraction, PCA and clustering) on a training data set
+* `predict`: predict the damage mode of one or multiple examples using a trained pipeline 
+* `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
+* `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
+
+### Configuration parameters
+
+Configurable parameters are passed to the pipeline as command line arguments
+using `--parameter_name value`. The following parameters are available in every mode:
+* `limit_data` (int): only process the first `limit_data` rows of the specified dataset
+
+The following parameters are available during training:
+* `direct_features_threshold` (float): threshold for direct features like counts and duration
+* `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
+* `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
+* `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
+* `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
+* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
+
+
 
 
 ## Code Guidelines
@@ -25,7 +45,7 @@ format the project code by running `black .` in the project directory.  For docs
 the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
 
 Some more guidelines to follow:
-* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests.
+* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest -v`.
 * Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
 * Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file structure,
   avoiding long files and preferring small, specialized files.
@@ -40,10 +60,13 @@ that can be hard to find. The following names are used in docstrings for this pu
 * `n_examples`: the number of examples in this array
 * `length_example`: the number of samples in a single example
 * `n_features`: the number of features
+* `n_features_reduced`: the number of features after PCA
+* `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
 time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
+
 
 
 ## Git Guidelines
@@ -66,13 +89,6 @@ All data files (e.g. AE recordings and trained pipeline models) should be stored
 
 
 
-## Configuration parameters
-Configurable parameters are passed to the pipeline as command line arguments. The following parameters are available:
-* `direct_features_threshold`: threshold for direct features like counts and duration
-* `n_clusters`: number of clusters (e.g. for k-means)
-
-
-
 ## Useful topics to learn
 In order of decreasing relevance:
 * [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
@@ -85,6 +101,7 @@ In order of decreasing relevance:
 * [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
+
 ## Glossary:
 * Example: a single waveform, term is commonly used in machine learning
 * Pipeline: the collective term for all components and the flow of data between them, starting from raw waveforms and ending at the identified damage mode
@@ -92,6 +109,7 @@ In order of decreasing relevance:
 * Training set: the set of examples used to train the pipeline
 * Validation set: the set of examples used to evaluate the performance of the pipeline
 * Waveform: the acoustic emission measurement recorded by the sensor, made up of samples
+
 
 
 ## Pipeline
