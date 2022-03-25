@@ -11,5 +11,5 @@ class TestFCMeans(TestCase):
         model = FCMeansClusterer({"n_clusters": 3})
         model.train(test_set)
         result = model.predict(test_point)
-        print(result)
-        self.assertEqual(result, np.array([0, 1]))
+
+        self.assertTrue((result == np.array([0, 1])).all())

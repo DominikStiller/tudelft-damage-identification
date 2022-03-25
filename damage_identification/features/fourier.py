@@ -53,7 +53,6 @@ class FourierExtractor(FeatureExtractor):
         freqs = fftfreq(length_example, d=0.001 / length_example)
         amp = amp[freqs > 0]
         freqs = freqs[freqs > 0]
-        print(np.size(amp), np.size(freqs))
         return np.vstack((freqs, amp))
 
 
