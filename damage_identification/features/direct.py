@@ -30,7 +30,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         if params is None:
             params = {}
         if "direct_features_threshold" not in params:
-            params["direct_features_threshold"] = 0.02
+            params["direct_features_threshold"] = 0.4
         if "direct_features_n_samples" not in params:
             params["direct_features_n_samples"] = 0
         if "max_relative_peak_amplitude" not in params:
@@ -57,13 +57,14 @@ class DirectFeatureExtractor(FeatureExtractor):
         max_relative_peak_amplitude = self.params["max_relative_peak_amplitude"]
         first_peak_domain = self.params["first_peak_domain"]
 
+        assert 0 < threshold < 1, "Threshold must be between 0 and 1"
         assert 0 < first_peak_domain < 1, "First peak domain boundary must be between 0 and 1"
 
         # Peak amplitude
         peak_amplitude = np.max(np.abs(example))
         peak_amplitude_index = np.argmax(np.abs(example))
 
-        above_threshold = (np.abs(example) >= abs(threshold)).astype(int)
+        above_threshold = (np.abs(example) >= abs(threshold * peak_amplitude)).astype(int)
         diffs = above_threshold[1:] - above_threshold[:-1]
 
         # Only count inner to outer crossings
