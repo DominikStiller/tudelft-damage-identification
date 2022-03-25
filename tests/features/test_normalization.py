@@ -7,13 +7,14 @@ from damage_identification.features.normalization import Normalization
 
 class TestNormalization(TestCase):
     def test_normalize_features(self):
-        train_data = pd.DataFrame({"test": [1, 11]})
+        train_data = pd.DataFrame({"test1": [1, 11], "test2": [0, 2]})
 
-        test_data = pd.DataFrame({"test": [8]})
+        test_data = pd.DataFrame({"test1": [8], "test2": [1]})
 
-        confirmation_data = pd.DataFrame({"test": [0.4]})
+        expected = pd.DataFrame({"test1": [0.4], "test2": [0]})
 
         normalized_features = Normalization()
         normalized_features.train(train_data)
-        transformed_data = normalized_features.transform(test_data)
-        assert_frame_equal(transformed_data, confirmation_data)
+        actual = normalized_features.transform(test_data)
+
+        assert_frame_equal(actual, expected, check_dtype=False)
