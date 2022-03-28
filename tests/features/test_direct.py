@@ -11,7 +11,7 @@ class TestDirectFeatureExtractor(TestCase):
             params={
                 "direct_features_threshold": 0.5,
                 "direct_features_n_samples": 6,
-                "max_relative_peak_error": 0.5,
+                "max_relative_peak_amplitude": 0.5,
                 "first_peak_domain": 0.2,
             }
         )
@@ -34,16 +34,9 @@ class TestDirectFeatureExtractor(TestCase):
 
     def test_extract_features_zero_duration_single_count(self):
         # If there is only a single count above the threshold, duration should be zero
-        example_1 = np.array([0, 0.1, -0.1, 0.5, 0.3, 0, 0])
+        example_1 = np.array([0, 0.1, -0.1, 2, 0.3, 0, 0])
         features = self.extractor.extract_features(example_1)
         self.assertEqual(features["counts"], 1)
-        self.assertEqual(features["duration"], 0)
-
-    def test_extract_features_zero_duration_zero_count(self):
-        # If there is only a single count above the threshold, duration should be zero
-        example_1 = np.array([0, 0.1, -0.1, 0.2, 0.3, 0, 0])
-        features = self.extractor.extract_features(example_1)
-        self.assertEqual(features["counts"], 0)
         self.assertEqual(features["duration"], 0)
 
     def test_extract_features_rise_time(self):
