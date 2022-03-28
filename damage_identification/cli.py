@@ -5,6 +5,32 @@ from typing import Any, Dict
 from damage_identification.pipeline import PipelineMode
 
 
+def parse_cli_args() -> Dict[str, Any]:
+    params = vars(_construct_parser().parse_args())
+
+    # Parse number of clusters (single number or find optimum in range
+    if "n_clusters" in params:
+        n_clusters = params["n_clusters"]
+        if n_clusters.isdigit():
+            params["n_clusters"] = int(n_clusters)
+        elif "..." in n_clusters:
+            params["n_clusters"] = "auto"
+            params["n_clusters_start"] = int(n_clusters.split("...")[0])
+            params["n_clusters_end"] = int(n_clusters.split("...")[1])
+        else:
+            raise "Invalid value for n_clusters"
+
+    # Fix skip_filter not being stored if absent even though store_true should handle this
+    if "skip_filter" not in params:
+        params["skip_filter"] = False
+
+    return params
+
+
+def print_cli_help():
+    _construct_parser().print_help()
+
+
 def _construct_parser() -> ArgumentParser:
     parser = ArgumentParser(
         prog="python -m damage_identification",
@@ -45,29 +71,3 @@ def _construct_parser() -> ArgumentParser:
     parser_evaluation.set_defaults(mode=PipelineMode.EVALUATION)
 
     return parser
-
-
-def parse_cli_args() -> Dict[str, Any]:
-    params = vars(_construct_parser().parse_args())
-
-    # Parse number of clusters (single number or find optimum in range
-    if "n_clusters" in params:
-        n_clusters = params["n_clusters"]
-        if n_clusters.isdigit():
-            params["n_clusters"] = int(n_clusters)
-        elif "..." in n_clusters:
-            params["n_clusters"] = "auto"
-            params["n_clusters_start"] = int(n_clusters.split("...")[0])
-            params["n_clusters_end"] = int(n_clusters.split("...")[1])
-        else:
-            raise "Invalid value for n_clusters"
-
-    # Fix skip_filter not being stored if absent even though store_true should handle this
-    if "skip_filter" not in params:
-        params["skip_filter"] = False
-
-    return params
-
-
-def print_cli_help():
-    _construct_parser().print_help()
