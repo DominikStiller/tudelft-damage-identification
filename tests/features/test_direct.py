@@ -6,7 +6,7 @@ from damage_identification.features.direct import DirectFeatureExtractor
 
 
 class TestDirectFeatureExtractor(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.extractor = DirectFeatureExtractor(
             params={
                 "direct_features_threshold": 0.5,
