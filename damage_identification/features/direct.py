@@ -44,7 +44,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         Extracts direct features from a single waveform.
 
         Args:
-            example: a single example (shape 1 x length_example)
+            example: a single example (shape 1 x n_samples)
 
         Returns:
             A dictionary containing items with each feature name value for the input example.

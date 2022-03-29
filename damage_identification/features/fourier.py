@@ -32,16 +32,15 @@ class FourierExtractor(FeatureExtractor):
         Uses Fourier transform to extract peak frequency and central frequency features
 
         Args:
-            example: a single example (shape 1 x length_example)
+            example: a single example (shape 1 x n_samples)
         Returns:
             dictionary containing peak frequency ("peak_frequency") and central frequency ("central_frequency")
         """
-
-        length_example = np.size(example)
+        n_samples = np.size(example)
         ft = fft(example)
-        freqs = fftfreq(length_example, d=0.001 / length_example)
+        freqs = fftfreq(n_samples, d=0.001 / n_samples)
         ft[freqs < 0] = 0
-        amp = np.abs(ft) / length_example
+        amp = np.abs(ft) / n_samples
         peakfreq = freqs[np.argmax(amp)]
         avgfreq = np.average(freqs, weights=amp)
 

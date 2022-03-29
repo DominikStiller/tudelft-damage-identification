@@ -62,7 +62,7 @@ class FeatureExtractor(ABC):
         This method does not have to be implemented for stateless feature extractors.
 
         Args:
-            examples: the training set with all training examples (shape n_examples x length_example)
+            examples: the training set with all training examples (shape n_examples x n_samples)
         """
         pass
 
@@ -72,7 +72,7 @@ class FeatureExtractor(ABC):
         Extracts features from a single waveform.
 
         Args:
-            example: a single example (shape 1 x length_example)
+            example: a single example (shape 1 x n_samples)
 
         Returns:
             A dictionary containing items with each feature name value for the input example.

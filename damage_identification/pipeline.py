@@ -2,8 +2,19 @@
 The top-level class connecting all components into a pipeline.
 
 This class calls the methods of all components and forwards the data to the next component.
-In between, some transformations (e.g. between NumPy and Pandas containers) is necessary.
+In between, some transformations (e.g. between NumPy and Pandas data structures) are necessary.
 Loading and saving of the pipeline is also done here.
+
+Data structures used through the pipeline:
+- Raw waveforms (data): np.ndarray (shape n_examples x n_samples)
+- Wavelet-filtered waveforms (data_filtered): np.ndarray (shape n_examples x n_samples)
+- Raw features (features): pd.DataFrame (shape n_examples x n_features)
+- Features of valid examples (features_valid): pd.DataFrame (shape n_examples_valid x n_features)
+- Normalized features (features_normalized): pd.DataFrame (shape n_examples_valid x n_features)
+- Reduces features after PCA (features_reduced): pd.DataFrame (shape n_examples_valid x n_features_reduced)
+- Damage mode predictions (predictions): pd.DataFrame (shape n_examples_valid x n_clusterers)
+
+The shapes are explained in the README.
 """
 import os.path
 import pickle
@@ -44,18 +55,18 @@ class Pipeline:
                 print(f" - {k}: {v}")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded training data set ({n_examples} examples)")
+        print(f"-> Loaded training dataset ({n_examples} examples)")
 
         # Apply wavelet filtering
-        data = self._apply_wavelet_filtering(data, n_examples)
+        data_filtered = self._apply_wavelet_filtering(data, n_examples)
 
         # Train feature extractor
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
-            feature_extractor.train(data)
+            feature_extractor.train(data_filtered)
 
         # Extract features for PCA training
-        features, valid_mask = self._extract_features(data, n_examples)
+        features, valid_mask = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
@@ -100,13 +111,13 @@ class Pipeline:
         print("-> Loaded trained pipeline")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded prediction data set ({n_examples} examples)")
+        print(f"-> Loaded prediction dataset ({n_examples} examples)")
 
         # Apply wavelet filtering
-        data = self._apply_wavelet_filtering(data, n_examples)
+        data_filtered = self._apply_wavelet_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
-        features, valid_mask = self._extract_features(data, n_examples)
+        features, valid_mask = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
@@ -120,9 +131,9 @@ class Pipeline:
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
         data, n_examples = self._load_data()
-        print(f"-> Loaded evaluation data set ({n_examples} examples)")
+        print(f"-> Loaded evaluation dataset ({n_examples} examples)")
 
-        # TODO add evaluation mode
+        # TODO implement evaluation mode
 
     def _initialize_components(self):
         """Initialize all components including parameters"""
@@ -147,7 +158,7 @@ class Pipeline:
         """Load the dataset for the session"""
         filename: str = self.params["data_file"]
 
-        print("Loading data set...")
+        print("Loading dataset...")
 
         if filename.endswith(".csv"):
             data = load_uncompressed_data(filename)
