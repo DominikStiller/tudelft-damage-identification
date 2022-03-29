@@ -64,6 +64,7 @@ class Pipeline:
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
             feature_extractor.train(data_filtered)
+        print("-> Trained feature extractors")
 
         # Extract features for PCA training
         features, valid_mask = self._extract_features(data_filtered, n_examples)
@@ -72,7 +73,6 @@ class Pipeline:
         # Normalize features
         self.normalization.train(features_valid)
         features_normalized = self.normalization.transform(features_valid)
-        print("-> Trained feature extractors")
 
         # Train PCA
         print("Training PCA...")
@@ -254,7 +254,9 @@ class Pipeline:
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
-        print(f"-> Extracted features ({n_invalid} examples were invalid)")
+        n_features = len(all_features.columns)
+
+        print(f"-> Extracted {n_features} features ({n_invalid} examples were invalid)")
 
         return all_features, valid_mask
 
