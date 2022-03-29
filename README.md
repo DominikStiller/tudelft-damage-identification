@@ -61,14 +61,15 @@ Some more guidelines to follow:
 Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
 that can be hard to find. The following names are used in docstrings for this purpose:
 
-* `n_examples`: the number of examples in this array
-* `length_example`: the number of samples in a single example
+* `n_examples`: the number of examples in the dataset
+* `n_examples_valid`: the number of valid examples in the dataset
+* `n_samples`: the number of samples in a single example
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA
 * `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
-time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
+time for all examples, the corresponding shape is `n_examples x n_samples`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
 
 
