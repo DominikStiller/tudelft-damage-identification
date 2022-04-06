@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 import numpy as np
 from scipy.integrate import simpson
@@ -20,7 +20,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         - sample_X: first n samples as baseline to compare other features
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         """
         Initialize the direct feature extractor.
 
@@ -39,7 +39,7 @@ class DirectFeatureExtractor(FeatureExtractor):
             params["first_peak_domain"] = 0.2
         super().__init__("direct", params)
 
-    def extract_features(self, example: np.ndarray) -> Dict[str, float]:
+    def extract_features(self, example: np.ndarray) -> dict[str, float]:
         """
         Extracts direct features from a single waveform.
 

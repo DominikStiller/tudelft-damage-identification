@@ -1,11 +1,9 @@
-from typing import Dict
-
 import numpy as np
 import pandas as pd
 import validclust as vld
 
 
-def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> Dict[str, float]:
+def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> dict[str, float]:
     """
     Find the optimal number of clusters k based on average of Davies-Bouldin, Silhouette and Dunn indexes.
 

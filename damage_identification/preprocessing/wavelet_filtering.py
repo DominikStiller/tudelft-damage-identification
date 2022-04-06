@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,7 +22,7 @@ class WaveletFiltering:
     filter.wavelet_plot(raw, filtered, 1)
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         """
         This method initializes the waveform class and sets the parameters for the filtering  method to preprocess the
         data.
@@ -32,7 +32,7 @@ class WaveletFiltering:
 
         """
         if params is None:
-            self.params: Dict[str, Any] = {}
+            self.params: dict[str, Any] = {}
         else:
             self.params = params
         if "wavelet_family" not in self.params:

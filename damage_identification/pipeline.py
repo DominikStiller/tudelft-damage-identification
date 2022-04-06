@@ -20,7 +20,7 @@ import os.path
 import pickle
 import sys
 from enum import auto, Enum
-from typing import Dict, Any, List, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -43,7 +43,7 @@ class Pipeline:
     PIPELINE_PERSISTENCE_FOLDER = "data/pipeline/"
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         self.params = params
         self._initialize_components()
 
@@ -141,7 +141,7 @@ class Pipeline:
         self.wavelet_filter = WaveletFiltering(self.params)
 
         # Feature extraction
-        self.feature_extractors: List[FeatureExtractor] = [
+        self.feature_extractors: list[FeatureExtractor] = [
             DirectFeatureExtractor(self.params),
             FourierExtractor(self.params),
         ]
@@ -151,10 +151,10 @@ class Pipeline:
         self.pca = PrincipalComponents(self.params)
 
         # Clustering
-        self.clusterers: List[Clusterer] = [KmeansClusterer(self.params)]
+        self.clusterers: list[Clusterer] = [KmeansClusterer(self.params)]
         self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self) -> Tuple[np.ndarray, int]:
+    def _load_data(self) -> tuple[np.ndarray, int]:
         """Load the dataset for the session"""
         filename: str = self.params["data_file"]
 
@@ -177,7 +177,7 @@ class Pipeline:
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
-            stored_params: Dict = pickle.load(f)
+            stored_params: dict = pickle.load(f)
             self.params |= stored_params
             for k, v in stored_params.items():
                 print(f" - {k}: {v}")
@@ -234,7 +234,7 @@ class Pipeline:
 
     def _extract_features(
         self, data: np.ndarray, n_examples
-    ) -> Tuple[pd.DataFrame, pd.Series, int]:
+    ) -> tuple[pd.DataFrame, pd.Series, int]:
         """Extract features using all feature extractors and combine into single DataFrame"""
         all_features = []
         n_invalid = 0

@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Dict, Any
+from typing import Any
 
 from sklearn.cluster import KMeans
 
@@ -15,7 +15,7 @@ class KmeansClusterer(Clusterer):
         - n_clusters: number of clusters
     """
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         """
         This method initializes the kmeans class and sets the amount of clusters that the data needs to be grouped into.
         For example: the n-dimensional data must be clustered into 3 distinct groups

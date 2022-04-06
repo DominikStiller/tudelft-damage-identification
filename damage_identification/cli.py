@@ -1,11 +1,11 @@
 """Parsing of command-line arguments"""
 from argparse import ArgumentParser, SUPPRESS
-from typing import Any, Dict
+from typing import Any
 
 from damage_identification.pipeline import PipelineMode
 
 
-def parse_cli_args() -> Dict[str, Any]:
+def parse_cli_args() -> dict[str, Any]:
     params = vars(_construct_parser().parse_args())
 
     # Parse number of clusters (single number or find optimum in range
