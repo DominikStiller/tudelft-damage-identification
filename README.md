@@ -21,6 +21,8 @@ The main script can then be executed using `python -m damage_identification [mod
 * `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
+
 ### Configuration parameters
 
 Configurable parameters are passed to the pipeline as command line arguments
@@ -49,7 +51,7 @@ format the project code by running `black .` in the project directory.  For docs
 the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
 
 Some more guidelines to follow:
-* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest -v`.
+* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest` or using the script in `bin/tests.sh`.
 * Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
 * Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file structure,
   avoiding long files and preferring small, specialized files.

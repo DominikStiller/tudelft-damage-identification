@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
-source venv/bin/activate
-python -m unittest -v
+
+if [ -d "venv" ]
+then
+  source venv/bin/activate
+fi
+
+python -m unittest -v -b $@
