@@ -88,21 +88,11 @@ class DirectFeatureExtractor(FeatureExtractor):
         timestamps = np.linspace(0, 1 / 1000, n_samples)  # in s
         energy = simpson(np.square(example * 1000), timestamps)
 
-        return_dict = {
-            "peak_amplitude": peak_amplitude,
-            "counts": counts,
-            "duration": duration,
-            "rise_time": rise_time,
-            "energy": energy,
-        }
-
         # First n samples
-        return_dict.update(
-            {
-                "sample_" + str(n + 1): example[n]
-                for n in range(min(self.params["direct_features_n_samples"], n_samples))
-            }
-        )
+        first_n_samples = {
+            "sample_" + str(n + 1): example[n]
+            for n in range(min(self.params["direct_features_n_samples"], n_samples))
+        }
 
         # Testing for double peaks which make an example invalid
         # Boundary between domains where first and second peak are searched
@@ -117,6 +107,12 @@ class DirectFeatureExtractor(FeatureExtractor):
         #    max_relative_peak_amplitude of larger one in the same signal
         if counts >= 2 and relative_peak_amplitude > max_relative_peak_amplitude:
             # Setting any feature to None marks this example as invalid
-            return_dict["duration"] = None
+            duration = None
 
-        return return_dict
+        return {
+            "peak_amplitude": peak_amplitude,
+            "counts": counts,
+            "duration": duration,
+            "rise_time": rise_time,
+            "energy": energy,
+        } | first_n_samples

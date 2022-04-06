@@ -178,7 +178,7 @@ class Pipeline:
         """Load all components of a saved pipeline"""
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
             stored_params: Dict = pickle.load(f)
-            self.params.update(stored_params)
+            self.params |= stored_params
             for k, v in stored_params.items():
                 print(f" - {k}: {v}")
 
@@ -243,7 +243,7 @@ class Pipeline:
             for i, example in enumerate(data):
                 features = {}
                 for feature_extractor in self.feature_extractors:
-                    features.update(feature_extractor.extract_features(example))
+                    features |= feature_extractor.extract_features(example)
 
                 # A None feature means that example is invalid
                 if None in features.values():
