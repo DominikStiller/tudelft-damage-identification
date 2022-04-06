@@ -67,7 +67,7 @@ class Pipeline:
         print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        features, valid_mask = self._extract_features(data_filtered, n_examples)
+        features, valid_mask, _ = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
@@ -117,13 +117,13 @@ class Pipeline:
         data_filtered = self._apply_wavelet_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
-        features, valid_mask = self._extract_features(data_filtered, n_examples)
+        features, valid_mask, n_valid_examples = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
 
         # Make and visualize cluster predictions
-        predictions = self._predict(features_reduced, n_examples)
+        predictions = self._predict(features_reduced, n_valid_examples)
         self.visualization_clustering.visualize_kmeans(features_reduced, predictions)
 
         # TODO run cluster identification and apply valid mask
@@ -232,7 +232,9 @@ class Pipeline:
 
         return data
 
-    def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
+    def _extract_features(
+        self, data: np.ndarray, n_examples
+    ) -> Tuple[pd.DataFrame, pd.Series, int]:
         """Extract features using all feature extractors and combine into single DataFrame"""
         all_features = []
         n_invalid = 0
@@ -255,10 +257,11 @@ class Pipeline:
 
         all_features = pd.DataFrame(all_features)
         n_features = len(all_features.columns)
+        n_valid = n_examples - n_invalid
 
         print(f"-> Extracted {n_features} features ({n_invalid} examples were invalid)")
 
-        return all_features, valid_mask
+        return all_features, valid_mask, n_valid
 
     def _reduce_features(self, features: pd.DataFrame) -> pd.DataFrame:
         """Apply PCA to all features"""
@@ -271,7 +274,7 @@ class Pipeline:
 
         return features_reduced
 
-    def _predict(self, features, n_examples):
+    def _predict(self, features, n_examples) -> pd.DataFrame:
         """Predict cluster memberships of all examples"""
         print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
