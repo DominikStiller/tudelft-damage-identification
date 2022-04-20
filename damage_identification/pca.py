@@ -1,13 +1,13 @@
 import os
 import pickle
-from typing import Dict, Any
+from typing import Any
 
 import pandas as pd
 from sklearn.decomposition import PCA
 
 
 class PrincipalComponents:
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         """
         Initialize the PCA dimensionality reducer.
 

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import numpy as np
 from scipy.fft import fft, fftfreq
@@ -22,12 +22,12 @@ class FourierExtractor(FeatureExtractor):
     peak_frequency = features["peak_frequency"]
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         if params is None:
             params = {}
         super().__init__("fourier", params)
 
-    def extract_features(self, example: np.ndarray) -> Dict[str, float]:
+    def extract_features(self, example: np.ndarray) -> dict[str, float]:
         """
         Uses Fourier transform to extract peak frequency and central frequency features
 
