@@ -23,32 +23,33 @@ class MultiResolutionAnalysis:
     """
 
     # def __init__(self, params: Dict[str: Any]):
-    def __init__(self):
+    def __init__(self, wavelet, mode):
         """
         Description
         """
         self.signal_data = []
         self.decomposed_data = np.ndarray([])
         self.reconstructed = np.ndarray([])
-        self.mfb = np.ndarray([])
-        self.boundaries = np.ndarray([])
+        self.wavelet = wavelet
+        self.mode = mode
+        # self.mfb = np.ndarray([])
+        # self.boundaries = np.ndarray([])
         # super(MultiResolutionAnalysis, self).__init__("EWT_MRA", params)
 
-    def load(self, directory):
+    def load(self, directory,n):
         """
         Description
         """
-        self.signal_data = io.load_uncompressed_data(directory)
+        x = io.load_compressed_data(directory)
+        self.signal_data = x[n, :]
         return self.signal_data
 
-    def ewt_mra(self):
+    def wpt_mra(self):
         """
         Description
         """
-        self.decomposed_data, self.mfb, self.boundaries = ewtpy.EWT1D(self.signal_data[1, :])
-        mfb = self.mfb
-        print(mfb.shape)
-        print(self.mfb)
+        wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode)
+        print(wp['a'].data, wp.maxlevel)
 
         return
 

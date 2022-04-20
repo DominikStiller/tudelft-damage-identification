@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 
 class TestMultiResolutionAnalysis(TestCase):
     def test_decomposition(self):
-        mra = MultiResolutionAnalysis()
-        mra.load('data/Waveforms.csv')
-        mra.ewt_mra()
+        mra = MultiResolutionAnalysis('db8', 'symmetric')
+        mra.load('data/comp0.tradb', 11145)
+        mra.wpt_mra()
         # print(mra.signal_data)
-        mra.plot_decomposition()
+        # mra.plot_decomposition()
 
     def test_reconstructor(self):
         mra = MultiResolutionAnalysis()
         mra.load('data/Waveforms.csv')
-        mra.ewt_mra()
+        mra.wpt_mra()
         mfb = mra.decomposed_data
         print(mra.boundaries)
         print(mfb.shape)
