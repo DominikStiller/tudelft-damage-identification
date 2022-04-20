@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 class TestMultiResolutionAnalysis(TestCase):
     def test_decomposition(self):
-        mra = MultiResolutionAnalysis('db8', 'symmetric')
+        mra = MultiResolutionAnalysis('db12', 'symmetric')
         mra.load('data/comp0.tradb', 11145)
         mra.wpt_mra()
         # print(mra.signal_data)

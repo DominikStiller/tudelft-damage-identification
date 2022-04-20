@@ -50,6 +50,7 @@ class MultiResolutionAnalysis:
         """
         wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode)
         print(wp['a'].data, wp.maxlevel)
+        print([node.path for node in wp.get_level(wp.maxlevel, 'natural')])
 
         return
 
