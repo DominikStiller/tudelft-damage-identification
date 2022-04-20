@@ -27,5 +27,7 @@ def print_cluster_statistics(
     data = data.groupby("cluster")
 
     print("\nCLUSTER STATISTICS")
-    print("Means:")
+    print("COUNTS:")
+    print(data.size().to_string())
+    print("\nMEANS:")
     print(data.mean())
