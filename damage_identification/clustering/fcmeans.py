@@ -1,15 +1,17 @@
 import os
+import pickle
+from typing import Dict, Any, Optional
+
 import numpy as np
 from fcmeans import FCM
-from typing import Dict, Any
+
 from damage_identification.clustering.base import Clusterer
-import pickle
 
 
 class FCMeansClusterer(Clusterer):
     def __init__(self, params: Dict[str, Any]):
         super(FCMeansClusterer, self).__init__("fcmeans", params)
-        self.model = None
+        self.model: Optional[FCM] = None
 
     def save(self, directory):
         """
