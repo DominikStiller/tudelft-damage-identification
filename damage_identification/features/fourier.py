@@ -45,3 +45,11 @@ class FourierExtractor(FeatureExtractor):
         avgfreq = np.average(freqs, weights=amp)
 
         return {"peak_frequency": peakfreq, "central_frequency": avgfreq}
+
+    def transform(self, example: np.ndarray) -> np.ndarray:
+        length_example = np.size(example)
+        amp = np.abs(fft(example))
+        freqs = fftfreq(length_example, d=0.001 / length_example)
+        amp = amp[freqs > 0]
+        freqs = freqs[freqs > 0]
+        return np.vstack((freqs, amp))
