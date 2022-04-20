@@ -274,7 +274,9 @@ class Pipeline:
 
         n_features_reduced = features_reduced.shape[1]
         features_reduced = pd.DataFrame(
-            features_reduced, columns=[f"pca_{i + 1}" for i in range(n_features_reduced)]
+            features_reduced,
+            columns=[f"pca_{i + 1}" for i in range(n_features_reduced)],
+            index=features.index.copy(),
         )
 
         return features_reduced
@@ -292,7 +294,7 @@ class Pipeline:
             for clusterer in self.clusterers:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
-        predictions = pd.concat(predictions, axis=1)
+        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
         print("-> Predicted cluster memberships")
 
         return predictions
