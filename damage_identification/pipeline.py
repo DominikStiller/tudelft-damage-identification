@@ -268,7 +268,9 @@ class Pipeline:
         n_features = len(all_features.columns)
         n_valid = n_examples - n_invalid
 
-        print(f"-> Extracted {n_features} features ({n_invalid} examples were invalid)")
+        print(
+            f"-> Extracted {n_features} features ({n_invalid} examples were invalid, {n_valid} were valid)"
+        )
 
         return all_features, valid_mask, n_valid
 
