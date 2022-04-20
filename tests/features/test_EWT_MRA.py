@@ -17,6 +17,7 @@ class TestMultiResolutionAnalysis(TestCase):
         mra.load('data/Waveforms.csv')
         mra.ewt_mra()
         mfb = mra.decomposed_data
+        print(mra.boundaries)
         print(mfb.shape)
         mra.iewt1d(mra.decomposed_data, mra.mfb)
         plt.plot(mra.signal_data[1, :])
