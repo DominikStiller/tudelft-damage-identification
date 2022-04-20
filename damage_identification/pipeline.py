@@ -42,12 +42,16 @@ from damage_identification.visualization.clustering import ClusteringVisualizati
 
 
 class Pipeline:
-    PIPELINE_PERSISTENCE_FOLDER = "data/pipeline/"
     # Parameters that change with every execution and should not be saved
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
     def __init__(self, params: dict[str, Any]):
         self.params = params
+
+        self.pipeline_persistence_folder = os.path.join(
+            "data", f"pipeline_{self.params['pipeline_name']}"
+        )
+
         self._initialize_components()
 
     def run_training(self):
@@ -129,7 +133,7 @@ class Pipeline:
         predictions = self._predict(features_reduced, n_valid_examples)
 
         print_cluster_statistics(predictions, features_valid)
-        if not self.params["skip_filter"]:
+        if not self.params["skip_visualization"]:
             self.visualization_clustering.visualize(features_reduced, predictions, "kmeans")
 
         # TODO run cluster identification and apply valid mask
@@ -185,7 +189,7 @@ class Pipeline:
 
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
-        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
+        with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "rb") as f:
             saved_params: dict = pickle.load(f)
             self.params |= saved_params
             for k, v in saved_params.items():
@@ -193,14 +197,14 @@ class Pipeline:
 
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
-                os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
+                os.path.join(self.pipeline_persistence_folder, feature_extractor.name)
             )
 
         for clusterer in self.clusterers:
-            clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
+            clusterer.load(os.path.join(self.pipeline_persistence_folder, clusterer.name))
 
-        self.normalization.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "normalization"))
-        self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
+        self.normalization.load(os.path.join(self.pipeline_persistence_folder, "normalization"))
+        self.pca.load(os.path.join(self.pipeline_persistence_folder, "pca"))
 
     def _save_pipeline(self):
         """Save all components of the pipeline"""
@@ -214,7 +218,7 @@ class Pipeline:
         self.pca.save(self._create_component_dir("pca"))
 
         # Save parameters
-        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
+        with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "wb") as f:
             params_to_save = self.params.copy()
             for param in self.PER_RUN_PARAMS:
                 if param in params_to_save:
@@ -222,7 +226,7 @@ class Pipeline:
             pickle.dump(params_to_save, f)
 
     def _create_component_dir(self, name):
-        save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
+        save_directory = os.path.join(self.pipeline_persistence_folder, name)
         os.makedirs(save_directory, exist_ok=True)
         return save_directory
 

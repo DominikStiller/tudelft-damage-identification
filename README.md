@@ -28,10 +28,10 @@ Alternatively, the scripts in `bin` can be used which automatically activate the
 Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
+* `skip_filter`: wavelet filtering is skipped if flag is present
+* `pipeline_name`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
-* `skip_filter`: wavelet filtering is skipped if flag is present
-* `skip_visualization`: plotting is skipped if flag is present
 * `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
@@ -42,6 +42,8 @@ The following parameters are available during training:
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
 
+The following parameters are available during prediction:
+* `skip_visualization`: plotting is skipped if flag is present
 
 
 
@@ -93,7 +95,7 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 ## Data folder layout
 All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
 * `data/Waveforms.csv`: first AE recording that Davide gave us
-* `data/pipeline/`: trained pipeline models for feature extraction and clustering
+* `data/pipeline_name/`: trained pipeline models for feature extraction and clustering
 
 
 
