@@ -3,6 +3,7 @@ import pickle
 from typing import Dict, Any, Optional
 
 import numpy as np
+import pandas as pd
 from fcmeans import FCM
 
 from damage_identification.clustering.base import Clusterer
@@ -36,10 +37,10 @@ class FCMeansClusterer(Clusterer):
         with open(os.path.join(directory, "fcmeans.pickle"), "rb") as f:
             self.model = pickle.load(f)
 
-    def train(self, data: np.ndarray):
+    def train(self, examples: pd.DataFrame):
         self.model = FCM(n_clusters=self.params["n_clusters"], random_state=0)
-        self.model.fit(data)
+        self.model.fit(examples.to_numpy())
 
-    def predict(self, data: np.ndarray) -> int:
-        prediction = self.model.predict(data)
+    def predict(self, example: pd.DataFrame) -> int:
+        prediction = self.model.predict(example.to_numpy())[0]
         return prediction
