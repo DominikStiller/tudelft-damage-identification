@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spkit as sp
 
+from damage_identification.io import load_compressed_data
+
 
 class WaveletFiltering:
     """
@@ -103,3 +105,11 @@ class WaveletFiltering:
         plt.legend()
         plt.title(f"DWT Denoising with {self.wavelet_fam+str(self.wavelet_scale)} Wavelet", size=15)
         plt.show()
+
+
+if __name__ == "__main__":
+    filter = WaveletFiltering({"wavelet_family": "db", "wavelet_scale": 3})
+    raw = load_compressed_data("data/comp0.tradb")
+    filtered = filter.filter(raw)
+    # np.savetxt("sample.csv", filtered[6722, :], delimiter=",")
+    filter.wavelet_plot(raw, filtered, 6722)
