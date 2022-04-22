@@ -4,22 +4,209 @@ from damage_identification.io import load_compressed_data
 
 from damage_identification.features.multiplepeakdetection import real_time_peak_detection
 
-pridbfile = load_compressed_data("data/comp0.tradb")
-example1 = pridbfile[6722]
-example2 = pridbfile[2]
 
 class TestTwoPeakDetection(TestCase):
-
-
     def setUp(self):
-        self.peakdetection = real_time_peak_detection(example1)
+        exampletwo = np.array(
+            [
+                0,
+                0,
+                0,
+                1,
+                2,
+                2,
+                8,
+                15,
+                90,
+                35,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                2,
+                3,
+                3,
+                4,
+                4,
+                5,
+                6,
+                40,
+                36,
+                56,
+                90,
+                50,
+                6,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+
+        exampleone = np.array(
+            [
+                0,
+                0,
+                0,
+                1,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+        self.peakdetectionone = real_time_peak_detection(exampleone, 10, 2, 1)
+        self.peakdetectiontwo = real_time_peak_detection(exampletwo, 10, 2, 1)
 
     def test_two_peaks(self):
-        result = self.peakdetection.test_peak(example1)
-        self.assertEqual(np.shape(result["firstslice"]), (2048,))
-        self.assertEqual(np.shape(result["secondslice"]), (2048,))
+        exampletwo = np.array(
+            [
+                0,
+                0,
+                0,
+                1,
+                2,
+                2,
+                8,
+                15,
+                90,
+                35,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                2,
+                3,
+                3,
+                4,
+                4,
+                5,
+                6,
+                40,
+                36,
+                56,
+                90,
+                50,
+                6,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+        result = self.peakdetectiontwo.test_peak(10, 2, 1)
+        self.assertEqual(np.shape(result["firstslice"]), (len(exampletwo),))
+        self.assertEqual(np.shape(result["secondslice"]), (len(exampletwo),))
 
     def test_one_peak(self):
-        result = self.peakdetection.test_peak(example2)
-        self.assertEqual(np.shape(result["firstslice"]), (2048,))
+        exampleone = np.array(
+            [
+                0,
+                0,
+                0,
+                1,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+        result = self.peakdetectionone.test_peak(10, 2, 1)
+        self.assertEqual(np.shape(result["firstslice"]), (len(exampleone),))
         self.assertEqual(result["secondslice"], None)
