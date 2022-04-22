@@ -8,9 +8,8 @@ pridbfile = load_compressed_data("data/comp0.tradb")
 example1 = pridbfile[6722]
 example2 = pridbfile[2]
 
+
 class TestTwoPeakDetection(TestCase):
-
-
     def setUp(self):
         self.peakdetection = real_time_peak_detection(example1)
 
