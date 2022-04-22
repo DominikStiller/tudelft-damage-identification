@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
-source venv/bin/activate
+
+if [ -d "venv" ]
+then
+  source venv/bin/activate
+fi
+
 python -m damage_identification train $@

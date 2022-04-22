@@ -10,11 +10,18 @@ class TestDirectFeatureExtractor(TestCase):
         self.extractor = DirectFeatureExtractor(
             params={
                 "direct_features_threshold": 0.5,
-                "direct_features_n_samples": 6,
+                "direct_features_n_samples": 2,
                 "max_relative_peak_amplitude": 0.5,
                 "first_peak_domain": 0.2,
             }
         )
+
+    def test_extract_features_first_n_samples(self):
+        example_1 = np.array([0, 1, 0, -2, 0, 1, 0, 0.4, -0.4, 0])
+        features = self.extractor.extract_features(example_1)
+        self.assertEqual(features["sample_1"], 0)
+        self.assertEqual(features["sample_2"], 1)
+        self.assertNotIn("sample_3", features)
 
     def test_extract_features_peak_amplitude(self):
         example_1 = np.array([0, 1, 0, -2, 0, 1, 0, 0.4, -0.4, 0])

@@ -1,8 +1,10 @@
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import spkit as sp
+
+from damage_identification.io import load_compressed_data
 
 
 class WaveletFiltering:
@@ -22,7 +24,7 @@ class WaveletFiltering:
     filter.wavelet_plot(raw, filtered, 1)
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         """
         This method initializes the waveform class and sets the parameters for the filtering  method to preprocess the
         data.
@@ -32,7 +34,7 @@ class WaveletFiltering:
 
         """
         if params is None:
-            self.params: Dict[str, Any] = {}
+            self.params: dict[str, Any] = {}
         else:
             self.params = params
         if "wavelet_family" not in self.params:
@@ -103,3 +105,11 @@ class WaveletFiltering:
         plt.legend()
         plt.title(f"DWT Denoising with {self.wavelet_fam+str(self.wavelet_scale)} Wavelet", size=15)
         plt.show()
+
+
+if __name__ == "__main__":
+    filter = WaveletFiltering({"wavelet_family": "db", "wavelet_scale": 3})
+    raw = load_compressed_data("data/comp0.tradb")
+    filtered = filter.filter(raw)
+    # np.savetxt("sample.csv", filtered[6722, :], delimiter=",")
+    filter.wavelet_plot(raw, filtered, 6722)
