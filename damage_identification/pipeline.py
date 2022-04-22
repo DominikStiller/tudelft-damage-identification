@@ -27,7 +27,10 @@ import pandas as pd
 from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
-from damage_identification.evaluation.cluster_statistics import print_cluster_statistics
+from damage_identification.evaluation.cluster_statistics import (
+    print_cluster_statistics,
+    prepare_data_for_display,
+)
 from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
@@ -134,9 +137,11 @@ class Pipeline:
         # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_valid_examples)
 
-        print_cluster_statistics(predictions, features_valid)
+        data_display = prepare_data_for_display(predictions, features_valid, features_reduced)
+
+        print_cluster_statistics(data_display)
         if not self.params["skip_visualization"]:
-            self.visualization_clustering.visualize(features_reduced, predictions, "kmeans")
+            self.visualization_clustering.visualize(data_display)
 
         # TODO run cluster identification and apply valid mask
 

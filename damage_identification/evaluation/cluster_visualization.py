@@ -6,56 +6,54 @@ class ClusteringVisualization:
     """
     Performs visualization of clustered data based on a tuple of the first three primary components and their predicted
     damage modes
-
-    Typical usage example:
-        ClusteringVisualization().visualize_kmeans()
     """
 
-    def visualize(self, features: pd.DataFrame, modes: pd.DataFrame, clusterer: str):
+    def visualize(self, data: pd.DataFrame):
         """
         To visualize clustering from kmeans. Loops over all the damage modes present in the data, and plots the
         datapoints for each of these in a different
         colour, in 3D space.
 
         Args:
-            features: the features of each example after PCA (shape n_examples x n_features_reduced
-            modes: the damage mode of each example predicted by each clusterer (shape n_examples x n_clusters)
-            clusterer: the name of the clusterer to visualize
+            data: the combined features and predictions
         """
         # Add dimensions if PCA components are not long enough
         for i in [1, 2, 3]:
             col = f"pca_{i}"
-            if col not in features.columns:
-                features[col] = 0
+            if col not in data.columns:
+                data[col] = 0
 
-        ax = plt.axes(projection="3d")
-        clusters = modes[clusterer].drop_duplicates()
-        for cluster in clusters:
-            current_features = self._classify_data(cluster, modes, features, clusterer)
-            ax.scatter3D(
-                current_features["pca_1"],
-                current_features["pca_2"],
-                current_features["pca_3"],
-                depthshade=False,
-            )
-        ax.set_title(f"First three PCA directions - {clusterer}")
-        ax.set_xlabel("pca_1")
-        ax.set_ylabel("pca_2")
-        ax.set_zlabel("pca_3")
+        cmap = plt.get_cmap("tab10")
+
+        fig = plt.figure(figsize=(12, 6))
+        ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+        ax2 = fig.add_subplot(1, 2, 2, projection="3d")
+
+        ax1.scatter3D(
+            data["pca_1"],
+            data["pca_2"],
+            data["pca_3"],
+            c=data["cluster"].map(cmap),
+            depthshade=False,
+        )
+        ax1.set_title(f"PCA")
+        ax1.set_xlabel("pca_1")
+        ax1.set_ylabel("pca_2")
+        ax1.set_zlabel("pca_3")
+
+        # TODO check if contribute most to PCs
+        features = ["duration [μs]", "peak_frequency [kHz]", "central_frequency [kHz]"]
+
+        ax2.scatter3D(
+            data[features[0]],
+            data[features[1]],
+            data[features[2]],
+            c=data["cluster"].map(cmap),
+            depthshade=False,
+        )
+        ax2.set_title(f"Features")
+        ax2.set_xlabel(features[0])
+        ax2.set_ylabel(features[1])
+        ax2.set_zlabel(features[2])
+
         plt.show()
-
-    def _classify_data(self, dmg_mode, modes, features, clusterer):
-        """
-        Takes the dataset, and extracts the datapoints that correspond to a certain damage mode.
-
-        Args:
-            dmg_mode: the requested damage mode to extract datapoints for.
-
-        Returns:
-            classed_data: pandas dataframe that contains the three PCA values, for every entry of the requested
-            damage mode.
-        """
-
-        points = modes.loc[modes[clusterer] == dmg_mode]
-        classed_data = pd.merge(features, points, left_index=True, right_index=True)
-        return classed_data
