@@ -44,7 +44,7 @@ def _construct_parser() -> ArgumentParser:
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
     parser_params.add_argument("--skip_filter", action="store_true")
-    parser_params.add_argument("--pipeline_name", default="default")
+    parser_params.add_argument("-n", "--pipeline_name", default="default")
     parser_params.add_argument("data_file")
 
     # Training mode
