@@ -44,7 +44,7 @@ def _construct_parser() -> ArgumentParser:
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
     parser_params.add_argument("--skip_filter", action="store_true")
-    parser_params.add_argument("-n", "--pipeline_name", default="default")
+    parser_params.add_argument("-n", "--pipeline_name")
     parser_params.add_argument("data_file")
 
     # Training mode
@@ -62,6 +62,7 @@ def _construct_parser() -> ArgumentParser:
     parser_training.add_argument("--max_relative_peak_amplitude", type=float)
     parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
+    parser_training.add_argument("--n_principal_components", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])

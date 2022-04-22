@@ -29,7 +29,7 @@ Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 * `skip_filter`: wavelet filtering is skipped if flag is present
-* `pipeline_name`: name of the pipeline model, enables training on different data
+* `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
 * `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
@@ -40,7 +40,8 @@ The following parameters are available during training:
 * `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
 * `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
-* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
+* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection, mutually exclusive with `n_principal_components`
+* `n_principal_components` (int): desired number of components for PCA selection, mutually exclusive with `explained_variance`
 
 The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present

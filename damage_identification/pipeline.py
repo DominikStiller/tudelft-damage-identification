@@ -46,6 +46,8 @@ class Pipeline:
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
     def __init__(self, params: dict[str, Any]):
+        if "pipeline_name" not in params:
+            params["pipeline_name"] = "default"
         self.params = params
 
         self.pipeline_persistence_folder = os.path.join(
@@ -88,7 +90,7 @@ class Pipeline:
         # Perform PCA for cluster training
         features_reduced = self._reduce_features(features_normalized)
         print(
-            f"-> Trained PCA ({self.params['explained_variance']:.0%} of variance "
+            f"-> Trained PCA ({self.pca.explained_variance:.0%} of variance "
             f"explained by {self.pca.n_components} principal components)"
         )
 
