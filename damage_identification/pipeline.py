@@ -2,20 +2,32 @@
 The top-level class connecting all components into a pipeline.
 
 This class calls the methods of all components and forwards the data to the next component.
-In between, some transformations (e.g. between NumPy and Pandas containers) is necessary.
+In between, some transformations (e.g. between NumPy and Pandas data structures) are necessary.
 Loading and saving of the pipeline is also done here.
+
+Data structures used through the pipeline:
+- Raw waveforms (data): np.ndarray (shape n_examples x n_samples)
+- Wavelet-filtered waveforms (data_filtered): np.ndarray (shape n_examples x n_samples)
+- Raw features (features): pd.DataFrame (shape n_examples x n_features)
+- Features of valid examples (features_valid): pd.DataFrame (shape n_examples_valid x n_features)
+- Normalized features (features_normalized): pd.DataFrame (shape n_examples_valid x n_features)
+- Reduces features after PCA (features_reduced): pd.DataFrame (shape n_examples_valid x n_features_reduced)
+- Damage mode predictions (predictions): pd.DataFrame (shape n_examples_valid x n_clusterers)
+
+The shapes are explained in the README.
 """
 import os.path
 import pickle
 import sys
 from enum import auto, Enum
-from typing import Dict, Any, List, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
+from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.features.base import FeatureExtractor
@@ -30,9 +42,10 @@ from damage_identification.visualization.clustering import ClusteringVisualizati
 
 class Pipeline:
     PIPELINE_PERSISTENCE_FOLDER = "data/pipeline/"
+    # Parameters that change with every execution and should not be saved
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         self.params = params
         self._initialize_components()
 
@@ -44,24 +57,24 @@ class Pipeline:
                 print(f" - {k}: {v}")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded training data set ({n_examples} examples)")
+        print(f"-> Loaded training dataset ({n_examples} examples)")
 
         # Apply wavelet filtering
-        data = self._apply_wavelet_filtering(data, n_examples)
+        data_filtered = self._apply_wavelet_filtering(data, n_examples)
 
         # Train feature extractor
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
-            feature_extractor.train(data)
+            feature_extractor.train(data_filtered)
+        print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        features, valid_mask = self._extract_features(data, n_examples)
+        features, valid_mask, _ = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
         self.normalization.train(features_valid)
         features_normalized = self.normalization.transform(features_valid)
-        print("-> Trained feature extractors")
 
         # Train PCA
         print("Training PCA...")
@@ -89,7 +102,7 @@ class Pipeline:
             clusterer.train(features_reduced)
         print("-> Trained clusterers")
 
-        # Save at the end so all modifications of the params by components are stored
+        # Save at the end so all modifications of the params by components are saved
         #    (e.g. setting defaults or number of clusters)
         self._save_pipeline()
 
@@ -100,29 +113,29 @@ class Pipeline:
         print("-> Loaded trained pipeline")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded prediction data set ({n_examples} examples)")
+        print(f"-> Loaded prediction dataset ({n_examples} examples)")
 
         # Apply wavelet filtering
-        data = self._apply_wavelet_filtering(data, n_examples)
+        data_filtered = self._apply_wavelet_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
-        features, valid_mask = self._extract_features(data, n_examples)
+        features, valid_mask, n_valid_examples = self._extract_features(data_filtered, n_examples)
         features_valid = features.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
 
         # Make and visualize cluster predictions
-        predictions = self._predict(features_reduced, n_examples)
-        self.visualization_clustering.visualize_kmeans(features_reduced, predictions)
+        predictions = self._predict(features_reduced, n_valid_examples)
+        self.visualization_clustering.visualize(features_reduced, predictions, "kmeans")
 
         # TODO run cluster identification and apply valid mask
 
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
         data, n_examples = self._load_data()
-        print(f"-> Loaded evaluation data set ({n_examples} examples)")
+        print(f"-> Loaded evaluation dataset ({n_examples} examples)")
 
-        # TODO add evaluation mode
+        # TODO implement evaluation mode
 
     def _initialize_components(self):
         """Initialize all components including parameters"""
@@ -130,7 +143,7 @@ class Pipeline:
         self.wavelet_filter = WaveletFiltering(self.params)
 
         # Feature extraction
-        self.feature_extractors: List[FeatureExtractor] = [
+        self.feature_extractors: list[FeatureExtractor] = [
             DirectFeatureExtractor(self.params),
             FourierExtractor(self.params),
         ]
@@ -140,14 +153,17 @@ class Pipeline:
         self.pca = PrincipalComponents(self.params)
 
         # Clustering
-        self.clusterers: List[Clusterer] = [KmeansClusterer(self.params)]
+        self.clusterers: list[Clusterer] = [
+            KmeansClusterer(self.params),
+            FCMeansClusterer(self.params),
+        ]
         self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self) -> Tuple[np.ndarray, int]:
+    def _load_data(self) -> tuple[np.ndarray, int]:
         """Load the dataset for the session"""
         filename: str = self.params["data_file"]
 
-        print("Loading data set...")
+        print("Loading dataset...")
 
         if filename.endswith(".csv"):
             data = load_uncompressed_data(filename)
@@ -166,9 +182,9 @@ class Pipeline:
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
-            stored_params: Dict = pickle.load(f)
-            self.params.update(stored_params)
-            for k, v in stored_params.items():
+            saved_params: dict = pickle.load(f)
+            self.params |= saved_params
+            for k, v in saved_params.items():
                 print(f" - {k}: {v}")
 
         for feature_extractor in self.feature_extractors:
@@ -195,11 +211,11 @@ class Pipeline:
 
         # Save parameters
         with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
-            params_to_store = self.params.copy()
+            params_to_save = self.params.copy()
             for param in self.PER_RUN_PARAMS:
-                if param in params_to_store:
-                    del params_to_store[param]
-            pickle.dump(params_to_store, f)
+                if param in params_to_save:
+                    del params_to_save[param]
+            pickle.dump(params_to_save, f)
 
     def _create_component_dir(self, name):
         save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
@@ -221,7 +237,9 @@ class Pipeline:
 
         return data
 
-    def _extract_features(self, data: np.ndarray, n_examples) -> Tuple[pd.DataFrame, pd.Series]:
+    def _extract_features(
+        self, data: np.ndarray, n_examples
+    ) -> tuple[pd.DataFrame, pd.Series, int]:
         """Extract features using all feature extractors and combine into single DataFrame"""
         all_features = []
         n_invalid = 0
@@ -232,7 +250,7 @@ class Pipeline:
             for i, example in enumerate(data):
                 features = {}
                 for feature_extractor in self.feature_extractors:
-                    features.update(feature_extractor.extract_features(example))
+                    features |= feature_extractor.extract_features(example)
 
                 # A None feature means that example is invalid
                 if None in features.values():
@@ -243,9 +261,12 @@ class Pipeline:
                 pbar.update()
 
         all_features = pd.DataFrame(all_features)
-        print(f"-> Extracted features ({n_invalid} examples were invalid)")
+        n_features = len(all_features.columns)
+        n_valid = n_examples - n_invalid
 
-        return all_features, valid_mask
+        print(f"-> Extracted {n_features} features ({n_invalid} examples were invalid)")
+
+        return all_features, valid_mask, n_valid
 
     def _reduce_features(self, features: pd.DataFrame) -> pd.DataFrame:
         """Apply PCA to all features"""
@@ -258,7 +279,7 @@ class Pipeline:
 
         return features_reduced
 
-    def _predict(self, features, n_examples):
+    def _predict(self, features, n_examples) -> pd.DataFrame:
         """Predict cluster memberships of all examples"""
         print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
         with tqdm(total=n_examples, file=sys.stdout) as pbar:

@@ -4,7 +4,7 @@ This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_dis
 
 ## Setup
 To get started with development:
-1. Ensure that Python 3.8 or 3.9 is installed.
+1. Ensure that Python 3.9 is installed.
 2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
 3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
 4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
@@ -20,6 +20,8 @@ The main script can then be executed using `python -m damage_identification [mod
 * `predict`: predict the damage mode of one or multiple examples using a trained pipeline 
 * `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
+
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
 
 ### Configuration parameters
 
@@ -49,7 +51,7 @@ format the project code by running `black .` in the project directory.  For docs
 the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
 
 Some more guidelines to follow:
-* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest -v`.
+* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest` or using the script in `bin/tests.sh`.
 * Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
 * Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file structure,
   avoiding long files and preferring small, specialized files.
@@ -61,14 +63,15 @@ Some more guidelines to follow:
 Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
 that can be hard to find. The following names are used in docstrings for this purpose:
 
-* `n_examples`: the number of examples in this array
-* `length_example`: the number of samples in a single example
+* `n_examples`: the number of examples in the dataset
+* `n_examples_valid`: the number of valid examples in the dataset
+* `n_samples`: the number of samples in a single example
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA
 * `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
-time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
+time for all examples, the corresponding shape is `n_examples x n_samples`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
 
 

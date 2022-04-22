@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import numpy as np
 from scipy.fft import fft, fftfreq
@@ -22,27 +22,34 @@ class FourierExtractor(FeatureExtractor):
     peak_frequency = features["peak_frequency"]
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         if params is None:
             params = {}
         super().__init__("fourier", params)
 
-    def extract_features(self, example: np.ndarray) -> Dict[str, float]:
+    def extract_features(self, example: np.ndarray) -> dict[str, float]:
         """
         Uses Fourier transform to extract peak frequency and central frequency features
 
         Args:
-            example: a single example (shape 1 x length_example)
+            example: a single example (shape 1 x n_samples)
         Returns:
             dictionary containing peak frequency ("peak_frequency") and central frequency ("central_frequency")
         """
-
-        length_example = np.size(example)
+        n_samples = np.size(example)
         ft = fft(example)
-        freqs = fftfreq(length_example, d=0.001 / length_example)
+        freqs = fftfreq(n_samples, d=0.001 / n_samples)
         ft[freqs < 0] = 0
-        amp = np.abs(ft) / length_example
+        amp = np.abs(ft) / n_samples
         peakfreq = freqs[np.argmax(amp)]
         avgfreq = np.average(freqs, weights=amp)
 
         return {"peak_frequency": peakfreq, "central_frequency": avgfreq}
+
+    def transform(self, example: np.ndarray) -> np.ndarray:
+        length_example = np.size(example)
+        amp = np.abs(fft(example))
+        freqs = fftfreq(length_example, d=0.001 / length_example)
+        amp = amp[freqs > 0]
+        freqs = freqs[freqs > 0]
+        return np.vstack((freqs, amp))

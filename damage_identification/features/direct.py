@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 import numpy as np
 from scipy.integrate import simpson
@@ -20,7 +20,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         - sample_X: first n samples as baseline to compare other features
     """
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         """
         Initialize the direct feature extractor.
 
@@ -39,12 +39,12 @@ class DirectFeatureExtractor(FeatureExtractor):
             params["first_peak_domain"] = 0.2
         super().__init__("direct", params)
 
-    def extract_features(self, example: np.ndarray) -> Dict[str, float]:
+    def extract_features(self, example: np.ndarray) -> dict[str, float]:
         """
         Extracts direct features from a single waveform.
 
         Args:
-            example: a single example (shape 1 x length_example)
+            example: a single example (shape 1 x n_samples)
 
         Returns:
             A dictionary containing items with each feature name value for the input example.
@@ -88,22 +88,31 @@ class DirectFeatureExtractor(FeatureExtractor):
         timestamps = np.linspace(0, 1 / 1000, n_samples)  # in s
         energy = simpson(np.square(example * 1000), timestamps)
 
-        return_dict = {
+        # First n samples
+        first_n_samples = {
+            "sample_" + str(n + 1): example[n]
+            for n in range(min(self.params["direct_features_n_samples"], n_samples))
+        }
+
+        # Testing for double peaks which make an example invalid
+        # Boundary between domains where first and second peak are searched
+        boundary_index = round(n_samples * first_peak_domain)
+        peak_amplitude_1 = np.max(np.abs(example[:boundary_index]))
+        peak_amplitude_2 = np.max(np.abs(example[boundary_index:]))
+        relative_peak_amplitude = min(peak_amplitude_2, peak_amplitude_1) / max(
+            peak_amplitude_2, peak_amplitude_1
+        )
+
+        # Check if we have two peaks with smaller one being
+        #    max_relative_peak_amplitude of larger one in the same signal
+        if counts >= 2 and relative_peak_amplitude > max_relative_peak_amplitude:
+            # Setting any feature to None marks this example as invalid
+            duration = None
+
+        return {
             "peak_amplitude": peak_amplitude,
             "counts": counts,
             "duration": duration,
             "rise_time": rise_time,
             "energy": energy,
-        }
-
-        # First n samples
-        return_dict.update(
-            {
-                "sample_" + str(n + 1): example[n]
-                for n in range(min(self.params["direct_features_n_samples"], n_samples))
-            }
-        )
-
-    
-
-        return return_dict
+        } | first_n_samples

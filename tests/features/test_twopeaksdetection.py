@@ -1,113 +1,12 @@
 from unittest import TestCase
 import numpy as np
-from damage_identification.io import load_compressed_data
 
 from damage_identification.features.multiplepeakdetection import real_time_peak_detection
 
 
 class TestTwoPeakDetection(TestCase):
-    def setUp(self):
-        exampletwo = np.array(
-            [
-                0,
-                0,
-                0,
-                1,
-                2,
-                2,
-                8,
-                15,
-                90,
-                35,
-                2,
-                2,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                2,
-                3,
-                3,
-                4,
-                4,
-                5,
-                6,
-                40,
-                36,
-                56,
-                90,
-                50,
-                6,
-                2,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ]
-        )
-
-        exampleone = np.array(
-            [
-                0,
-                0,
-                0,
-                1,
-                2,
-                2,
-                2,
-                2,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ]
-        )
-        self.peakdetectionone = real_time_peak_detection(exampleone, 10, 2, 1)
-        self.peakdetectiontwo = real_time_peak_detection(exampletwo, 10, 2, 1)
-
     def test_two_peaks(self):
-        exampletwo = np.array(
+        example = np.array(
             [
                 0,
                 0,
@@ -168,12 +67,14 @@ class TestTwoPeakDetection(TestCase):
                 0,
             ]
         )
-        result = self.peakdetectiontwo.test_peak(10, 2, 1)
-        self.assertEqual(np.shape(result["firstslice"]), (len(exampletwo),))
-        self.assertEqual(np.shape(result["secondslice"]), (len(exampletwo),))
+        self.peakdetection = real_time_peak_detection(example, 10, 2, 1)
+        result = self.peakdetection.test_peak()
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), len(example))
+        self.assertEqual(len(result[1]), len(example))
 
     def test_one_peak(self):
-        exampleone = np.array(
+        example = np.array(
             [
                 0,
                 0,
@@ -207,6 +108,8 @@ class TestTwoPeakDetection(TestCase):
                 0,
             ]
         )
-        result = self.peakdetectionone.test_peak(10, 2, 1)
-        self.assertEqual(np.shape(result["firstslice"]), (len(exampleone),))
-        self.assertEqual(result["secondslice"], None)
+        self.peakdetection = real_time_peak_detection(example, 10, 2, 1)
+        result = self.peakdetection.test_peak()
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), len(example))
+        self.assertEqual(result[1], None)

@@ -30,10 +30,15 @@ class TestPipeline(TestCase):
 
     def test_extract_features(self):
         """Validate format of features DataFrame"""
-        features, valid_mask = self.pipeline._extract_features(np.zeros((3, 2048)), 3)
+        features, valid_mask, n_valid_examples = self.pipeline._extract_features(
+            np.zeros((3, 2048)), 3
+        )
 
         self.assertEqual(features.shape, (3, 2))
         self.assertListEqual(features.columns.tolist(), ["feature_a", "feature_b"])
+
         self.assertTrue(valid_mask[0])
         self.assertTrue(valid_mask[1])
         self.assertFalse(valid_mask[2])
+
+        self.assertEqual(n_valid_examples, 2)
