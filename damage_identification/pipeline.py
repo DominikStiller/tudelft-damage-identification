@@ -27,7 +27,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
-from damage_identification.clustering.cluster_statistics import print_cluster_statistics
+from damage_identification.evaluation.cluster_statistics import print_cluster_statistics
 from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
@@ -38,7 +38,7 @@ from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
-from damage_identification.visualization.clustering import ClusteringVisualization
+from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
 
 
 class Pipeline:
