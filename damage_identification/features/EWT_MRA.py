@@ -32,6 +32,7 @@ class MultiResolutionAnalysis:
         self.reconstructed = np.ndarray([])
         self.wavelet = wavelet
         self.mode = mode
+        self.dec_level = 3
         # self.mfb = np.ndarray([])
         # self.boundaries = np.ndarray([])
         # super(MultiResolutionAnalysis, self).__init__("EWT_MRA", params)
@@ -49,40 +50,52 @@ class MultiResolutionAnalysis:
         Description
         """
         wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode)
-        print(wp['a'].data, wp.maxlevel)
-
         return
 
-    def plot_decomposition(self):
-        plt.plot(self.decomposed_data)
+    # def plot_decomposition(self):
+    #     plt.plot(self.decomposed_data)
+    #     plt.show()
+    #     _, decomp_lvl = np.shape(self.decomposed_data)
+    #     for i in range(self.decomposed_data.shape[1]):
+    #         plt.subplot(decomp_lvl, 1, i + 1)
+    #         plt.plot(self.decomposed_data[:, i])
+    #     return plt.show()
+
+    def data_handler(self):
+        coeffs = []
+        wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode, maxlevel=3)
+        for level in range(0,3):
+            print(level)
+            coeffs.append([wp[node.path].data for node in wp.get_level(level, 'natural')])
+
+        energy_lvl1 = sum((coeffs[0][0][:])**2)
+        energy_lvl2 = sum((coeffs[1][0][:])**2) + sum((coeffs[1][1][:])**2)
+        energy_lvl3 = sum((coeffs[2][0][:]) ** 2) + sum((coeffs[2][1][:]) ** 2) + sum((coeffs[2][2][:]) ** 2) + sum((coeffs[2][3][:]) ** 2)
+        print(energy_lvl1, energy_lvl2, energy_lvl3)
+        plt.plot(np.linspace(0, len(coeffs[0][0][:]), len(coeffs[0][0][:])), coeffs[0][0][:], color="g")
+        plt.plot(np.linspace(0, len(coeffs[2][0][:]),len(coeffs[2][0][:])), coeffs[2][0][:], color="b")
+        plt.plot(np.linspace(541, 541+len(coeffs[2][1][:]),len(coeffs[2][1][:])), coeffs[2][1][:], color="r")
+
         plt.show()
-        _, decomp_lvl = np.shape(self.decomposed_data)
-        for i in range(self.decomposed_data.shape[1]):
-            plt.subplot(decomp_lvl, 1, i + 1)
-            plt.plot(self.decomposed_data[:, i])
-        return plt.show()
+        print()
+        return print(max(abs(coeffs[2][2][:])), min(abs(coeffs[2][2][:])))
 
-    def filtered_constructor(self):
-        _, decomp_lvl = np.shape(self.decomposed_data)
-        for i in range(0, decomp_lvl-1):
-            np.append(self.reconstructed, self.decomposed_data[:, i])
-
-        plt.plot(self.reconstructed)
-        plt.show()
+    def constructor(self, coeffs):
+        pywt.waverec(coeffs, 'db1')
         return
 
-    def iewt1d(self, ewt, mfb):
-        real = all(np.isreal(ewt[:,0]))
-        _, decomp_lvl = np.shape(self.decomposed_data)
-        if real:
-            self.reconstructed = np.zeros(len(ewt[:, 0]))
-            for i in range(0, decomp_lvl-1):
-                self.reconstructed += np.real(np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i]))
-        else:
-            self.reconstructed = np.zeros(len(ewt[:, 0])) * 0j
-            for i in range(0, decomp_lvl-1):
-                self.reconstructed += np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i])
-        return
+    # def iewt1d(self, ewt, mfb):
+    #     real = all(np.isreal(ewt[:,0]))
+    #     _, decomp_lvl = np.shape(self.decomposed_data)
+    #     if real:
+    #         self.reconstructed = np.zeros(len(ewt[:, 0]))
+    #         for i in range(0, decomp_lvl-1):
+    #             self.reconstructed += np.real(np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i]))
+    #     else:
+    #         self.reconstructed = np.zeros(len(ewt[:, 0])) * 0j
+    #         for i in range(0, decomp_lvl-1):
+    #             self.reconstructed += np.fft.ifft(np.fft.fft(ewt[:, i]) * mfb[::2, i])
+    #     return
 
     def plot_recon(self):
         plt.plot(self.reconstructed)
