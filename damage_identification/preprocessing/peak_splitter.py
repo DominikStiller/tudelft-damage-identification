@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 
@@ -6,7 +8,9 @@ class PeakSplitter:
     Splits a waveform if it contains two signals. Multiple signals are detected based on peaks.
     """
 
-    def __init__(self, waveform, lag=160, threshold=4, influence=1, threshold_counter=5):
+    def __init__(
+        self, waveform: np.ndarray, lag=160, threshold=4, influence=1, threshold_counter=5
+    ):
         self.y = list(np.zeros(lag + 1))
         self.waveform = waveform
         self.threshold_counter = threshold_counter
@@ -22,7 +26,7 @@ class PeakSplitter:
         self.avgFilter[self.lag - 1] = np.mean(self.y[0 : self.lag]).tolist()
         self.stdFilter[self.lag - 1] = np.std(self.y[0 : self.lag]).tolist()
 
-    def split(self):
+    def split(self) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """
         Detects peaks and splits waveform if there are two peaks.
 
