@@ -2,7 +2,6 @@ import os
 import pickle
 from typing import Dict, Any, Optional
 
-import numpy as np
 import pandas as pd
 from fcmeans import FCM
 
