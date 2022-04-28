@@ -30,23 +30,34 @@ from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
+from damage_identification.evaluation.cluster_statistics import (
+    print_cluster_statistics,
+    prepare_data_for_display,
+)
+from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
 from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
+from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
-from damage_identification.visualization.clustering import ClusteringVisualization
 
 
 class Pipeline:
-    PIPELINE_PERSISTENCE_FOLDER = "data/pipeline/"
     # Parameters that change with every execution and should not be saved
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
     def __init__(self, params: dict[str, Any]):
+        if "pipeline_name" not in params:
+            params["pipeline_name"] = "default"
         self.params = params
+
+        self.pipeline_persistence_folder = os.path.join(
+            "data", f"pipeline_{self.params['pipeline_name']}"
+        )
+
         self._initialize_components()
 
     def run_training(self):
@@ -59,8 +70,8 @@ class Pipeline:
         data, n_examples = self._load_data()
         print(f"-> Loaded training dataset ({n_examples} examples)")
 
-        # Apply wavelet filtering
-        data_filtered = self._apply_wavelet_filtering(data, n_examples)
+        # Apply bandpass and wavelet filtering
+        data_filtered = self._apply_filtering(data, n_examples)
 
         # Train feature extractor
         print("Training feature extractors...")
@@ -83,7 +94,7 @@ class Pipeline:
         # Perform PCA for cluster training
         features_reduced = self._reduce_features(features_normalized)
         print(
-            f"-> Trained PCA ({self.params['explained_variance']:.0%} of variance "
+            f"-> Trained PCA ({self.pca.explained_variance:.0%} of variance "
             f"explained by {self.pca.n_components} principal components)"
         )
 
@@ -115,8 +126,8 @@ class Pipeline:
         data, n_examples = self._load_data()
         print(f"-> Loaded prediction dataset ({n_examples} examples)")
 
-        # Apply wavelet filtering
-        data_filtered = self._apply_wavelet_filtering(data, n_examples)
+        # Apply bandpass and wavelet filtering
+        data_filtered = self._apply_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
         features, valid_mask, n_valid_examples = self._extract_features(data_filtered, n_examples)
@@ -126,7 +137,13 @@ class Pipeline:
 
         # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_valid_examples)
-        self.visualization_clustering.visualize(features_reduced, predictions, "kmeans")
+
+        data_display = prepare_data_for_display(predictions, features_valid, features_reduced)
+
+        print_cluster_statistics(data_display)
+        self.pca.print_correlations()
+        if not self.params["skip_visualization"]:
+            self.visualization_clustering.visualize(data_display)
 
         # TODO run cluster identification and apply valid mask
 
@@ -140,6 +157,7 @@ class Pipeline:
     def _initialize_components(self):
         """Initialize all components including parameters"""
         # Pre-processing
+        self.bandpass_filter = BandpassFiltering(self.params)
         self.wavelet_filter = WaveletFiltering(self.params)
 
         # Feature extraction
@@ -181,7 +199,7 @@ class Pipeline:
 
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
-        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "rb") as f:
+        with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "rb") as f:
             saved_params: dict = pickle.load(f)
             self.params |= saved_params
             for k, v in saved_params.items():
@@ -189,14 +207,14 @@ class Pipeline:
 
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
-                os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, feature_extractor.name)
+                os.path.join(self.pipeline_persistence_folder, feature_extractor.name)
             )
 
         for clusterer in self.clusterers:
-            clusterer.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, clusterer.name))
+            clusterer.load(os.path.join(self.pipeline_persistence_folder, clusterer.name))
 
-        self.normalization.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "normalization"))
-        self.pca.load(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "pca"))
+        self.normalization.load(os.path.join(self.pipeline_persistence_folder, "normalization"))
+        self.pca.load(os.path.join(self.pipeline_persistence_folder, "pca"))
 
     def _save_pipeline(self):
         """Save all components of the pipeline"""
@@ -210,7 +228,7 @@ class Pipeline:
         self.pca.save(self._create_component_dir("pca"))
 
         # Save parameters
-        with open(os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, "params.pickle"), "wb") as f:
+        with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "wb") as f:
             params_to_save = self.params.copy()
             for param in self.PER_RUN_PARAMS:
                 if param in params_to_save:
@@ -218,22 +236,24 @@ class Pipeline:
             pickle.dump(params_to_save, f)
 
     def _create_component_dir(self, name):
-        save_directory = os.path.join(self.PIPELINE_PERSISTENCE_FOLDER, name)
+        save_directory = os.path.join(self.pipeline_persistence_folder, name)
         os.makedirs(save_directory, exist_ok=True)
         return save_directory
 
-    def _apply_wavelet_filtering(self, data: np.ndarray, n_examples) -> np.ndarray:
-        """Apply wavelet filtering to all examples"""
+    def _apply_filtering(self, data: np.ndarray, n_examples) -> np.ndarray:
+        """Apply bandpass and wavelet filtering to all examples"""
         if not self.params["skip_filter"]:
-            print("Applying wavelet filtering...")
+            print("Applying bandpass and wavelet filtering...")
             with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
                 def do_filter(example):
                     pbar.update()
-                    return self.wavelet_filter.filter_single(example)
+                    example = self.bandpass_filter.filter_single(example)
+                    example = self.wavelet_filter.filter_single(example)
+                    return example
 
                 data = np.apply_along_axis(do_filter, axis=1, arr=data)
-            print("-> Applied wavelet filtering")
+            print("-> Applied bandpass and wavelet filtering")
 
         return data
 
@@ -264,7 +284,9 @@ class Pipeline:
         n_features = len(all_features.columns)
         n_valid = n_examples - n_invalid
 
-        print(f"-> Extracted {n_features} features ({n_invalid} examples were invalid)")
+        print(
+            f"-> Extracted {n_features} features ({n_invalid} examples were invalid, {n_valid} were valid)"
+        )
 
         return all_features, valid_mask, n_valid
 
@@ -274,7 +296,9 @@ class Pipeline:
 
         n_features_reduced = features_reduced.shape[1]
         features_reduced = pd.DataFrame(
-            features_reduced, columns=[f"pca_{i + 1}" for i in range(n_features_reduced)]
+            features_reduced,
+            columns=[f"pca_{i + 1}" for i in range(n_features_reduced)],
+            index=features.index.copy(),
         )
 
         return features_reduced
@@ -292,7 +316,7 @@ class Pipeline:
             for clusterer in self.clusterers:
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
-        predictions = pd.concat(predictions, axis=1)
+        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
         print("-> Predicted cluster memberships")
 
         return predictions
