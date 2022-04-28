@@ -50,8 +50,3 @@ class TestDirectFeatureExtractor(TestCase):
         example_1 = np.array([0, 1, 0, -2, 0, 1, 0, 0.4, -0.4, 0])
         features = self.extractor.extract_features(example_1)
         self.assertEqual(features["rise_time"], 2 / 10 / 1000)
-
-    def test_extract_features_2peaks(self):
-        example_1 = np.array([0, 2, 0, -1, 0, 1, 0, 1.8, -0.4, 0])
-        features = self.extractor.extract_features(example_1)
-        self.assertEqual(features["duration"], None)
