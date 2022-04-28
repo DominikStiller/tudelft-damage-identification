@@ -34,14 +34,19 @@ from damage_identification.evaluation.cluster_statistics import (
 from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
+from damage_identification.evaluation.cluster_statistics import (
+    print_cluster_statistics,
+    prepare_data_for_display,
+)
+from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
 from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
+from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
-from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
 
 
 class Pipeline:
@@ -69,8 +74,8 @@ class Pipeline:
         data, n_examples = self._load_data()
         print(f"-> Loaded training dataset ({n_examples} examples)")
 
-        # Apply wavelet filtering
-        data_filtered = self._apply_wavelet_filtering(data, n_examples)
+        # Apply bandpass and wavelet filtering
+        data_filtered = self._apply_filtering(data, n_examples)
 
         # Train feature extractor
         print("Training feature extractors...")
@@ -125,8 +130,8 @@ class Pipeline:
         data, n_examples = self._load_data()
         print(f"-> Loaded prediction dataset ({n_examples} examples)")
 
-        # Apply wavelet filtering
-        data_filtered = self._apply_wavelet_filtering(data, n_examples)
+        # Apply bandpass and wavelet filtering
+        data_filtered = self._apply_filtering(data, n_examples)
 
         # Extract, normalize and reduce features
         features, valid_mask, n_valid_examples = self._extract_features(data_filtered, n_examples)
@@ -155,6 +160,7 @@ class Pipeline:
     def _initialize_components(self):
         """Initialize all components including parameters"""
         # Pre-processing
+        self.bandpass_filter = BandpassFiltering(self.params)
         self.wavelet_filter = WaveletFiltering(self.params)
 
         # Feature extraction
@@ -237,18 +243,20 @@ class Pipeline:
         os.makedirs(save_directory, exist_ok=True)
         return save_directory
 
-    def _apply_wavelet_filtering(self, data: np.ndarray, n_examples) -> np.ndarray:
-        """Apply wavelet filtering to all examples"""
+    def _apply_filtering(self, data: np.ndarray, n_examples) -> np.ndarray:
+        """Apply bandpass and wavelet filtering to all examples"""
         if not self.params["skip_filter"]:
-            print("Applying wavelet filtering...")
+            print("Applying bandpass and wavelet filtering...")
             with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
                 def do_filter(example):
                     pbar.update()
-                    return self.wavelet_filter.filter_single(example)
+                    example = self.bandpass_filter.filter_single(example)
+                    example = self.wavelet_filter.filter_single(example)
+                    return example
 
                 data = np.apply_along_axis(do_filter, axis=1, arr=data)
-            print("-> Applied wavelet filtering")
+            print("-> Applied bandpass and wavelet filtering")
 
         return data
 

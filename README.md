@@ -28,13 +28,16 @@ Alternatively, the scripts in `bin` can be used which automatically activate the
 Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
-* `skip_filter`: wavelet filtering is skipped if flag is present
+* `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
 * `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
+* `bandpass_low` (float, default: 100): the low cutoff for the bandpass filter in kHz
+* `bandpass_high` (float, default: 900): the high cutoff for the bandpass filter in kHz
+* `bandpass_order` (int, default: 5): the order for the Butterworth bandpass filter
 * `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
 * `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
