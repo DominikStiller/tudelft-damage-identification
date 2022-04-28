@@ -32,7 +32,6 @@ class MultiResolutionAnalysis:
         self.reconstructed = np.ndarray([])
         self.wavelet = wavelet
         self.mode = mode
-        self.dec_level = 3
         # self.mfb = np.ndarray([])
         # self.boundaries = np.ndarray([])
         # super(MultiResolutionAnalysis, self).__init__("EWT_MRA", params)
@@ -43,6 +42,10 @@ class MultiResolutionAnalysis:
         """
         x = io.load_compressed_data(directory)
         self.signal_data = x[n, :]
+        return self.signal_data
+
+    def load_manual(self, data):
+        self.signal_data = data
         return self.signal_data
 
     def wpt_mra(self):
@@ -63,22 +66,29 @@ class MultiResolutionAnalysis:
 
     def data_handler(self):
         coeffs = []
-        wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode, maxlevel=3)
-        for level in range(0,3):
+        wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode)
+        print(wp.maxlevel, self.signal_data)
+        for level in range(1,wp.maxlevel+1):
             print(level)
             coeffs.append([wp[node.path].data for node in wp.get_level(level, 'natural')])
 
-        energy_lvl1 = sum((coeffs[0][0][:])**2)
-        energy_lvl2 = sum((coeffs[1][0][:])**2) + sum((coeffs[1][1][:])**2)
+        # energy_lvl1 = sum((coeffs[0][0][:])**2)
+        energy_lvl1 = sum((coeffs[0][0][:])) + sum((coeffs[0][1][:]))
         energy_lvl3 = sum((coeffs[2][0][:]) ** 2) + sum((coeffs[2][1][:]) ** 2) + sum((coeffs[2][2][:]) ** 2) + sum((coeffs[2][3][:]) ** 2)
-        print(energy_lvl1, energy_lvl2, energy_lvl3)
-        plt.plot(np.linspace(0, len(coeffs[0][0][:]), len(coeffs[0][0][:])), coeffs[0][0][:], color="g")
-        plt.plot(np.linspace(0, len(coeffs[2][0][:]),len(coeffs[2][0][:])), coeffs[2][0][:], color="b")
-        plt.plot(np.linspace(541, 541+len(coeffs[2][1][:]),len(coeffs[2][1][:])), coeffs[2][1][:], color="r")
+        energy_lvl3_1 = sum((coeffs[2][0][:]) ** 2) / energy_lvl3
+        energy_lvl3_2 = sum((coeffs[2][1][:]) ** 2) / energy_lvl3
+        energy_lvl3_3 = sum((coeffs[2][2][:]) ** 2) / energy_lvl3
+        energy_lvl3_4 = sum((coeffs[2][3][:]) ** 2) / energy_lvl3
+        # print(energy_lvl1, energy_lvl2, energy_lvl3)
+
+        plt.plot(np.linspace(0, len(coeffs[0][1][:]), len(coeffs[0][1][:])), coeffs[0][1][:], color="g")
+        plt.plot(np.linspace(0, len(self.signal_data), len(self.signal_data)), self.signal_data)
+        # plt.plot(np.linspace(0, len(coeffs[2][0][:]),len(coeffs[2][0][:])), coeffs[2][0][:], color="b")
+        # plt.plot(np.linspace(541, 541+len(coeffs[2][1][:]),len(coeffs[2][1][:])), coeffs[2][1][:], color="r")
 
         plt.show()
-        print()
-        return print(max(abs(coeffs[2][2][:])), min(abs(coeffs[2][2][:])))
+
+        return print(coeffs[0][0], coeffs[0][1], len(coeffs[0][0]), energy_lvl3_1, energy_lvl3_2, energy_lvl3_3, energy_lvl3_4)
 
     def constructor(self, coeffs):
         pywt.waverec(coeffs, 'db1')
