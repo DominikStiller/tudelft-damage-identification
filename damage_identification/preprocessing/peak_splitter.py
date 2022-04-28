@@ -35,7 +35,7 @@ class PeakSplitter:
             self.y.append(item)
             i = len(self.y) - 1
             if i < self.lag:
-                return 0
+                return None, None
             elif i == self.lag:
                 self.signals = [0] * len(self.y)
                 self.filteredY = np.array(self.y).tolist()
@@ -43,7 +43,7 @@ class PeakSplitter:
                 self.stdFilter = [0] * len(self.y)
                 self.avgFilter[self.lag] = np.mean(self.y[0 : self.lag]).tolist()
                 self.stdFilter[self.lag] = np.std(self.y[0 : self.lag]).tolist()
-                return 0
+                return None, None
 
             self.signals += [0]
             self.filteredY += [0]
