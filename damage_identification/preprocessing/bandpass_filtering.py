@@ -17,7 +17,7 @@ class BandpassFiltering:
         if "bandpass_order" not in self.params:
             self.params["bandpass_order"] = 5
 
-        self.filter = signal.butter(
+        self.bandpass_filter = signal.butter(
             self.params["bandpass_order"],
             [self.params["bandpass_low"] * 1e3, self.params["bandpass_high"] * 1e3],
             "bandpass",
@@ -32,7 +32,7 @@ class BandpassFiltering:
         Args:
             data: waveform signal data
         """
-        return signal.sosfilt(self.filter, data)
+        return signal.sosfilt(self.bandpass_filter, data)
 
     def filter(self, data: np.ndarray) -> np.ndarray:
         """
