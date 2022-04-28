@@ -94,21 +94,6 @@ class DirectFeatureExtractor(FeatureExtractor):
             for n in range(min(self.params["direct_features_n_samples"], n_samples))
         }
 
-        # Testing for double peaks which make an example invalid
-        # Boundary between domains where first and second peak are searched
-        boundary_index = round(n_samples * first_peak_domain)
-        peak_amplitude_1 = np.max(np.abs(example[:boundary_index]))
-        peak_amplitude_2 = np.max(np.abs(example[boundary_index:]))
-        relative_peak_amplitude = min(peak_amplitude_2, peak_amplitude_1) / max(
-            peak_amplitude_2, peak_amplitude_1
-        )
-
-        # Check if we have two peaks with smaller one being
-        #    max_relative_peak_amplitude of larger one in the same signal
-        if counts >= 2 and relative_peak_amplitude > max_relative_peak_amplitude:
-            # Setting any feature to None marks this example as invalid
-            duration = None
-
         return {
             "peak_amplitude": peak_amplitude,
             "counts": counts,
