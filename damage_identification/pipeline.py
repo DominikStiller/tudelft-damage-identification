@@ -50,7 +50,7 @@ class Pipeline:
     PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
 
     def __init__(self, params: dict[str, Any]):
-        if "pipeline_name" not in params:
+        if ("pipeline_name" not in params) or (params["pipeline_name"] is None):
             params["pipeline_name"] = "default"
         self.params = params
 
