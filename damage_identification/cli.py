@@ -43,6 +43,8 @@ def _construct_parser() -> ArgumentParser:
     # Parent parser for common parameters
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
+    parser_params.add_argument("--skip_filter", action="store_true")
+    parser_params.add_argument("-n", "--pipeline_name")
     parser_params.add_argument("data_file")
 
     # Training mode
@@ -51,19 +53,23 @@ def _construct_parser() -> ArgumentParser:
     )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
 
-    parser_training.add_argument("--skip_filter", action="store_true")
     parser_training.add_argument("--wavelet_family", type=str)
     parser_training.add_argument("--wavelet_scale", type=int)
     parser_training.add_argument("--wavelet_threshold", type=str)
+    parser_training.add_argument("--bandpass_low", type=float)
+    parser_training.add_argument("--bandpass_high", type=float)
+    parser_training.add_argument("--bandpass_order", type=int)
     parser_training.add_argument("--n_clusters", required=True)
     parser_training.add_argument("--direct_features_threshold", type=float)
     parser_training.add_argument("--direct_features_n_samples", type=int)
     parser_training.add_argument("--max_relative_peak_amplitude", type=float)
     parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
+    parser_training.add_argument("--n_principal_components", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])
+    parser_prediction.add_argument("--skip_visualization", action="store_true")
     parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
 
     # Evaluation mode

@@ -14,6 +14,8 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> d
     Returns:
         Optimal number of clusters k
     """
+    assert n_start > 1, "Number of clusters must be 2 or higher"
+
     vclust = vld.ValidClust(k=list(range(n_start, n_end + 1)), methods=["kmeans", "hierarchical"])
     cvi_vals = vclust.fit_predict(features)
     indices = cvi_vals.to_numpy()
