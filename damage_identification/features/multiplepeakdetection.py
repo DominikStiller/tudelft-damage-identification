@@ -2,9 +2,12 @@ import numpy as np
 
 
 class real_time_peak_detection:
-    def __init__(self, array, lag=80, threshold=4, influence=1):
-        self.y = list(array)
+    def __init__(self, waveform, lag=80, threshold=4, influence=1, threshold_counter=5):
+        self.y = list(np.zeros(lag + 1))
+        self.waveform = waveform
+        self.threshold_counter = threshold_counter
         self.length = len(self.y)
+        self.counter = np.zeros(self.length + len(self.waveform))
         self.lag = lag
         self.threshold = threshold
         self.influence = influence
@@ -15,75 +18,62 @@ class real_time_peak_detection:
         self.avgFilter[self.lag - 1] = np.mean(self.y[0 : self.lag]).tolist()
         self.stdFilter[self.lag - 1] = np.std(self.y[0 : self.lag]).tolist()
 
-    def _thresholding_algo(self, test, new_value):
-        test.append(new_value)
-        i = len(test) - 1
-        self.length = len(test)
-        if i < self.lag:
-            return 0
-        elif i == self.lag:
-            self.signals = [0] * len(test)
-            self.filteredY = np.array(test).tolist()
-            self.avgFilter = [0] * len(test)
-            self.stdFilter = [0] * len(test)
-            self.avgFilter[self.lag] = np.mean(test[0 : self.lag]).tolist()
-            self.stdFilter[self.lag] = np.std(test[0 : self.lag]).tolist()
-            return 0
+    def thresholding_algo(self):
+        for item in abs(self.waveform):
+            self.y.append(item)
+            i = len(self.y) - 1
+            if i < self.lag:
+                return 0
+            elif i == self.lag:
+                self.signals = [0] * len(self.y)
+                self.filteredY = np.array(self.y).tolist()
+                self.avgFilter = [0] * len(self.y)
+                self.stdFilter = [0] * len(self.y)
+                self.avgFilter[self.lag] = np.mean(self.y[0 : self.lag]).tolist()
+                self.stdFilter[self.lag] = np.std(self.y[0 : self.lag]).tolist()
+                return 0
 
-        self.signals += [0]
-        self.filteredY += [0]
-        self.avgFilter += [0]
-        self.stdFilter += [0]
+            self.signals += [0]
+            self.filteredY += [0]
+            self.avgFilter += [0]
+            self.stdFilter += [0]
 
-        if abs(test[i] - self.avgFilter[i - 1]) > self.threshold * self.stdFilter[i - 1]:
-            if test[i] > self.avgFilter[i - 1]:
-                self.signals[i] = 1
-            else:
-                self.signals[i] = -1
+            if abs(self.y[i] - self.avgFilter[i - 1]) > self.threshold * self.stdFilter[i - 1]:
+                if self.y[i] > self.avgFilter[i - 1]:
+                    self.signals[i] = 1
+                else:
+                    self.signals[i] = -1
 
-            self.filteredY[i] = (
-                self.influence * test[i] + (1 - self.influence) * self.filteredY[i - 1]
-            )
-            self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag) : i])
-            self.stdFilter[i] = np.std(self.filteredY[(i - self.lag) : i])
-        else:
-            self.signals[i] = 0
-            self.filteredY[i] = test[i]
-            self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag) : i])
-            self.stdFilter[i] = np.std(self.filteredY[(i - self.lag) : i])
-
-        return self.signals[i], self.stdFilter[i], self.avgFilter[i]
-
-    def test_peak(self) -> tuple:
-        test = abs(np.array(self.y))
-        threshold_counter = 5
-        i = 0
-        signal = [0] * len(test)
-        std_filter = [0] * len(test)
-        avg_filter = [0] * len(test)
-        counter = np.zeros(len(test))
-        for element in test:
-            next_signal, next_std, next_avg = self._thresholding_algo(list(test), element)
-            signal[i] = next_signal
-            std_filter[i] = next_std
-            avg_filter[i] = next_avg
-            if signal[i - 1] == 1 and i != 0:
-                counter[i] = counter[i - 1] + 1
-
-            if (
-                i > 0.2 * self.length
-                and counter[i] >= 1
-                and sum(counter[i - int(0.024 * self.length) : i]) > threshold_counter
-            ):  # possibly decrease range
-                indexslice = int(0.95 * i)
-                firstslice = test[:indexslice]
-                firstslice = np.pad(
-                    firstslice, [0, self.length - indexslice - 1], mode="constant", constant_values=0
+                self.filteredY[i] = (
+                    self.influence * self.y[i] + (1 - self.influence) * self.filteredY[i - 1]
                 )
-                secondslice = test[indexslice:]
+                self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag) : i])
+                self.stdFilter[i] = np.std(self.filteredY[(i - self.lag) : i])
+            else:
+                self.signals[i] = 0
+                self.filteredY[i] = self.y[i]
+                self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag) : i])
+                self.stdFilter[i] = np.std(self.filteredY[(i - self.lag) : i])
+
+            if self.signals[i] == 1 and i != 0:
+                self.counter[i] = self.counter[i - 1] + 1
+            if (
+                i > self.lag + 0.2 * len(self.waveform)
+                and self.counter[i] >= 1
+                and sum(self.counter[i - 50 : i]) > self.threshold_counter
+            ):
+                indexslice = int(0.95 * (i - self.lag))
+                firstslice = self.waveform[:indexslice]
+                firstslice = np.pad(
+                    firstslice,
+                    (0, len(self.waveform) - indexslice),
+                    mode="constant",
+                    constant_values=0,
+                )
+                secondslice = self.waveform[indexslice:]
                 secondslice = np.pad(
-                    secondslice, [0, indexslice], mode="constant", constant_values=0
+                    secondslice, (0, indexslice), mode="constant", constant_values=0
                 )
                 return firstslice, secondslice
             i = i + 1
-        return self.y, None
+        return self.waveform, None
