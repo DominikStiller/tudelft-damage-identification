@@ -1,7 +1,7 @@
 from unittest import TestCase
 import numpy as np
 
-from damage_identification.features.multiplepeakdetection import real_time_peak_detection
+from damage_identification.preprocessing.peak_splitter import PeakSplitter
 
 
 class TestTwoPeakDetection(TestCase):
@@ -67,8 +67,8 @@ class TestTwoPeakDetection(TestCase):
                 0,
             ]
         )
-        self.peakdetection = real_time_peak_detection(example, 10, 2, 1)
-        result = self.peakdetection.thresholding_algo()
+        self.peakdetection = PeakSplitter(example, 10, 2, 1)
+        result = self.peakdetection.split()
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), len(example))
         self.assertEqual(len(result[1]), len(example))
@@ -103,8 +103,8 @@ class TestTwoPeakDetection(TestCase):
                 0,
             ]
         )
-        self.peakdetection = real_time_peak_detection(example, 20, 2, 1, 5)
-        result = self.peakdetection.thresholding_algo()
+        self.peakdetection = PeakSplitter(example, 20, 2, 1, 5)
+        result = self.peakdetection.split()
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), len(example))
         print(result[1])

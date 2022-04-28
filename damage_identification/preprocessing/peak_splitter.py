@@ -1,7 +1,11 @@
 import numpy as np
 
 
-class real_time_peak_detection:
+class PeakSplitter:
+    """
+    Splits a waveform if it contains two signals. Multiple signals are detected based on peaks.
+    """
+
     def __init__(self, waveform, lag=160, threshold=4, influence=1, threshold_counter=5):
         self.y = list(np.zeros(lag + 1))
         self.waveform = waveform
@@ -18,7 +22,15 @@ class real_time_peak_detection:
         self.avgFilter[self.lag - 1] = np.mean(self.y[0 : self.lag]).tolist()
         self.stdFilter[self.lag - 1] = np.std(self.y[0 : self.lag]).tolist()
 
-    def thresholding_algo(self):
+    def split(self):
+        """
+        Detects peaks and splits waveform if there are two peaks.
+
+        Based on https://stackoverflow.com/a/56451135
+
+        Returns:
+            A tuple of two signals, or the original signal and None
+        """
         for item in abs(self.waveform):
             self.y.append(item)
             i = len(self.y) - 1
