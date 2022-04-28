@@ -2,7 +2,7 @@ import numpy as np
 
 
 class real_time_peak_detection:
-    def __init__(self, waveform, lag=80, threshold=4, influence=1, threshold_counter=5):
+    def __init__(self, waveform, lag=160, threshold=4, influence=1, threshold_counter=5):
         self.y = list(np.zeros(lag + 1))
         self.waveform = waveform
         self.threshold_counter = threshold_counter
