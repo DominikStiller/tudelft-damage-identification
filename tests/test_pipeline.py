@@ -9,7 +9,7 @@ from damage_identification.pipeline import Pipeline
 
 class TestPipeline(TestCase):
     def setUp(self):
-        self.pipeline = Pipeline({})
+        self.pipeline = Pipeline({"sampling_rate": 1000 * 2048})
 
         feature_extractor = Mock(spec=FeatureExtractor)
         feature_extractor.extract_features.side_effect = [

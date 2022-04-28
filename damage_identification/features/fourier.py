@@ -38,7 +38,7 @@ class FourierExtractor(FeatureExtractor):
         """
         n_samples = np.size(example)
         ft = fft(example)
-        freqs = fftfreq(n_samples, d=0.001 / n_samples)
+        freqs = fftfreq(n_samples, d=1 / self.params["sampling_rate"])
         ft[freqs < 0] = 0
         amp = np.abs(ft) / n_samples
         peakfreq = freqs[np.argmax(amp)]
@@ -49,7 +49,7 @@ class FourierExtractor(FeatureExtractor):
     def transform(self, example: np.ndarray) -> np.ndarray:
         length_example = np.size(example)
         amp = np.abs(fft(example))
-        freqs = fftfreq(length_example, d=0.001 / length_example)
+        freqs = fftfreq(length_example, d=1 / self.params["sampling_rate"])
         amp = amp[freqs > 0]
         freqs = freqs[freqs > 0]
         return np.vstack((freqs, amp))

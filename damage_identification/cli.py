@@ -53,6 +53,9 @@ def _construct_parser() -> ArgumentParser:
     )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
 
+    parser_training.add_argument(
+        "--sampling_rate", type=float, default=1000 * 2048
+    )  # 2048 samples per ms
     parser_training.add_argument("--wavelet_family", type=str)
     parser_training.add_argument("--wavelet_scale", type=int)
     parser_training.add_argument("--wavelet_threshold", type=str)

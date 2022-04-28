@@ -51,7 +51,7 @@ class DirectFeatureExtractor(FeatureExtractor):
         """
         example = example.flatten()
         n_samples = len(example)
-        sampling_rate = n_samples * 1000  # n_samples per millisecond
+        sampling_rate = self.params["sampling_rate"]  # n_samples per millisecond
 
         threshold = self.params["direct_features_threshold"]
         max_relative_peak_amplitude = self.params["max_relative_peak_amplitude"]

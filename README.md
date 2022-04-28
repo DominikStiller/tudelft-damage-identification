@@ -32,6 +32,7 @@ using `--parameter_name value`. The following parameters are available in every 
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
+* `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
 * `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
