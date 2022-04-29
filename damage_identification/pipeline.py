@@ -138,12 +138,14 @@ class Pipeline:
         # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_valid_examples)
 
-        data_display = prepare_data_for_display(predictions, features_valid, features_reduced)
+        data_display, clusterer_names = prepare_data_for_display(
+            predictions, features_valid, features_reduced
+        )
 
-        print_cluster_statistics(data_display)
+        print_cluster_statistics(data_display, clusterer_names)
         self.pca.print_correlations()
         if not self.params["skip_visualization"]:
-            self.visualization_clustering.visualize(data_display)
+            self.visualization_clustering.visualize(data_display, clusterer_names)
 
         # TODO run cluster identification and apply valid mask
 

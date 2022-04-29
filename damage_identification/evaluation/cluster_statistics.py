@@ -1,26 +1,37 @@
 import pandas as pd
 
 
-def print_cluster_statistics(data: pd.DataFrame):
-    data = data.groupby("cluster")
+def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
+    for clusterer in clusterer_names:
+        print(f"\nCLUSTER STATISTICS ({clusterer})")
+        data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
-    print("\nCLUSTER STATISTICS")
-    print("COUNTS:")
-    print(data.size().to_string())
-    print("\nMEANS:")
-    with pd.option_context("display.max_rows", None, "display.max_columns", None):
-        print(data.mean())
+        print("COUNTS:")
+        print(data_grouped.size().to_string())
+
+        print("\nMEANS:")
+        with pd.option_context("display.max_rows", None, "display.max_columns", None):
+            print(data_grouped.mean())
 
 
 def prepare_data_for_display(
     predictions: pd.DataFrame,
     features: pd.DataFrame,
     features_reduced: pd.DataFrame,
-    clusterer: str = "kmeans",
-) -> pd.DataFrame:
-    data = pd.concat([predictions[clusterer], features, features_reduced], axis=1).rename(
-        columns={clusterer: "cluster"}
-    )
+) -> tuple[pd.DataFrame, list[str]]:
+    """
+    Prepares the features and prediction results for display. Columns are renamed and units adjusted for
+    human readability.
+
+    Args:
+        predictions: clustering predictions
+        features: original features
+        features_reduced: principal components of features
+
+    Returns:
+        A tuple of the display dataframe and the list of clusterer names, which are colums in the display dataframe
+    """
+    data = pd.concat([predictions, features, features_reduced], axis=1)
 
     # Add index and relative index as column
     data.reset_index(inplace=True)
@@ -40,4 +51,7 @@ def prepare_data_for_display(
             "central_frequency": "central_frequency [kHz]",
         }
     )
-    return data
+
+    clusterer_names = predictions.columns.tolist()
+
+    return data, clusterer_names
