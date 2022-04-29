@@ -22,6 +22,10 @@ def prepare_data_for_display(
         columns={clusterer: "cluster"}
     )
 
+    # Add index and relative index as column
+    data.reset_index(inplace=True)
+    data.insert(1, "relative_index", data["index"] / len(data.index))
+
     # Change units for display
     data["duration"] *= 1e6
     data["rise_time"] *= 1e6
