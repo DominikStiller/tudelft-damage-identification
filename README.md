@@ -71,7 +71,8 @@ Clearly documenting the meaning of each dimension in the shape of NumPy arrays/P
 that can be hard to find. The following names are used in docstrings for this purpose:
 
 * `n_examples`: the number of examples in the dataset
-* `n_examples_valid`: the number of valid examples in the dataset
+* `n_examples_split`: the number of examples in the dataset after splitting by peaks
+* `n_examples_valid`: the number of valid examples in the peak-split dataset
 * `n_samples`: the number of samples in a single example
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA

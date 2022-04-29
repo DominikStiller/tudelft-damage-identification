@@ -68,7 +68,7 @@ class TestTwoPeakDetection(TestCase):
             ]
         )
         self.peakdetection = PeakSplitter(example, 10, 2, 1)
-        result = self.peakdetection.split()
+        result = self.peakdetection.split_single()
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), len(example))
         self.assertEqual(len(result[1]), len(example))
@@ -104,7 +104,7 @@ class TestTwoPeakDetection(TestCase):
             ]
         )
         self.peakdetection = PeakSplitter(example, 20, 2, 1, 5)
-        result = self.peakdetection.split()
+        result = self.peakdetection.split_single()
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), len(example))
         print(result[1])

@@ -45,8 +45,8 @@ class FourierExtractor(FeatureExtractor):
         try:
             avgfreq = np.average(freqs, weights=amp)
         except ZeroDivisionError:
-            # For some samples only containing noise, filtering removes all content, so all amplitudes are zero
-            # These samples should just be ignored
+            # For some examples only containing noise, filtering removes all content, so all amplitudes are zero
+            # These examples should just be ignored
             avgfreq = None
 
         return {"peak_frequency": peakfreq, "central_frequency": avgfreq}
