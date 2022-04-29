@@ -131,11 +131,5 @@ hct = hc.train(data)
 #hcp = hc.predict(data)
 
 
-plt.title("Hierarchical Clustering Dendrogram")
-# plot the top three levels of the dendrogram
-plot_dendrogram(hct, truncate_mode="level", p=5)
-plt.xlabel("Number of points in node (or index of point if no parenthesis).")
-plt.show()
-'''
 
 
