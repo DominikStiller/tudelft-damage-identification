@@ -123,7 +123,6 @@ data = data.iloc[:-250]
 
 hc = HierarchicalClusterer({"n_clusters": 3, "n_neighbors": 5})
 hct = hc.train(data)
-#hcp = hc.predict(data)
 
 
 
