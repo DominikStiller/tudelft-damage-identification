@@ -142,8 +142,9 @@ class Pipeline:
             predictions, features_valid, features_reduced
         )
 
-        print_cluster_statistics(data_display, clusterer_names)
-        self.pca.print_correlations()
+        if not self.params["skip_statistics"]:
+            print_cluster_statistics(data_display, clusterer_names)
+            self.pca.print_correlations()
         if not self.params["skip_visualization"]:
             self.visualization_clustering.visualize(data_display, clusterer_names)
 
