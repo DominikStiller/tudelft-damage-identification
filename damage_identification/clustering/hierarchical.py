@@ -4,6 +4,7 @@ import pickle
 from typing import Dict, Any
 
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.neighbors import KNeighborsClassifier
 
 from damage_identification.clustering.base import Clusterer
 
@@ -58,8 +59,10 @@ class HierarchicalClusterer(Clusterer):
         Args:
             testdata: data used to create the clusters to train the hclust model
         """
-        self.model = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        self.model = self.model.fit(testdata)
+        clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
+        trainingdata = clusterer.fit_predict(testdata)
+        self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
+        self.model.fit(trainingdata)
         return self.model
 
     def predict(self, data) -> int:
