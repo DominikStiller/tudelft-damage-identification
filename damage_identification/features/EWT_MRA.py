@@ -1,86 +1,92 @@
-from typing import Dict, Any, Optional
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-import ewtpy
 import pywt
 from damage_identification import io
-
-matplotlib.rcParams['figure.dpi'] = 300
-
-# T = 1000
-# t = np.arange(1,T+1)/T
-# f = np.cos(2*np.pi*0.8*t) + 2*np.cos(2*np.pi*10*t)+0.8*np.cos(2*np.pi*100*t)
-# ewt,  mfb ,boundaries = ewtpy.EWT1D(f, N = 3)
-# plt.plot(f)
-# plt.plot(ewt)
-# plt.show()
 
 
 class MultiResolutionAnalysis:
     """
-    Description
+    This class extracts the signal data to decompose into energy levels at specified time bands and carrier frequencies.
+
     """
 
     # def __init__(self, params: Dict[str: Any]):
     def __init__(self, wavelet, mode, time_bands, dec_level):
         """
-        Description
+        Initializes object with specifications for decomposing signal.
+
+        Parameters:
+            - wavelet: the name and magnitude of the wavelet family (e.g.: 'db38' or 'coif17')
+            - mode: the decomposition mode used (e.g.: 'symmetric' or )
+            - time_bands: the amount of time bands to split the energy information (i.e. with time_bands = 4, the energy information describes the 4 quarters of the signal)
+            - dec_level: the decomposition level of the signal (i.e. the amount of carrier frequencies the signal will be split up into. e.g.: decomposition level of 4 gives 2^4 = 16 frequencies)
         """
         self.signal_data = []
         self.wavelet = wavelet
         self.mode = mode
         self.time_bands = time_bands
         self.dec_level = dec_level
+        self.wave_coeffs = []
 
-    def load(self, directory,n):
+    def load(self, directory, n):
         """
-        Description
+        Loads compressed data from external file.
+
+        Parameters:
+            - directory: directory of data file
+            - n: the waveform that is to be decomposed
         """
         x = io.load_compressed_data(directory)
         self.signal_data = x[n, :]
         return self.signal_data
 
     def load_manual(self, data):
+        """
+        Loads manually input data array into signal data
+        (for testing purposes)
+
+        Parameters:
+            - data: custom signal data in array
+        """
         self.signal_data = data
         return self.signal_data
 
     def data_handler(self):
-        coeffs = []
+        """
+        Decomposes data in object and flattens binary tree into three-dimensional array.
+
+        Parameters:
+            - None
+        """
         wp = pywt.WaveletPacket(data=self.signal_data, wavelet=self.wavelet, mode=self.mode)
-        # print(wp.maxlevel, self.signal_data)
-        for level in range(1,wp.maxlevel+1):
-            # print(level)
-            coeffs.append([wp[node.path].data for node in wp.get_level(level, 'natural')])
+        for level in range(1, wp.maxlevel+1):
+            self.wave_coeffs.append([wp[node.path].data for node in wp.get_level(level, 'natural')])
 
-        # energy_lvl1 = sum((coeffs[0][0][:])**2)
-        # energy_lvl1 = sum((coeffs[0][0][:])**2) + sum((coeffs[0][1][:])**2)
-        # energy_lvl3 = sum((coeffs[1][0][:]) ** 2) + sum((coeffs[1][1][:]) ** 2) + sum((coeffs[1][2][:]) ** 2) + sum((coeffs[1][3][:]) ** 2)
-        # energy_lvl3_1 = sum((coeffs[1][0][:]) ** 2) / energy_lvl3
-        # energy_lvl3_2 = sum((coeffs[1][1][:]) ** 2) / energy_lvl3
-        # energy_lvl3_3 = sum((coeffs[1][2][:]) ** 2) / energy_lvl3
-        # energy_lvl3_4 = sum((coeffs[1][3][:]) ** 2) / energy_lvl3
-        # print(energy_lvl1, energy_lvl2, energy_lvl3)
+        return self.wave_coeffs
 
-        # plt.plot(np.linspace(0, len(coeffs[0][1][:]), len(coeffs[0][1][:])), coeffs[0][1][:], color="g")
-        # plt.plot(np.linspace(0, len(self.signal_data), len(self.signal_data)), self.signal_data)
-        # plt.plot(np.linspace(0, len(coeffs[2][0][:]),len(coeffs[2][0][:])), coeffs[2][0][:], color="b")
-        # plt.plot(np.linspace(541, 541+len(coeffs[2][1][:]),len(coeffs[2][1][:])), coeffs[2][1][:], color="r")
+    def decomposer(self):
+        """
+        Decomposes frequency band energy data into frequency and time band data.
 
-        # plt.show()
-
-        return coeffs
-
-    def decomposer(self, coeffs):
-        # print(coeffs)
+        Parameters:
+            - None
+        """
         energy = []
-        tot_energy = sum(coeffs[0][0][:]**2)+sum(coeffs[0][1][:]**2)
-        for i in range(0,2**self.dec_level):
+        time_energy = []
+        c = 0
+        tot_energy = sum(self.wave_coeffs[0][0][:]**2)+sum(self.wave_coeffs[0][1][:]**2)
+        for i in range(0, 2**self.dec_level):
             # print(len(coeffs[self.dec_level-1][i]))
             # print(coeffs[self.dec_level-1][i][:])
-            energy.append([sum(coeffs[self.dec_level-1][i][:]**2) / tot_energy])
-            for t in range(0, len(coeffs[self.dec_level-1][i][:])):
-                # print(t)
-                energy.append([sum(coeffs[(self.dec_level-1)][i][:]**2)/tot_energy])
+            for t in range(0, self.time_bands):
+                left_t_bound = int((t/self.time_bands)*len(self.wave_coeffs[self.dec_level-1][i][:]))
+                # print(i,t)
+                # print(coeffs[self.dec_level-1][i][:])
+                right_t_bound = int((((t+1)/self.time_bands)*len(self.wave_coeffs[self.dec_level-1][i][:])))
+                time_energy.append(sum(self.wave_coeffs[(self.dec_level-1)][i][left_t_bound:right_t_bound]**2)/tot_energy)
 
-        return print(energy)
+            energy.append(time_energy)
+            time_energy = []
+
+        for j in range(0, 2**self.dec_level):
+            c = c + sum(energy[j][:])
+
+        return energy, c
