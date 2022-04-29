@@ -28,8 +28,10 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
+from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
+from damage_identification.damage_mode import DamageMode
 from damage_identification.evaluation.cluster_statistics import (
     print_cluster_statistics,
     prepare_data_for_display,
@@ -148,7 +150,9 @@ class Pipeline:
         if not self.params["skip_visualization"]:
             self.visualization_clustering.visualize(data_display, clusterer_names)
 
-        # TODO run cluster identification and apply valid mask
+        identifications = self._identify_damage_modes(predictions, features_valid, valid_mask)
+        print("\nIDENTIFIED DAMAGE MODES")
+        print(identifications)
 
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
@@ -323,6 +327,19 @@ class Pipeline:
         print("-> Predicted cluster memberships")
 
         return predictions
+
+    def _identify_damage_modes(
+        self, predictions: pd.DataFrame, features: pd.DataFrame, valid_mask: pd.Series
+    ) -> pd.DataFrame:
+        identifications_valid = assign_damage_mode(predictions, features)
+
+        identifications = pd.DataFrame(index=valid_mask.index)
+        # Assign INVALID as damage mode to examples marked as invalid by a feature extractor
+        identifications = pd.concat([identifications, identifications_valid], axis=1).fillna(
+            DamageMode.INVALID
+        )
+
+        return identifications
 
 
 class PipelineMode(Enum):
