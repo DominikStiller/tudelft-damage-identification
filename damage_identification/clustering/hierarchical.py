@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
 from damage_identification.clustering.base import Clusterer
-
+from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 
@@ -84,14 +84,13 @@ class HierarchicalClusterer(Clusterer):
         labeleddataframe = pd.DataFrame(prediction, columns={'kmeans'})
         data = pd.DataFrame(data)
 
-        modesmaybe = pd.concat([data, labeleddataframe.set_index(data.index)], axis=1)
-        modesmaybe.rename(columns={0: "pca_1", 1: "pca_2", 2: "pca_3"}, inplace=True)
+        combined_data = pd.concat([data, labeleddataframe.set_index(data.index)], axis=1)
+        combined_data.rename(columns={0: "pca_1", 1: "pca_2", 2: "pca_3"}, inplace=True)
 
-        modesmaybe = modesmaybe.reset_index(drop=True)
-        print(modesmaybe)
+        combined_data = combined_data.reset_index(drop=True)
 
         cv = ClusteringVisualization()
-        cv.visualize_kmeans(data, modesmaybe)
+        cv.visualize(combined_data)
         return prediction
 
 
