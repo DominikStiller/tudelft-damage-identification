@@ -3,7 +3,7 @@ import os
 import pickle
 from typing import Dict, Any
 import pandas as pd
-from sklearn.cluster import AgglomerativeClustering, KMeans
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
 from damage_identification.clustering.base import Clusterer
 
@@ -62,8 +62,6 @@ class HierarchicalClusterer(Clusterer):
         Args:
             testdata: data used to create the clusters to train the hclust model
         """
-        #KMeansmodel = KMeans(self.params["n_clusters"], random_state=0)
-        #KMeansmodel = KMeansmodel.fit(testdata)
 
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
         labeleddata = clusterer.fit_predict(testdata)
@@ -123,7 +121,7 @@ data = data.iloc[:-250]
 
 hc = HierarchicalClusterer({"n_clusters": 3, "n_neighbors": 5})
 hct = hc.train(data)
-
+hcp = hc.predict(testsample)
 
 
 
