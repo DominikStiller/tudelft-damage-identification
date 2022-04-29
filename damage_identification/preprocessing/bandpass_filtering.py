@@ -21,7 +21,7 @@ class BandpassFiltering:
             self.params["bandpass_order"],
             [self.params["bandpass_low"] * 1e3, self.params["bandpass_high"] * 1e3],
             "bandpass",
-            fs=1000 * 2048,
+            fs=self.params["sampling_rate"],
             output="sos",
         )
 
