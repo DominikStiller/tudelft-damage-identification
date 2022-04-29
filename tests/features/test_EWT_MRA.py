@@ -4,14 +4,14 @@ from numpy import testing
 
 
 class TestMultiResolutionAnalysis(TestCase):
-    # def test_decomposition(self):
-    #     mra = MultiResolutionAnalysis("db", 20, 8, 4)
-    #     mra.load("data/comp0.tradb", 11145)
-    #     mra.data_handler()
-    #     print(mra.decomposer())
+    def test_decomposition(self):
+        mra = MultiResolutionAnalysis("db", 8, 8, 4)
+        mra.load("data/comp0.tradb", 11145)
+        mra.data_handler()
+        print(mra.decomposer()[0])
 
     def test_short_signal_decomposition(self):
-        mra = MultiResolutionAnalysis("db", 1, 4, 2)
+        mra = MultiResolutionAnalysis("db", 2, 4, 2)
         mra.load_manual([1, 2, 3, 4, -1, -2, -3, -4, 1, 2, 3, 4, -1, -2, -3, -4])
         mra.data_handler()
         test_decomposition, total_energy = mra.decomposer()

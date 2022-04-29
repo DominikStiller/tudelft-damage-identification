@@ -1,3 +1,4 @@
+from typing import Dict, Tuple
 import pywt
 from damage_identification import io
 import warnings
@@ -10,7 +11,7 @@ class MultiResolutionAnalysis:
     """
 
     # def __init__(self, params: Dict[str: Any]):
-    def __init__(self, wave_fam, wave_mag, time_bands, dec_level):
+    def __init__(self, wave_fam: str, wave_mag: int, time_bands: int, dec_level: int):
         """
         Initializes object with specifications for decomposing signal.
 
@@ -36,7 +37,7 @@ class MultiResolutionAnalysis:
         self.dec_level = dec_level
         self.wave_coeffs = []
 
-    def load(self, directory, n):
+    def load(self, directory: str, n: int):
         """
         Loads compressed data from external file.
 
@@ -48,7 +49,7 @@ class MultiResolutionAnalysis:
         self.signal_data = x[n, :]
         return self.signal_data
 
-    def load_manual(self, data):
+    def load_manual(self, data: list):
         """
         Loads manually input data array into signal data
         (for testing purposes)
@@ -79,12 +80,15 @@ class MultiResolutionAnalysis:
 
         return self.wave_coeffs
 
-    def decomposer(self):
+    def decomposer(self) -> Tuple[Dict[str, list], float]:
         """
         Decomposes frequency band energy data into frequency and time band data.
 
         Parameters:
             - None
+        Returns:
+            - A dictionary containing the frequency bands and the energies for each time band.
+            - The decomposition level energy divided by the total energy.
         """
         energy = []
         time_energy = []
@@ -115,4 +119,10 @@ class MultiResolutionAnalysis:
         for j in range(0, 2**self.dec_level):
             c = c + sum(energy[j][:])
 
-        return energy, c
+        energies = {}
+        for a in range(0, len(energy)):
+            energies[
+                f"Frequency Band {a * 2048 / (2**self.dec_level)} - {(a+1)* 2048 / (2**self.dec_level) } kHz"
+            ] = energy[a][:]
+
+        return energies, c
