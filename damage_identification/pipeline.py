@@ -103,8 +103,7 @@ class Pipeline:
             print("Finding optimal number of clusters...")
             self.params["n_clusters"] = find_optimal_number_of_clusters(
                 features_reduced, self.params["n_clusters_start"], self.params["n_clusters_end"]
-            )["kmeans"]
-            # TODO possibly change kmeans to overall or make method-specific
+            )
             print(f"-> Found optimal number of clusters (k = {self.params['n_clusters']})")
 
         # Train clustering
