@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any
 
 import pandas as pd
 
@@ -10,7 +10,7 @@ class Clusterer(ABC):
     """
 
     @abstractmethod
-    def __init__(self, name: str, params: Dict[str, Any]):
+    def __init__(self, name: str, params: dict[str, Any]):
         """
         Initialize the clustering method.
 

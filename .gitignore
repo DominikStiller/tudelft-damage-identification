@@ -184,3 +184,5 @@ data/
 /plots/Waveforms.csv
 /plots/Time_Hits.csv
 /plots/__init__.py
+
+bin/private/
