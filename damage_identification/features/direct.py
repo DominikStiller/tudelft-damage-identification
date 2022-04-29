@@ -54,7 +54,6 @@ class DirectFeatureExtractor(FeatureExtractor):
         sampling_rate = self.params["sampling_rate"]  # n_samples per millisecond
 
         threshold = self.params["direct_features_threshold"]
-        max_relative_peak_amplitude = self.params["max_relative_peak_amplitude"]
         first_peak_domain = self.params["first_peak_domain"]
 
         assert 0 < threshold < 1, "Threshold must be between 0 and 1"
