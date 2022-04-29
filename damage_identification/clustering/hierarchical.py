@@ -10,12 +10,14 @@ from damage_identification.clustering.base import Clusterer
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 
+
 class HierarchicalClusterer(Clusterer):
     """
     This class Clusters the data according to the K-means clustering method
 
     Parameters:
-        - n_clusters: number of clusters
+        - n_clusters: number of clusters in HAC
+        - n_neighbors: number of neighbors in KNN classifier
     """
 
     def __init__(self, params: Dict[str, Any]):
@@ -62,7 +64,7 @@ class HierarchicalClusterer(Clusterer):
         """
         #KMeansmodel = KMeans(self.params["n_clusters"], random_state=0)
         #KMeansmodel = KMeansmodel.fit(testdata)
-        '''
+
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
         labeleddata = clusterer.fit_predict(testdata)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
@@ -70,6 +72,7 @@ class HierarchicalClusterer(Clusterer):
         '''
         self.model = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward", compute_distances=True)
         self.model.fit(testdata)
+        '''
         return self.model
 
     def predict(self, data) -> int:
@@ -79,7 +82,18 @@ class HierarchicalClusterer(Clusterer):
         Args:
             data: datapoint for which the label should be predicted using the created hierarchical clustering model
         """
-        prediction = self.model.fit_predict(data)
+        prediction = self.model.predict(data)
+        labeleddataframe = pd.DataFrame(prediction, columns={'kmeans'})
+        data = pd.DataFrame(data)
+
+        modesmaybe = pd.concat([data, labeleddataframe.set_index(data.index)], axis=1)
+        modesmaybe.rename(columns={0: "pca_1", 1: "pca_2", 2: "pca_3"}, inplace=True)
+
+        modesmaybe = modesmaybe.reset_index(drop=True)
+        print(modesmaybe)
+
+        cv = ClusteringVisualization()
+        cv.visualize_kmeans(data, modesmaybe)
         return prediction
 
 
@@ -108,9 +122,8 @@ def plot_dendrogram(model, **kwargs):
 
 
 data = pd.read_pickle('data\pca.pickle')
-#print(data)
-#clustering = AgglomerativeClustering().fit(data)
-#print(clustering.fit_predict(data))
+testsample = data.tail(250).to_numpy()
+data = data.iloc[:-250]
 
 
 hc = HierarchicalClusterer({"n_clusters": 3, "n_neighbors": 5})
@@ -122,7 +135,7 @@ plt.title("Hierarchical Clustering Dendrogram")
 # plot the top three levels of the dendrogram
 plot_dendrogram(hct, truncate_mode="level", p=5)
 plt.xlabel("Number of points in node (or index of point if no parenthesis).")
-plt.show().
-
+plt.show()
+'''
 
 

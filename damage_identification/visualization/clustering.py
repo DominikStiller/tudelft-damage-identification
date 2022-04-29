@@ -24,7 +24,10 @@ class ClusteringVisualization:
         """
 
         points = modes.loc[modes["kmeans"] == dmg_mode]
-        classed_data = pd.merge(features, points, left_index=True, right_index=True)
+        #classed_data = pd.merge(features, points, left_index=True, right_index=True)
+        #classed_data = classed_data.T.drop_duplicates().T
+        classed_data = points
+        classed_data = classed_data.drop_duplicates()
         return classed_data
 
     def visualize_kmeans(self, features: pd.DataFrame, modes: pd.DataFrame):
@@ -47,8 +50,9 @@ class ClusteringVisualization:
                 features[col] = 0
 
         ax = plt.axes(projection="3d")
-        clusters = modes["kmeans"].drop_duplicates()
-        colour = ["b", "g", "r", "c", "m"]
+        clusters = modes["kmeans"].drop_duplicates().sort_values()
+        print(clusters)
+        colour = ["b", "g", "r", "c", "m", "y", "k"]
         colourpicker = 0
         for cluster in clusters:
             current_features = self._classify_data(cluster, modes, features)
