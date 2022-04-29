@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any, Optional
 import pywt
 from damage_identification import io
 import warnings
@@ -10,8 +10,8 @@ class MultiResolutionAnalysis:
 
     """
 
-    # def __init__(self, params: Dict[str: Any]):
-    def __init__(self, wave_fam: str, wave_mag: int, time_bands: int, dec_level: int):
+    def __init__(self, params: Dict[str, Optional[Any]] = None):
+        # def __init__(self, wave_fam: str, wave_mag: int, time_bands: int, dec_level: int):
         """
         Initializes object with specifications for decomposing signal.
 
@@ -20,21 +20,45 @@ class MultiResolutionAnalysis:
             - time_bands: the amount of time bands to split the energy information (i.e. with time_bands = 4, the energy information describes the 4 quarters of the signal)
             - dec_level: the decomposition level of the signal (i.e. the amount of carrier frequencies the signal will be split up into. e.g.: decomposition level of 4 gives 2^4 = 16 frequencies)
         """
+        if params is None:
+            params = {}
+        if "wavelet_decomposition_family" not in params:
+            params["wavelet_decomposition_family"] = "db"
+        if "wavelet_magnitude" not in params:
+            params["wavelet_magnitude"] = 3
+        if "decomposition_time_bands" not in params:
+            params["decomposition_time_bands"] = 4
+        if "decomposition_level" not in params:
+            params["decomposition_level"] = 3
+        super().__init__()
 
         self.signal_data = []
-        if wave_fam == "db" or wave_fam == "coif":
-            if wave_fam == "db" and 1 < wave_mag <= 38:
-                self.wavelet = wave_fam + str(wave_mag)
-            elif wave_fam == "coif" and 1 <= wave_mag <= 17:
-                self.wavelet = wave_fam + str(wave_mag)
+        if (
+            params["wavelet_decomposition_family"] == "db"
+            or params["wavelet_decomposition_family"] == "coif"
+        ):
+            if (
+                params["wavelet_decomposition_family"] == "db"
+                and 1 < params["wavelet_magnitude"] <= 38
+            ):
+                self.wavelet = params["wavelet_decomposition_family"] + str(
+                    params["wavelet_magnitude"]
+                )
+            elif (
+                params["wavelet_decomposition_family"] == "coif"
+                and 1 <= params["wavelet_magnitude"] <= 17
+            ):
+                self.wavelet = params["wavelet_decomposition_family"] + str(
+                    params["wavelet_magnitude"]
+                )
             else:
                 raise ValueError("Magnitude not compatible.")
         else:
             raise ValueError("Wavelet not compatible.")
 
         self.mode = "symmetric"
-        self.time_bands = time_bands
-        self.dec_level = dec_level
+        self.time_bands = params["decomposition_time_bands"]
+        self.dec_level = params["decomposition_level"]
         self.wave_coeffs = []
 
     def load(self, directory: str, n: int):
