@@ -209,15 +209,18 @@ class Pipeline:
         return data, n_examples
 
     def _split_by_peaks(self, data: np.ndarray) -> tuple[np.ndarray, int]:
-        # Split examples into two if two peaks are present
-        print("Splitting by peaks...")
-        data_split, n_no_peaks, n_one_peak, n_two_peaks = PeakSplitter.split_all(data)
+        # Split examples into two if multiple peaks are present
+        if self.params["enable_peak_splitting"]:
+            print("Splitting by peaks...")
+            data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
 
-        print("Dataset contains")
-        print(f" - {n_no_peaks} examples without peaks -> discarded")
-        print(f" - {n_one_peak} examples with one peak peaks -> used as is")
-        print(f" - {n_two_peaks} examples with two peaks -> split into two")
-        print("-> Split examples by peaks")
+            print("Dataset contains")
+            print(f" - {n_no_peaks} examples without peaks")
+            print(f" - {n_one_peak} examples with one peak peaks")
+            print(f" - {n_over_two_peaks} examples with two peaks or more")
+            print("-> Split examples by peaks")
+        else:
+            data_split = data
 
         n_examples_split = data_split.shape[0]
 
