@@ -5,7 +5,7 @@ import matplotlib
 import ewtpy
 from damage_identification import io
 
-matplotlib.rcParams['figure.dpi'] = 300
+matplotlib.rcParams["figure.dpi"] = 300
 
 # T = 1000
 # t = np.arange(1,T+1)/T
@@ -68,7 +68,7 @@ class MultiResolutionAnalysis:
         return
 
     def iewt1d(self, ewt, mfb):
-        real = all(np.isreal(ewt[:,0]))
+        real = all(np.isreal(ewt[:, 0]))
         if real:
             self.reconstructed = np.zeros(len(ewt[:, 0]))
             for i in range(0, 4):

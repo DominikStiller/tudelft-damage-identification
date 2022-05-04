@@ -9,19 +9,58 @@ class TestHierarchicalClusterer(TestCase):
     def test_hierarchical_clustering(self):
         test_set = np.array(
             [
-                [1], [2], [3], [4], [5], [11], [12], [13], [14], [15], [21], [22], [23], [24], [25], [31], [32], [33],
-                [34], [35]
+                [1],
+                [2],
+                [3],
+                [4],
+                [5],
+                [11],
+                [12],
+                [13],
+                [14],
+                [15],
+                [21],
+                [22],
+                [23],
+                [24],
+                [25],
+                [31],
+                [32],
+                [33],
+                [34],
+                [35],
             ]
         )
 
         hierarchical_model = HierarchicalClusterer({"n_clusters": 4, "n_neighbors": 5})
-        testing.assert_array_equal(hierarchical_model.testmethod(test_set), (3,3,3,3,3,1,1,1,1,1,2,2,2,2,2,0,0,0,0,0))
+        testing.assert_array_equal(
+            hierarchical_model.testmethod(test_set),
+            (3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0),
+        )
 
     def test_hierarchical_prediction(self):
         test_set = np.array(
             [
-                [1], [2], [3], [4], [5], [11], [12], [13], [14], [15], [21], [22], [23], [24], [25], [31], [32], [33],
-                [34], [35]
+                [1],
+                [2],
+                [3],
+                [4],
+                [5],
+                [11],
+                [12],
+                [13],
+                [14],
+                [15],
+                [21],
+                [22],
+                [23],
+                [24],
+                [25],
+                [31],
+                [32],
+                [33],
+                [34],
+                [35],
             ]
         )
         hierarchical_model = HierarchicalClusterer({"n_clusters": 4, "n_neighbors": 5})
@@ -34,8 +73,26 @@ class TestHierarchicalClusterer(TestCase):
         test_point = [[1]]
         test_set = np.array(
             [
-                [1], [2], [3], [4], [5], [11], [12], [13], [14], [15], [21], [22], [23], [24], [25], [31], [32], [33],
-                [34], [35]
+                [1],
+                [2],
+                [3],
+                [4],
+                [5],
+                [11],
+                [12],
+                [13],
+                [14],
+                [15],
+                [21],
+                [22],
+                [23],
+                [24],
+                [25],
+                [31],
+                [32],
+                [33],
+                [34],
+                [35],
             ]
         )
 
@@ -49,4 +106,3 @@ class TestHierarchicalClusterer(TestCase):
 
         point_prediction = hierarchical_model.predict(test_point)
         testing.assert_array_equal(point_prediction, 3)
-
