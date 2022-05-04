@@ -313,14 +313,15 @@ class Pipeline:
     def _predict(self, features, n_examples) -> pd.DataFrame:
         """Predict cluster memberships of all examples"""
         print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
-        with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
-            def do_predict(series):
-                pbar.update()
-                return clusterer.predict(series.to_frame().transpose())
+        predictions = {clusterer.name: None for clusterer in self.clusterers}
+        for clusterer in self.clusterers:
+            with tqdm(total=n_examples, file=sys.stdout, desc=clusterer.name) as pbar:
 
-            predictions = {clusterer.name: None for clusterer in self.clusterers}
-            for clusterer in self.clusterers:
+                def do_predict(series):
+                    pbar.update()
+                    return clusterer.predict(series.to_frame().transpose())
+
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
