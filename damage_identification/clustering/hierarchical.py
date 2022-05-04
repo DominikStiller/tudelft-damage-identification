@@ -78,49 +78,10 @@ class HierarchicalClusterer(Clusterer):
         Uses the created hclust model to predict which cluster the data point is a part of.
 
         Args:
-            data: datapoint for which the label should be predicted using the created hierarchical clustering model
-        """
-        prediction = self.model.predict(data)
-        labeleddataframe = pd.DataFrame(prediction, columns={'kmeans'})
-        data = pd.DataFrame(data)
-
-        combined_data = pd.concat([data, labeleddataframe.set_index(data.index)], axis=1)
-        combined_data.rename(columns={0: "pca_1", 1: "pca_2", 2: "pca_3"}, inplace=True)
-
-        combined_data = combined_data.reset_index(drop=True)
-
-        cv = ClusteringVisualization()
-        cv.visualize(combined_data)
+            data: datapoint for which the label should be predicted using the KNN classifier trained using the
+            hierarchical clusters"""
+        prediction = self.model.predict(data)[0]
         return prediction
-
-
-def plot_dendrogram(model, **kwargs):
-    counts = np.zeros(model.children_.shape[0])
-    n_samples = len(model.labels_)
-    for i, merge in enumerate(model.children_):
-        current_count = 0
-        for child_idx in merge:
-            if child_idx < n_samples:
-                current_count += 1
-            else:
-                current_count += counts[child_idx - n_samples]
-        counts[i] = current_count
-
-    linkage_matrix = np.column_stack(
-        [model.children_, model.distances_, counts]
-    ).astype(float)
-    dendrogram(linkage_matrix, **kwargs)
-
-
-
-data = pd.read_pickle('data\pca.pickle')
-testsample = data.tail(250).to_numpy()
-data = data.iloc[:-250]
-
-
-hc = HierarchicalClusterer({"n_clusters": 3, "n_neighbors": 5})
-hct = hc.train(data)
-hcp = hc.predict(testsample)
 
 
 
