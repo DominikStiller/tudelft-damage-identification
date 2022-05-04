@@ -50,7 +50,7 @@ The following parameters are available during training:
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection, mutually exclusive with `n_principal_components`
 * `n_principal_components` (int): desired number of components for PCA selection, mutually exclusive with `explained_variance`
-* `n_neighbours` (int): desired number of neighbours for KNN prediction within the hierarchical clusterer
+* `n_neighbors` (int): desired number of neighbors for KNN prediction within the hierarchical clusterer
 
 The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present
