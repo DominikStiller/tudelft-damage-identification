@@ -4,9 +4,6 @@ from typing import Dict, Any
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
 from damage_identification.clustering.base import Clusterer
-from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
-from matplotlib import pyplot as plt
-from scipy.cluster.hierarchy import dendrogram
 
 
 class HierarchicalClusterer(Clusterer):
