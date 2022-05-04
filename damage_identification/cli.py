@@ -20,9 +20,12 @@ def parse_cli_args() -> dict[str, Any]:
         else:
             raise "Invalid value for n_clusters"
 
-    # Fix skip_filter not being stored if absent even though store_true should handle this
+    # Default params for argparse are not working for some reason
+    # Therefore, set defaults manually here
     if "skip_filter" not in params:
         params["skip_filter"] = False
+    if "sampling_rate" not in params:
+        params["sampling_rate"] = 1000 * 2048  # 2048 samples per ms
 
     return params
 
@@ -53,9 +56,14 @@ def _construct_parser() -> ArgumentParser:
     )
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
 
-    parser_training.add_argument("--wavelet_family", type=str)
-    parser_training.add_argument("--wavelet_scale", type=int)
-    parser_training.add_argument("--wavelet_threshold", type=str)
+    parser_training.add_argument("--sampling_rate", type=float)
+    parser_training.add_argument("--filtering_wavelet_family", type=str)
+    parser_training.add_argument("--filtering_wavelet_scale", type=int)
+    parser_training.add_argument("--filtering_wavelet_threshold", type=str)
+    parser_training.add_argument("--mra_wavelet_family", type=str)
+    parser_training.add_argument("--mra_wavelet_scale", type=int)
+    parser_training.add_argument("--mra_time_bands", type=int)
+    parser_training.add_argument("--mra_levels", type=int)
     parser_training.add_argument("--bandpass_low", type=float)
     parser_training.add_argument("--bandpass_high", type=float)
     parser_training.add_argument("--bandpass_order", type=int)

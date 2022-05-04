@@ -3,7 +3,7 @@ import pandas as pd
 import validclust as vld
 
 
-def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> dict[str, float]:
+def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> int:
     """
     Find the optimal number of clusters k based on average of Davies-Bouldin, Silhouette and Dunn indexes.
 
@@ -41,18 +41,19 @@ def find_optimal_number_of_clusters(features: pd.DataFrame, n_start, n_end) -> d
     # Find optimal k for each clustering method based on maximum normalized mean of indices
     kmeans_array = indices[:4]
     kmeansaverages = np.mean(kmeans_array, axis=0)
-    kmeansindex = np.argmax(kmeansaverages)
+    kmeansindex = np.argmax(kmeansaverages) + n_start
 
     hierarchical_array = indices[4:]
     hierarchicalaverages = np.mean(hierarchical_array, axis=0)
-    hierarchicalindex = np.argmax(hierarchicalaverages)
+    hierarchicalindex = np.argmax(hierarchicalaverages) + n_start
 
     overallaverages = np.mean(indices, axis=0)
-    overallindex = np.argmax(overallaverages)
+    overallindex = np.argmax(overallaverages) + n_start
 
-    return {
-        "kmeans": kmeansindex + n_start,
-        "hierarchical": hierarchicalindex + n_start,
-        "fuzzy-cmeans": kmeansindex + n_start,
-        "overall": overallindex + n_start,
-    }
+    if kmeansindex != hierarchicalindex:
+        print(
+            "WARNING: optimal k for k-means and hierarchical do not agree"
+            f"(kmeans: {kmeansindex}, hierarchical: {hierarchicalindex})"
+        )
+
+    return overallindex
