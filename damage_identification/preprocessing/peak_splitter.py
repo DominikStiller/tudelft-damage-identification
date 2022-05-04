@@ -51,9 +51,6 @@ class PeakSplitter:
         self.signal = np.less(threshold_stds, abs(self.waveform)).astype(int)
         windows_signal = np.lib.stride_tricks.sliding_window_view(self.signal, 50)
         signal = np.apply_along_axis(np.sum, 1, windows_signal)
-        # print(self.signal)
-        # a_file = open('test.txt', "w")
-        # np.savetxt(a_file, signal)
         indexes = np.where(signal > self.threshold_counter)[0]
         pad_left = np.pad(indexes, (1, 0), "constant", constant_values=(0, 0))
         pad_right = np.pad(indexes, (0, 1), "constant", constant_values=(0, 0))
