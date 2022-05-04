@@ -29,7 +29,6 @@ class HierarchicalClusterer(Clusterer):
         self.set_n_neighbors = 0
         super(HierarchicalClusterer, self).__init__("hclust", params)
         if "n_neighbors" not in params:
-            self.params["n_neighbors"] = 5
             self.set_n_neighbors = 1
 
     def save(self, directory):
