@@ -1,10 +1,13 @@
 import warnings
 from typing import Dict, Tuple, Any, Optional
 
+import numpy as np
 import pywt
 
+from damage_identification.features.base import FeatureExtractor
 
-class MultiResolutionAnalysis:
+
+class MultiResolutionAnalysis(FeatureExtractor):
     """
     This class extracts the signal data to decompose into energy levels at specified time bands and carrier frequencies.
     """
@@ -28,7 +31,6 @@ class MultiResolutionAnalysis:
             params["decomposition_time_bands"] = 4
         if "decomposition_level" not in params:
             params["decomposition_level"] = 3
-        super().__init__()
 
         if (
             params["wavelet_decomposition_family"] == "db"
@@ -56,29 +58,12 @@ class MultiResolutionAnalysis:
         self.mode = "symmetric"
         self.time_bands = params["decomposition_time_bands"]
         self.dec_level = params["decomposition_level"]
+        super().__init__("mra", params)
 
-    def _find_wave_coeffs(self, signal_data):
-        """
-        Decomposes data in object and flattens binary tree into three-dimensional array.
+    def extract_features(self, example: np.ndarray) -> dict[str, float]:
+        return self._decompose(example)[0]
 
-        Parameters:
-            - None
-        """
-        wp = pywt.WaveletPacket(data=signal_data, wavelet=self.wavelet, mode=self.mode)
-
-        if wp.maxlevel < self.dec_level:
-            self.dec_level = wp.maxlevel
-            warnings.warn(
-                "Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
-            )
-
-        wave_coeffs = []
-        for level in range(1, self.dec_level + 1):
-            wave_coeffs.append([wp[node.path].data for node in wp.get_level(level, "natural")])
-
-        return wave_coeffs
-
-    def decompose(self, signal_data) -> Tuple[Dict[str, list], float]:
+    def _decompose(self, signal_data) -> Tuple[Dict[str, float], float]:
         """
         Decomposes frequency band energy data into frequency and time band data.
 
@@ -120,8 +105,30 @@ class MultiResolutionAnalysis:
 
         energies = {}
         for a in range(0, len(energy)):
-            energies[
-                f"Frequency Band {a * 2048 / (2**self.dec_level)} - {(a+1)* 2048 / (2**self.dec_level) } kHz"
-            ] = energy[a][:]
+            band_lower = a * 2048 / (2**self.dec_level)
+            band_upper = (a + 1) * 2048 / (2**self.dec_level)
+            for i, coeff in enumerate(energy[a]):
+                energies[f"mra_{band_lower:.0f}_{band_upper:.0f}_{i}"] = coeff
 
         return energies, c
+
+    def _find_wave_coeffs(self, signal_data):
+        """
+        Decomposes data in object and flattens binary tree into three-dimensional array.
+
+        Parameters:
+            - None
+        """
+        wp = pywt.WaveletPacket(data=signal_data, wavelet=self.wavelet, mode=self.mode)
+
+        if wp.maxlevel < self.dec_level:
+            self.dec_level = wp.maxlevel
+            warnings.warn(
+                "Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
+            )
+
+        wave_coeffs = []
+        for level in range(1, self.dec_level + 1):
+            wave_coeffs.append([wp[node.path].data for node in wp.get_level(level, "natural")])
+
+        return wave_coeffs
