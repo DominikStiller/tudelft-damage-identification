@@ -1,4 +1,3 @@
-import warnings
 from typing import Dict, Tuple, Any, Optional
 
 import numpy as np
@@ -68,8 +67,8 @@ class MultiResolutionAnalysis(FeatureExtractor):
 
         if len(wave_coeffs[self.dec_level - 1][0][:]) < self.time_bands:
             self.time_bands = len(wave_coeffs[self.dec_level - 1][0][:])
-            warnings.warn(
-                "The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
+            print(
+                "WARNING: The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
             )
 
         for i in range(0, 2**self.dec_level):
@@ -110,8 +109,8 @@ class MultiResolutionAnalysis(FeatureExtractor):
 
         if wp.maxlevel < self.dec_level:
             self.dec_level = wp.maxlevel
-            warnings.warn(
-                "Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
+            print(
+                "WARNING: Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
             )
 
         wave_coeffs = []
