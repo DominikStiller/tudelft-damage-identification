@@ -29,7 +29,7 @@ class HierarchicalClusterer(Clusterer):
 
     def save(self, directory):
         """
-        Saves the hclust state to an external file for extraction later on to predict which cluster a data point will be
+        Saves the hclust-knn state to an external file for extraction later on to predict which cluster a data point will be
         a part of.
         Note: empty state can also be saved externally.
 
@@ -41,7 +41,7 @@ class HierarchicalClusterer(Clusterer):
 
     def load(self, directory):
         """
-        Loads the hclust model object from an external file in the state it was saved. From this object the usual class
+        Loads the hclust-knn model object from an external file in the state it was saved. From this object the usual class
         methods can be used to extract information such as cluster center coordinates, etc.
 
         Args:
@@ -50,7 +50,7 @@ class HierarchicalClusterer(Clusterer):
         with open(os.path.join(directory, "hclust.pickle"), "rb") as f:
             self.model = pickle.load(f)
 
-    def train(self, testdata):
+    def train(self, data):
         """
         Clusters testdata and trains the KNN model.
 
@@ -59,10 +59,15 @@ class HierarchicalClusterer(Clusterer):
         """
 
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeleddata = clusterer.fit_predict(testdata)
+        labeleddata = clusterer.fit_predict(data)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
-        self.model.fit(testdata, labeleddata)
+        self.model.fit(data, labeleddata)
         return self.model
+
+    def testmethod(self, testdata):
+        clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
+        labeleddata = clusterer.fit_predict(testdata)
+        return labeleddata
 
     def predict(self, data) -> int:
         """
@@ -71,8 +76,5 @@ class HierarchicalClusterer(Clusterer):
         Args:
             data: datapoint for which the label should be predicted using the KNN classifier trained using the
             hierarchical clusters"""
-        prediction = self.model.predict(data)[0]
+        prediction = self.model.predict(data)
         return prediction
-
-
-
