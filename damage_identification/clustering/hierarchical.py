@@ -26,10 +26,11 @@ class HierarchicalClusterer(Clusterer):
             params: parameters for the clustering method
         """
         self.model = None
+        self.set_n_neighbors = 0
         super(HierarchicalClusterer, self).__init__("hclust", params)
         if "n_neighbors" not in params:
             self.params["n_neighbors"] = 5
-            self.placeholder = 1
+            self.set_n_neighbors = 1
 
     def save(self, directory):
         """
@@ -61,7 +62,7 @@ class HierarchicalClusterer(Clusterer):
         Args:
             testdata: data used to create the clusters to train the hclust model
         """
-        if self.placeholder == 1:
+        if self.set_n_neighbors == 1:
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
