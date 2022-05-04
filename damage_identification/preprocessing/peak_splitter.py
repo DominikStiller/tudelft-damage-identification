@@ -1,6 +1,5 @@
 import sys
 import time
-from typing import Optional
 
 import numpy as np
 from tqdm import tqdm
@@ -41,7 +40,7 @@ class PeakSplitter:
         self.avgFilter[self.lag - 1] = np.mean(self.y[0 : self.lag]).tolist()
         self.stdFilter[self.lag - 1] = np.std(self.y[0 : self.lag]).tolist()
 
-    def split_single(self) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    def split_single(self) -> list[np.ndarray]:
         """
         Detects peaks and splits waveform if there are two peaks.
 
@@ -65,15 +64,15 @@ class PeakSplitter:
         indexes = np.delete(indexes, consecutives)
         indexes = np.delete(
             indexes, np.where(indexes < len(self.waveform) * 0.2)
-        )  # Select first 20%of waveform as single hit
+        )  # Select first 20% of waveform as single hit
         indexes = np.concatenate((np.array([0]), indexes, np.array([len(self.waveform)])))
-        slices = np.array([])
+        slices = []
         for i in range(len(indexes) - 1):
             slice = self.waveform[indexes[i] : indexes[i + 1]]
             slice = np.pad(
                 slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
             )
-            slices = np.append(slices, slice)
+            slices.append(slice)
         return slices
 
     @staticmethod
@@ -91,29 +90,27 @@ class PeakSplitter:
 
         n_no_peaks = 0
         n_one_peak = 0
-        n_two_peaks = 0
+        n_over_two_peaks = 0
 
         n_examples = data.shape[0]
 
         with tqdm(total=n_examples, file=sys.stdout) as pbar:
             for i in range(n_examples):
-                first, second = PeakSplitter(data[i]).split_single()
+                slices = PeakSplitter(data[i]).split_single()
+                examples.extend(slices)
 
-                if first is not None:
-                    examples.append(first)
-                if second is not None:
-                    examples.append(second)
+                n_slices = len(slices)
 
-                if (first is not None) and (second is not None):
-                    n_two_peaks += 1
-                elif (first is None) and (second is None):
+                if n_slices == 0:
                     n_no_peaks += 1
-                else:
+                elif n_slices == 1:
                     n_one_peak += 1
+                else:
+                    n_over_two_peaks += 1
 
                 pbar.update()
 
-        return np.vstack(examples), n_no_peaks, n_one_peak, n_two_peaks
+        return np.vstack(examples), n_no_peaks, n_one_peak, n_over_two_peaks
 
 
 if __name__ == "__main__":
