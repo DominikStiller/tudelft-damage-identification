@@ -1,6 +1,9 @@
 from unittest import TestCase
-from damage_identification.features.EWT_MRA import MultiResolutionAnalysis
+
 from numpy import testing
+
+from damage_identification import io
+from damage_identification.features.EWT_MRA import MultiResolutionAnalysis
 
 
 class TestMultiResolutionAnalysis(TestCase):
@@ -13,9 +16,8 @@ class TestMultiResolutionAnalysis(TestCase):
     #             "decomposition_level": 4,
     #         }
     #     )
-    #     mra.load("data/comp0.tradb", 11145)
-    #     mra.data_handler()
-    #     print(mra.decomposer()[0])
+    #     data = io.load_compressed_data("data/comp0.tradb")[11145, :]
+    #     print(mra.decompose(data)[0])
 
     def test_short_signal_decomposition(self):
         mra = MultiResolutionAnalysis(
@@ -26,9 +28,9 @@ class TestMultiResolutionAnalysis(TestCase):
                 "decomposition_level": 2,
             }
         )
-        mra.load_manual([1, 2, 3, 4, -1, -2, -3, -4, 1, 2, 3, 4, -1, -2, -3, -4])
-        mra.data_handler()
-        test_decomposition, total_energy = mra.decomposer()
+        test_decomposition, total_energy = mra.decompose(
+            [1, 2, 3, 4, -1, -2, -3, -4, 1, 2, 3, 4, -1, -2, -3, -4]
+        )
         known_decomposition = {
             "Frequency Band 0.0 - 512.0 kHz": [
                 0.20833333333333337,
