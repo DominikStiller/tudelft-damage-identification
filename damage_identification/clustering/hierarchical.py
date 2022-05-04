@@ -80,5 +80,3 @@ class HierarchicalClusterer(Clusterer):
             hierarchical clusters"""
         prediction = self.model.predict(data)
         return prediction
-
-hierarchical_model = HierarchicalClusterer({"n_clusters": 4})
