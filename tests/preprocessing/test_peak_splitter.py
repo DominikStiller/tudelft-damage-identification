@@ -69,7 +69,7 @@ class TestTwoPeakDetection(TestCase):
         )
         self.peakdetection = PeakSplitter(example, 10, 2, 1, 5, 10)
         result = self.peakdetection.split_single()
-        self.assertEqual(len(result), len(example) * 2)
+        self.assertEqual(len(result), 2)
 
     def test_one_peak(self):
         example = np.array(
@@ -103,7 +103,4 @@ class TestTwoPeakDetection(TestCase):
         )
         self.peakdetection = PeakSplitter(example, 20, 2, 1, 5, 10)
         result = self.peakdetection.split_single()
-        self.assertEqual(len(result), len(example))
-        print(result[1])
-        print("/n")
-        print(result[0])
+        self.assertEqual(len(result), 1)
