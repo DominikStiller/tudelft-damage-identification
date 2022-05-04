@@ -63,7 +63,7 @@ class PeakSplitter:
         slices = np.array([])
         for i in range(len(indexes) - 1):
             slice = self.waveform[indexes[i] : indexes[i + 1]]
-            slice = np.pad(slice, [0, 2048 - len(slice)], mode="constant", constant_values=0)
+            slice = np.pad(slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0)
             slices = np.append(slices, slice)
         return slices
 
