@@ -14,10 +14,17 @@ class PeakSplitter:
     """
 
     def __init__(
-        self, waveform: np.ndarray, lag=160, threshold=4, influence=1, threshold_counter=5
+        self,
+        waveform: np.ndarray,
+        lag=160,
+        threshold=4,
+        influence=1,
+        threshold_counter=5,
+        window=50,
     ):
         self.waveform = waveform
         self.lag = lag
+        self.window = window
         self.threshold = threshold
         self.influence = influence
         self.threshold_counter = threshold_counter
@@ -49,7 +56,7 @@ class PeakSplitter:
         windows_waveform = np.lib.stride_tricks.sliding_window_view(padded_waveform, self.lag)
         threshold_stds = np.apply_along_axis(np.std, 1, windows_waveform) * self.threshold
         self.signal = np.less(threshold_stds, abs(self.waveform)).astype(int)
-        windows_signal = np.lib.stride_tricks.sliding_window_view(self.signal, 50)
+        windows_signal = np.lib.stride_tricks.sliding_window_view(self.signal, self.window)
         signal = np.apply_along_axis(np.sum, 1, windows_signal)
         indexes = np.where(signal > self.threshold_counter)[0]
         pad_left = np.pad(indexes, (1, 0), "constant", constant_values=(0, 0))
@@ -63,7 +70,9 @@ class PeakSplitter:
         slices = np.array([])
         for i in range(len(indexes) - 1):
             slice = self.waveform[indexes[i] : indexes[i + 1]]
-            slice = np.pad(slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0)
+            slice = np.pad(
+                slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
+            )
             slices = np.append(slices, slice)
         return slices
 
