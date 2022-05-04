@@ -1,4 +1,3 @@
-import warnings
 from typing import Dict, Tuple, Any, Optional
 
 import numpy as np
@@ -23,41 +22,28 @@ class MultiResolutionAnalysis(FeatureExtractor):
         """
         if params is None:
             params = {}
-        if "wavelet_decomposition_family" not in params:
-            params["wavelet_decomposition_family"] = "db"
-        if "wavelet_magnitude" not in params:
-            params["wavelet_magnitude"] = 3
-        if "decomposition_time_bands" not in params:
-            params["decomposition_time_bands"] = 4
-        if "decomposition_level" not in params:
-            params["decomposition_level"] = 3
+        if "mra_wavelet_family" not in params:
+            params["mra_wavelet_family"] = "db"
+        if "mra_wavelet_scale" not in params:
+            params["mra_wavelet_scale"] = 3
+        if "mra_time_bands" not in params:
+            params["mra_time_bands"] = 4
+        if "mra_levels" not in params:
+            params["mra_levels"] = 3
 
-        if (
-            params["wavelet_decomposition_family"] == "db"
-            or params["wavelet_decomposition_family"] == "coif"
-        ):
-            if (
-                params["wavelet_decomposition_family"] == "db"
-                and 1 <= params["wavelet_magnitude"] <= 38
-            ):
-                self.wavelet = params["wavelet_decomposition_family"] + str(
-                    params["wavelet_magnitude"]
-                )
-            elif (
-                params["wavelet_decomposition_family"] == "coif"
-                and 1 <= params["wavelet_magnitude"] <= 17
-            ):
-                self.wavelet = params["wavelet_decomposition_family"] + str(
-                    params["wavelet_magnitude"]
-                )
+        if params["mra_wavelet_family"] == "db" or params["mra_wavelet_family"] == "coif":
+            if params["mra_wavelet_family"] == "db" and 1 <= params["mra_wavelet_scale"] <= 38:
+                self.wavelet = params["mra_wavelet_family"] + str(params["mra_wavelet_scale"])
+            elif params["mra_wavelet_family"] == "coif" and 1 <= params["mra_wavelet_scale"] <= 17:
+                self.wavelet = params["mra_wavelet_family"] + str(params["mra_wavelet_scale"])
             else:
                 raise ValueError("Magnitude not compatible.")
         else:
             raise ValueError("Wavelet not compatible.")
 
         self.mode = "symmetric"
-        self.time_bands = params["decomposition_time_bands"]
-        self.dec_level = params["decomposition_level"]
+        self.time_bands = params["mra_time_bands"]
+        self.dec_level = params["mra_levels"]
         super().__init__("mra", params)
 
     def extract_features(self, example: np.ndarray) -> dict[str, float]:
@@ -81,8 +67,8 @@ class MultiResolutionAnalysis(FeatureExtractor):
 
         if len(wave_coeffs[self.dec_level - 1][0][:]) < self.time_bands:
             self.time_bands = len(wave_coeffs[self.dec_level - 1][0][:])
-            warnings.warn(
-                "The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
+            print(
+                "WARNING: The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
             )
 
         for i in range(0, 2**self.dec_level):
@@ -123,8 +109,8 @@ class MultiResolutionAnalysis(FeatureExtractor):
 
         if wp.maxlevel < self.dec_level:
             self.dec_level = wp.maxlevel
-            warnings.warn(
-                "Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
+            print(
+                "WARNING: Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
             )
 
         wave_coeffs = []

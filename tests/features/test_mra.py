@@ -9,10 +9,10 @@ class TestMultiResolutionAnalysis(TestCase):
     # def test_decomposition(self):
     #     mra = MultiResolutionAnalysis(
     #         {
-    #             "wavelet_decomposition_family": "db",
-    #             "wavelet_magnitude": 8,
-    #             "decomposition_time_bands": 8,
-    #             "decomposition_level": 4,
+    #             "mra_wavelet_family": "db",
+    #             "mra_wavelet_scale": 8,
+    #             "mra_time_bands": 8,
+    #             "mra_levels": 4,
     #         }
     #     )
     #     data = io.load_compressed_data("data/comp0.tradb")[11145, :]
@@ -21,10 +21,10 @@ class TestMultiResolutionAnalysis(TestCase):
     def test_short_signal_decomposition(self):
         mra = MultiResolutionAnalysis(
             {
-                "wavelet_decomposition_family": "db",
-                "wavelet_magnitude": 1,
-                "decomposition_time_bands": 4,
-                "decomposition_level": 2,
+                "mra_wavelet_family": "db",
+                "mra_wavelet_scale": 1,
+                "mra_time_bands": 4,
+                "mra_levels": 2,
             }
         )
         test_decomposition, total_energy = mra._decompose(

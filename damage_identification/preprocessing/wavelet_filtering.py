@@ -13,9 +13,9 @@ class WaveletFiltering:
     mathematically determined threshold.
 
     Parameters:
-        - wavelet_family: the wavelet family name; either db for Daubechies or coif for Coiflet
-        - wavelet_scale: the magnification scale of the wavelet family from 3-38 for daubechies or 1-17 for coiflet
-        - wavelet_threshold: either a numerical value or a threshold optimisation method (optimal, iqr or sd)
+        - filtering_wavelet_family: the wavelet family name; either db for Daubechies or coif for Coiflet
+        - filtering_wavelet_scale: the magnification scale of the wavelet family from 3-38 for daubechies or 1-17 for coiflet
+        - filtering_wavelet_threshold: either a numerical value or a threshold optimisation method (optimal, iqr or sd)
 
     Example usage:
     filter = WaveletFiltering()
@@ -37,20 +37,20 @@ class WaveletFiltering:
             self.params: dict[str, Any] = {}
         else:
             self.params = params
-        if "wavelet_family" not in self.params:
-            self.params["wavelet_family"] = "db"
-        if "wavelet_scale" not in self.params:
-            self.params["wavelet_scale"] = 3
-        if "wavelet_threshold" not in self.params:
-            self.params["wavelet_threshold"] = "optimal"
+        if "filtering_wavelet_family" not in self.params:
+            self.params["filtering_wavelet_family"] = "db"
+        if "filtering_wavelet_scale" not in self.params:
+            self.params["filtering_wavelet_scale"] = 3
+        if "filtering_wavelet_threshold" not in self.params:
+            self.params["filtering_wavelet_threshold"] = "optimal"
 
         # Check wavelet family
-        self.wavelet_fam: str = self.params["wavelet_family"]
+        self.wavelet_fam: str = self.params["filtering_wavelet_family"]
         if self.wavelet_fam not in ["db", "coif"]:
             raise Exception("Not a valid wavelet family.")
 
         # Check wavelet/scale combination
-        self.wavelet_scale: int = self.params["wavelet_scale"]
+        self.wavelet_scale: int = self.params["filtering_wavelet_scale"]
         if not (
             (17 >= self.wavelet_scale >= 3)
             or (3 > self.wavelet_scale >= 1 and self.wavelet_fam == "coif")
@@ -59,11 +59,11 @@ class WaveletFiltering:
             raise Exception("Not a valid wavelet/scale configuration")
 
         # Check thresholding method
-        if self.params["wavelet_threshold"] in ["optimal", "iqr", "sd"]:
-            self.threshold = self.params["wavelet_threshold"]
+        if self.params["filtering_wavelet_threshold"] in ["optimal", "iqr", "sd"]:
+            self.threshold = self.params["filtering_wavelet_threshold"]
         else:
             try:
-                self.threshold = float(self.params["wavelet_threshold"])
+                self.threshold = float(self.params["filtering_wavelet_threshold"])
             except ValueError:
                 raise Exception("Not a valid threshold method for wavelet filtering")
 
@@ -108,7 +108,7 @@ class WaveletFiltering:
 
 
 if __name__ == "__main__":
-    filter = WaveletFiltering({"wavelet_family": "db", "wavelet_scale": 3})
+    filter = WaveletFiltering({"filtering_wavelet_family": "db", "filtering_wavelet_scale": 3})
     raw = load_compressed_data("data/comp0.tradb")
     filtered = filter.filter(raw)
     # np.savetxt("sample.csv", filtered[6722, :], delimiter=",")
