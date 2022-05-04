@@ -27,9 +27,7 @@ class PeakSplitter:
         self.threshold = threshold
         self.influence = influence
         self.threshold_counter = threshold_counter
-        self._reset()
 
-    def _reset(self):
         self.y = list(np.zeros(self.lag + 1))
         self.length = len(self.y)
         self.counter = np.zeros(self.length + len(self.waveform))
@@ -45,6 +43,10 @@ class PeakSplitter:
         Detects peaks and splits waveform if there are two peaks.
 
         Based on https://stackoverflow.com/a/56451135
+
+        This method is slow (about 60 ms per example with default settings). Therefore, it is
+        infeasible to actually use this in practice. Profiling shows that std and sum applied
+        to all sliding window views is the main bottleneck.
 
         Returns:
             A tuple of two signals, or the original signal and None
@@ -111,24 +113,3 @@ class PeakSplitter:
                 pbar.update()
 
         return np.vstack(examples), n_no_peaks, n_one_peak, n_over_two_peaks
-
-
-if __name__ == "__main__":
-    data = load_uncompressed_data("data/Waveforms.csv")[0]
-    data_big = np.vstack([data] * 100)
-
-    start = time.perf_counter()
-    PeakSplitter.split_all(data_big)
-    print(f"split_all: {time.perf_counter() - start:.3f} s")
-
-    start = time.perf_counter()
-    for _ in range(100):
-        PeakSplitter(data).split_single()
-    print(f"split_single: {time.perf_counter() - start:.3f} s")
-
-    start = time.perf_counter()
-    splt = PeakSplitter(data)
-    for _ in range(100):
-        splt._reset()
-        splt.split_single()
-    print(f"split_single reuse: {time.perf_counter() - start:.3f} s")
