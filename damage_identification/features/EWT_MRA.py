@@ -39,7 +39,7 @@ class MultiResolutionAnalysis:
         ):
             if (
                 params["wavelet_decomposition_family"] == "db"
-                and 1 < params["wavelet_magnitude"] <= 38
+                and 1 <= params["wavelet_magnitude"] <= 38
             ):
                 self.wavelet = params["wavelet_decomposition_family"] + str(
                     params["wavelet_magnitude"]
