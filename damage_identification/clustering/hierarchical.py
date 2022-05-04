@@ -28,8 +28,8 @@ class HierarchicalClusterer(Clusterer):
         self.model = None
         self.set_n_neighbors = 0
         super(HierarchicalClusterer, self).__init__("hclust", params)
-        if "n_neighbors" not in params:
-            self.set_n_neighbors = 1
+        # if "n_neighbors" not in params:
+        # self.set_n_neighbors = 1
 
     def save(self, directory):
         """
@@ -61,10 +61,11 @@ class HierarchicalClusterer(Clusterer):
         Args:
             testdata: data used to create the clusters to train the hclust model
         """
-        if self.set_n_neighbors == 1:
+        if "n_neighbors" not in self.params:
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
+        print(self.params["n_neighbors"])
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
         labeleddata = clusterer.fit_predict(data)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
