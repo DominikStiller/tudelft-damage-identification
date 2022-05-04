@@ -43,7 +43,9 @@ class PeakSplitter:
         Returns:
             A tuple of two signals, or the original signal and None
         """
-        padded_waveform = np.pad(abs(self.waveform), (self.lag - 1, 0), 'constant', constant_values=(0, 0))
+        padded_waveform = np.pad(
+            abs(self.waveform), (self.lag - 1, 0), "constant", constant_values=(0, 0)
+        )
         windows_waveform = np.lib.stride_tricks.sliding_window_view(padded_waveform, self.lag)
         threshold_stds = np.apply_along_axis(np.std, 1, windows_waveform) * self.threshold
         self.signal = np.less(threshold_stds, abs(self.waveform)).astype(int)
@@ -53,17 +55,18 @@ class PeakSplitter:
         # a_file = open('test.txt', "w")
         # np.savetxt(a_file, signal)
         indexes = np.where(signal > self.threshold_counter)[0]
-        pad_left = np.pad(indexes, (1, 0), 'constant', constant_values=(0, 0))
-        pad_right = np.pad(indexes, (0, 1), 'constant', constant_values=(0, 0))
+        pad_left = np.pad(indexes, (1, 0), "constant", constant_values=(0, 0))
+        pad_right = np.pad(indexes, (0, 1), "constant", constant_values=(0, 0))
         consecutives = np.where(pad_right == pad_left + 1)[0]
         indexes = np.delete(indexes, consecutives)
-        indexes = np.delete(indexes,
-                            np.where(indexes < len(self.waveform) * 0.2))  # Select first 20%of waveform as single hit
+        indexes = np.delete(
+            indexes, np.where(indexes < len(self.waveform) * 0.2)
+        )  # Select first 20%of waveform as single hit
         indexes = np.concatenate((np.array([0]), indexes, np.array([len(self.waveform)])))
         slices = np.array([])
         for i in range(len(indexes) - 1):
-            slice = self.waveform[indexes[i]:indexes[i + 1]]
-            slice = np.pad(slice, [0, 2048 - len(slice)], mode='constant', constant_values=0)
+            slice = self.waveform[indexes[i] : indexes[i + 1]]
+            slice = np.pad(slice, [0, 2048 - len(slice)], mode="constant", constant_values=0)
             slices = np.append(slices, slice)
         return slices
 
@@ -107,7 +110,7 @@ class PeakSplitter:
         return np.vstack(examples), n_no_peaks, n_one_peak, n_two_peaks
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data = load_uncompressed_data("data/Waveforms.csv")[0]
     data_big = np.vstack([data] * 100)
 
