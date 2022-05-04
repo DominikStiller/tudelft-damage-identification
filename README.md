@@ -117,7 +117,6 @@ In order of decreasing relevance:
 * [pandas](https://pandas.pydata.org/docs/user_guide/10min.html) (tabular data package for Python)
 * [PyCharm](https://www.jetbrains.com/pycharm/) (highly recommended Python IDE/editor)
 * [scikit-learn](https://scikit-learn.org/stable/getting_started.html) (machine learning package for Python)
-* [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
 
