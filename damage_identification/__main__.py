@@ -3,8 +3,6 @@ from damage_identification.pipeline import Pipeline, PipelineMode
 
 
 def main():
-    print("### Damage mode identification tool ###")
-
     params = parse_cli_args()
     pipeline = Pipeline(params)
 

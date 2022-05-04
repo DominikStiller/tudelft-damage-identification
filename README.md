@@ -1,10 +1,10 @@
 # Damage mode identification for composites
-This is the repository for the AE2223-I project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
+This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
 
 
 ## Setup
 To get started with development:
-1. Ensure that Python 3.8 or 3.9 is installed.
+1. Ensure that Python 3.9 is installed.
 2. Clone the GitHub repository by clicking on the green "Code" button above and follow the instructions.
 3. Open the cloned folder in PyCharm (other IDEs can be used, adjust the following instructions accordingly).
 4. Add a new interpreter in a [Virtualenv environment](https://docs.python.org/3/tutorial/venv.html). This ensures isolation so that the packages for this project do not conflict with your preinstalled ones.
@@ -21,17 +21,34 @@ The main script can then be executed using `python -m damage_identification [mod
 * `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
+
 ### Configuration parameters
 
-Configurable parameters are passed to the pipeline as command line arguments during training
-using `--parameter_name value`. The following parameters are available:
+Configurable parameters are passed to the pipeline as command line arguments
+using `--parameter_name value`. The following parameters are available in every mode:
+* `limit_data` (int): only process the first `limit_data` rows of the specified dataset
+* `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
-* `direct_features_threshold` (float): threshold for direct features like counts and duration
+The following parameters are available during training:
+* `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
+* `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
+* `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
+* `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
+* `bandpass_low` (float, default: 100): the low cutoff for the bandpass filter in kHz
+* `bandpass_high` (float, default: 900): the high cutoff for the bandpass filter in kHz
+* `bandpass_order` (int, default: 5): the order for the Butterworth bandpass filter
+* `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
-* `direct_features_max_relative_peak_error` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak to not be rejected
-* `direct_features_first_peak_domain` (float between 0 and 1): for double peak rejection, determines at which
-* `n_clusters` (int): number of clusters (e.g. for k-means)
-* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection
+* `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
+* `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
+* `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
+* `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection, mutually exclusive with `n_principal_components`
+* `n_principal_components` (int): desired number of components for PCA selection, mutually exclusive with `explained_variance`
+
+The following parameters are available during prediction:
+* `skip_visualization`: plotting is skipped if flag is present
 
 
 
@@ -42,7 +59,7 @@ format the project code by running `black .` in the project directory.  For docs
 the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
 
 Some more guidelines to follow:
-* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest -v`.
+* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest` or using the script in `bin/tests.sh`.
 * Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
 * Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file structure,
   avoiding long files and preferring small, specialized files.
@@ -54,14 +71,15 @@ Some more guidelines to follow:
 Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
 that can be hard to find. The following names are used in docstrings for this purpose:
 
-* `n_examples`: the number of examples in this array
-* `length_example`: the number of samples in a single example
+* `n_examples`: the number of examples in the dataset
+* `n_examples_valid`: the number of valid examples in the dataset
+* `n_samples`: the number of samples in a single example
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA
 * `n_clusterers`: the number of clusterers in the pipeline
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
-time for all examples, the corresponding shape is `n_examples x length_example`. The 7th sample of the 3rd example can
+time for all examples, the corresponding shape is `n_examples x n_samples`. The 7th sample of the 3rd example can
 then be accessed as `array[2][6]` (note that arrays start at 0).
 
 
@@ -82,7 +100,7 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 ## Data folder layout
 All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
 * `data/Waveforms.csv`: first AE recording that Davide gave us
-* `data/pipeline/`: trained pipeline models for feature extraction and clustering
+* `data/pipeline_name/`: trained pipeline models for feature extraction and clustering
 
 
 

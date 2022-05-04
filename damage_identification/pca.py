@@ -1,27 +1,36 @@
 import os
 import pickle
-from typing import Dict, Any
+from typing import Any
 
 import pandas as pd
 from sklearn.decomposition import PCA
 
 
 class PrincipalComponents:
-    def __init__(self, params: Dict[str, Any]):
+    DEFAULT_EXPLAINED_VARIANCE = 0.95
+
+    def __init__(self, params: dict[str, Any]):
         """
         Initialize the PCA dimensionality reducer.
 
         Args:
-            params containing {'explained_variance' : float}
+            params containing {"explained_variance": float, "n_principal_components": int}
         """
         if params is None:
             params = {}
-        if "explained_variance" not in params:
-            params["explained_variance"] = 0.95
-        if not 0 < params["explained_variance"] < 1:
-            raise Exception("Explained variance has to be between 0 and 1")
 
-        self.pca = PCA(n_components=params["explained_variance"], svd_solver="full")
+        self.pca = PCA(n_components=self._get_n_components(params), svd_solver="full")
+
+    @classmethod
+    def _get_n_components(cls, params):
+        if ("explained_variance" in params) and ("n_principal_components" in params):
+            raise Exception("You cannot both provide explained_variance and n_principal_components")
+        if ("explained_variance" not in params) and ("n_principal_components" not in params):
+            params["explained_variance"] = cls.DEFAULT_EXPLAINED_VARIANCE
+        if "explained_variance" in params:
+            return params["explained_variance"]
+        else:
+            return params["n_principal_components"]
 
     def save(self, directory):
         """
@@ -66,3 +75,24 @@ class PrincipalComponents:
             data: all data for training (shape n_examples x n_features)
         """
         self.pca = self.pca.fit(data)
+
+    def print_correlations(self):
+        print("\nPCA CORRELATION (with every feature)")
+        display_composition = pd.DataFrame(
+            self.pca.components_,
+            columns=self.pca.feature_names_in_,
+            index=[f"PC {n+1}" for n in range(self.n_components)],
+        )
+        with pd.option_context(
+            "display.max_rows", None, "display.max_columns", None, "display.precision", 3
+        ):
+            print(display_composition)
+
+    @property
+    def n_components(self):
+        return self.pca.n_components_
+
+    @property
+    def explained_variance(self):
+        # Cumulative explained variance of selected principal components
+        return self.pca.explained_variance_ratio_[: self.n_components].sum()
