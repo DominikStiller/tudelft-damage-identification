@@ -70,6 +70,7 @@ def _construct_parser() -> ArgumentParser:
     parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
     parser_training.add_argument("--n_principal_components", type=int)
+    parser_training.add_argument("--n_neighbours", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])

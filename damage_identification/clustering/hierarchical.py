@@ -26,6 +26,8 @@ class HierarchicalClusterer(Clusterer):
         """
         self.model = None
         super(HierarchicalClusterer, self).__init__("hclust", params)
+        if "n_neighbors" not in params:
+            self.params["n_neighbors"] = 5
 
     def save(self, directory):
         """
@@ -78,3 +80,5 @@ class HierarchicalClusterer(Clusterer):
             hierarchical clusters"""
         prediction = self.model.predict(data)
         return prediction
+
+hierarchical_model = HierarchicalClusterer({"n_clusters": 4})
