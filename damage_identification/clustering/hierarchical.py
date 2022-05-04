@@ -65,7 +65,6 @@ class HierarchicalClusterer(Clusterer):
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
-        print(self.params["n_neighbors"])
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
         labeleddata = clusterer.fit_predict(data)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
