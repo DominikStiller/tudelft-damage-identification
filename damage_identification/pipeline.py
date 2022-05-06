@@ -29,9 +29,11 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
+from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.hierarchical import HierarchicalClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
+from damage_identification.damage_mode import DamageMode
 from damage_identification.evaluation.cluster_statistics import (
     print_cluster_statistics,
     prepare_data_for_display,
@@ -152,12 +154,13 @@ class Pipeline:
             predictions, features_valid, features_reduced
         )
 
-        print_cluster_statistics(data_display, clusterer_names)
-        self.pca.print_correlations()
+        if not self.params["skip_statistics"]:
+            print_cluster_statistics(data_display, clusterer_names)
+            self.pca.print_correlations()
         if not self.params["skip_visualization"]:
             self.visualization_clustering.visualize(data_display, clusterer_names)
 
-        # TODO run cluster identification and apply valid mask
+        self._identify_damage_modes(predictions, features_valid, valid_mask)
 
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
@@ -233,7 +236,7 @@ class Pipeline:
         with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "rb") as f:
             saved_params: dict = pickle.load(f)
             self.params |= saved_params
-            for k, v in saved_params.items():
+            for k, v in self.params.items():
                 print(f" - {k}: {v}")
 
         for feature_extractor in self.feature_extractors:
@@ -337,20 +340,38 @@ class Pipeline:
     def _predict(self, features, n_examples) -> pd.DataFrame:
         """Predict cluster memberships of all examples"""
         print(f"Predicting cluster memberships (k = {self.params['n_clusters']})...")
-        with tqdm(total=n_examples, file=sys.stdout) as pbar:
 
-            def do_predict(series):
-                pbar.update()
-                return clusterer.predict(series.to_frame().transpose())
+        predictions = {clusterer.name: None for clusterer in self.clusterers}
+        for clusterer in self.clusterers:
+            with tqdm(total=n_examples, file=sys.stdout, desc=clusterer.name) as pbar:
 
-            predictions = {clusterer.name: None for clusterer in self.clusterers}
-            for clusterer in self.clusterers:
+                def do_predict(series):
+                    pbar.update()
+                    return clusterer.predict(series.to_frame().transpose())
+
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
         predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
         print("-> Predicted cluster memberships")
 
         return predictions
+
+    def _identify_damage_modes(
+        self, predictions: pd.DataFrame, features: pd.DataFrame, valid_mask: pd.Series
+    ):
+        if not self.params["enable_identification"]:
+            return
+
+        identifications_valid = assign_damage_mode(predictions, features)
+
+        identifications = pd.DataFrame(index=valid_mask.index)
+        # Assign INVALID as damage mode to examples marked as invalid by a feature extractor
+        identifications = pd.concat([identifications, identifications_valid], axis=1).fillna(
+            DamageMode.INVALID
+        )
+
+        print("\nIDENTIFIED DAMAGE MODES")
+        print(identifications)
 
 
 class PipelineMode(Enum):
