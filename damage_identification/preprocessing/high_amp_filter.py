@@ -6,7 +6,6 @@ from damage_identification.io import load_compressed_data
 class HighAmpFiltering():
 
     def __init__(self):
-        self.threshold = 0.097
         return
 
 
@@ -15,7 +14,7 @@ class HighAmpFiltering():
         idx = []
         for i in range(0, len(signal)-1):
             x = max(signal[i, :])
-            if x > self.threshold:
+            if x > 0.0995:
                 idx.append(i)
         for j in idx:
             data = np.delete(data, j, axis=0)
