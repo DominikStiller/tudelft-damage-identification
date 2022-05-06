@@ -20,14 +20,12 @@ def get_metrics(data, labels):
     return davies, silhouette, dunnmetric
 
 def collate_metrics(clusterers, data):
-    metrics = []
     k_labels = load_data("data/pipeline_default/kmeans")
     k_metrics = np.array(get_metrics(data, k_labels)).T
     f_labels = load_data("data/pipeline_default/fcmeans")
     f_metrics = np.array(get_metrics(data, f_labels)).T
-
-    collated = [k]
-    return pd.DataFrame(, columns=['kmeans', 'fcmeans', 'hierarchical'])
+    collated = [k_metrics, f_metrics]
+    return pd.DataFrame(collated, columns=['kmeans', 'fcmeans'])
 
 def make_dataframe():
     data = [["kmeans", ]]
