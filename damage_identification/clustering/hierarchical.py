@@ -26,10 +26,7 @@ class HierarchicalClusterer(Clusterer):
             params: parameters for the clustering method
         """
         self.model = None
-        self.set_n_neighbors = 0
         super(HierarchicalClusterer, self).__init__("hclust", params)
-        # if "n_neighbors" not in params:
-        # self.set_n_neighbors = 1
 
     def save(self, directory):
         """
