@@ -25,7 +25,7 @@ def get_metrics(data, labels):
     silhouette = silhouette_score(data, labels)
     distmatrix = euclidean_distances(data)
     dunnmetric = dunn(distmatrix, labels)
-    return davies, silhouette, dunnmetric
+    return [davies, silhouette, dunnmetric]
 
 def collate_metrics(data):
     k_labels = load_data("data/pipeline_comp0/kmeans/model.pickle")
@@ -34,10 +34,10 @@ def collate_metrics(data):
 
     f_labels = load_fcmeans("data/pipeline_comp0/fcmeans/fcmeans.pickle", data)
     f_metrics = np.array(get_metrics(data, f_labels)).T
-    h_labels = load_data("data/pipeline_comp0/hclust/hclust.pickle")
-    h_metrics = np.array(get_metrics(data, h_labels)).T
-    collated = [k_metrics, f_metrics, h_metrics]
-    return pd.DataFrame(collated, index=['Davies', 'Silhouette', 'Dunn'], columns=['kmeans', 'fcmeans', 'hierarchical'])
+    #h_labels = load_data("data/pipeline_comp0/hclust/hclust.pickle")
+    #h_metrics = np.array(get_metrics(data, h_labels)).T
+    collated = np.vstack((k_metrics, f_metrics)) #h_metrics]
+    return pd.DataFrame(collated)#, index=['Davies', 'Silhouette', 'Dunn'])#, columns=['kmeans', 'fcmeans', "hclust"])
 
 testdata = pd.read_pickle("data/reduced_features_test.pickle").reset_index(drop=True)#.pop("index")
 #print(testdata)
