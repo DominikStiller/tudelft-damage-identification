@@ -29,6 +29,7 @@ Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 * `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `enable_peak_splitting`: enable splitting of waveform if multiple peaks are detected (slow!)
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
@@ -41,12 +42,10 @@ The following parameters are available during training:
 * `bandpass_order` (int, default: 5): the order for the Butterworth bandpass filter
 * `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
-* `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
 * `mra_wavelet_family` (str): the wavelet family name for MRA (multi-resolution analysis), either db for Daubechies or coif for Coiflet
 * `mra_wavelet_scale` (int, default: 3): the magnification scale of the wavelet family for MRA, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `mra_time_bands` (int, default: 4): the amount of time bands to split the energy information into
 * `mra_levels` (int, default: 3): the decomposition level of the signal
-* `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection, mutually exclusive with `n_principal_components`
 * `n_principal_components` (int): desired number of components for PCA selection, mutually exclusive with `explained_variance`
@@ -77,7 +76,8 @@ Clearly documenting the meaning of each dimension in the shape of NumPy arrays/P
 that can be hard to find. The following names are used in docstrings for this purpose:
 
 * `n_examples`: the number of examples in the dataset
-* `n_examples_valid`: the number of valid examples in the dataset
+* `n_examples_split`: the number of examples in the dataset after splitting by peaks
+* `n_examples_valid`: the number of valid examples in the peak-split dataset
 * `n_samples`: the number of samples in a single example
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA
@@ -118,7 +118,6 @@ In order of decreasing relevance:
 * [pandas](https://pandas.pydata.org/docs/user_guide/10min.html) (tabular data package for Python)
 * [PyCharm](https://www.jetbrains.com/pycharm/) (highly recommended Python IDE/editor)
 * [scikit-learn](https://scikit-learn.org/stable/getting_started.html) (machine learning package for Python)
-* [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
 

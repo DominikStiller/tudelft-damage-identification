@@ -62,7 +62,7 @@ class FeatureExtractor(ABC):
         This method does not have to be implemented for stateless feature extractors.
 
         Args:
-            examples: the training set with all training examples (shape n_examples x n_samples)
+            examples: the training set with all training examples (shape n_examples_split x n_samples)
         """
         pass
 

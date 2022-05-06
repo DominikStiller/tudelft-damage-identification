@@ -27,7 +27,6 @@ sklearn==0.0
 spkit==0.0.9.4
 threadpoolctl==3.1.0
 tomli==2.0.1
-torch==1.11.0
 tqdm==4.63.1
 typing-extensions==4.1.1
 validclust==0.1.1
