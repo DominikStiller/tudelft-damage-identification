@@ -1,8 +1,26 @@
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
     for clusterer in clusterer_names:
+        array = np.array(data[clusterer])
+        k = np.max(array) + 1
+        arrayindex = []
+        clusterenergy = []
+        cumenergy = []
+        energy = np.array(data["energy"])
+        for i in range(k):
+            buffer = np.array(np.where(array == i))
+            arrayindex.append(buffer)
+            clusterenergy.append(energy[arrayindex[i]])
+            cumenergy.append(np.cumsum(clusterenergy[i]))
+            plt.scatter(arrayindex[i], cumenergy[i], c="b")
+            plt.xlabel("Index of waveform [-]")
+            plt.ylabel("Cumulative energy [J]")
+            plt.title(f"Cluster {i}")
+            plt.show()
         print(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
