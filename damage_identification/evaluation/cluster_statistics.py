@@ -17,6 +17,8 @@ def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
             clusterenergy.append(energy[arrayindex[i]])
             cumenergy.append(np.cumsum(clusterenergy[i]))
             plt.scatter(arrayindex[i], cumenergy[i], c="b")
+            plt.xlabel("Index of waveform [-]")
+            plt.ylabel("Cumulative energy [J]")
             plt.title(f"Cluster {i}")
             plt.show()
         print(f"\nCLUSTER STATISTICS ({clusterer})")
