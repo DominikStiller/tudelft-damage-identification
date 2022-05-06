@@ -27,5 +27,5 @@ def collate_metrics(clusterers, data):
     h_labels = load_data("data/pipeline_default/hclust/hclust.pickle")
     h_metrics = np.array(get_metrics(data, h_labels)).T
     collated = [k_metrics, f_metrics, h_metrics]
-    return pd.DataFrame(collated, columns=['kmeans', 'fcmeans'])
+    return pd.DataFrame(collated, index = ['Davies', 'Silhouette', 'Dunn'], columns=['kmeans', 'fcmeans', 'hierarchical'])
 
