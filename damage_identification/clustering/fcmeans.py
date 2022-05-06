@@ -39,6 +39,7 @@ class FCMeansClusterer(Clusterer):
     def train(self, examples: pd.DataFrame):
         self.model = FCM(n_clusters=self.params["n_clusters"], random_state=0)
         self.model.fit(examples.to_numpy())
+        return self.model
 
     def predict(self, example: pd.DataFrame) -> int:
         prediction = self.model.predict(example.to_numpy())[0]
