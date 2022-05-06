@@ -32,8 +32,8 @@ class HighAmpFiltering:
         plt.show()
 
 
-if __name__ == "__main__":
-    filter = HighAmpFiltering()
-    signal = load_compressed_data("data/comp0.tradb")
-    new_signal = filter.filter_signal(signal)
-    filter.plot(new_signal, 555)
+# if __name__ == "__main__":
+#     filter = HighAmpFiltering()
+#     signal = load_compressed_data("data/comp0.tradb")
+#     new_signal = filter.filter_signal(signal)
+#     filter.plot(new_signal, 555)
