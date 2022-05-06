@@ -26,6 +26,8 @@ def parse_cli_args() -> dict[str, Any]:
         params["skip_filter"] = False
     if "enable_peak_splitting" not in params:
         params["enable_peak_splitting"] = False
+    if "enable_identification" not in params:
+        params["enable_identification"] = False
     if "sampling_rate" not in params:
         params["sampling_rate"] = 1000 * 2048  # 2048 samples per ms
 
@@ -77,10 +79,13 @@ def _construct_parser() -> ArgumentParser:
     parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
     parser_training.add_argument("--n_principal_components", type=int)
+    parser_training.add_argument("--n_neighbours", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])
     parser_prediction.add_argument("--skip_visualization", action="store_true")
+    parser_prediction.add_argument("--skip_statistics", action="store_true")
+    parser_prediction.add_argument("--enable_identification", action="store_true")
     parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
 
     # Evaluation mode
