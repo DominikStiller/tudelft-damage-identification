@@ -1,5 +1,5 @@
 # Damage mode identification for composites
-This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project.
+This is the repository for the [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task. See the [research plan](docs/Research_plan.pdf) for more details on the project. See the [developer's guidelines](docs/CONTRIBUTING.md) if you want to contribute.
 
 
 ## Setup
@@ -21,7 +21,20 @@ The main script can then be executed using `python -m damage_identification [mod
 * `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
-Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters. The data file(s) are specified as positional argument, separated by commas.
+
+### Examples
+Train the pipeline on `data/dataset.tradb`, finding the optimal number of clusters between 2 and 5, and requiring 90% of explained variance for PCA:
+```
+python -m damage_identification train --n_clusters 2...5 --explained_variance 0.9 data/dataset.tradb
+```
+
+Predict the cluster memberships of the first 1000 examples in `data/other_dataset.csv`:
+```
+python -m damage_identification predict --limit_data 1000 data/other_dataset.csv
+```
+
+Ensure that the virtual environment with Python 3.9 and all dependencies is activated before running these commands.
 
 ### Configuration parameters
 
@@ -29,71 +42,32 @@ Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 * `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `enable_peak_splitting`: enable splitting of waveform if multiple peaks are detected (slow!)
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
 * `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
-* `wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
-* `wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
-* `wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
+* `filtering_wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
+* `filtering_wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
+* `filtering_wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
 * `bandpass_low` (float, default: 100): the low cutoff for the bandpass filter in kHz
 * `bandpass_high` (float, default: 900): the high cutoff for the bandpass filter in kHz
 * `bandpass_order` (int, default: 5): the order for the Butterworth bandpass filter
 * `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
-* `max_relative_peak_amplitude` (float): for double peak rejection, determines how large the smaller peak is allowed to be relative to the larger peak before it is rejected
-* `first_peak_domain` (float between 0 and 1): for double peak rejection, determines in which region the first peak is located, the second peak is then searched in the complement of this domain
+* `mra_wavelet_family` (str): the wavelet family name for MRA (multi-resolution analysis), either db for Daubechies or coif for Coiflet
+* `mra_wavelet_scale` (int, default: 3): the magnification scale of the wavelet family for MRA, must be 3-38 for Daubechies or 1-17 for Coiflet
+* `mra_time_bands` (int, default: 4): the amount of time bands to split the energy information into
+* `mra_levels` (int, default: 3): the decomposition level of the signal
 * `n_clusters` (int or "start...end"): number of clusters (e.g. for k-means), determined based on multiple indices if range of k is specified
 * `explained_variance` (float between 0 and 1): desired level of explained variance for PCA selection, mutually exclusive with `n_principal_components`
 * `n_principal_components` (int): desired number of components for PCA selection, mutually exclusive with `explained_variance`
+* `n_neighbors` (int): desired number of neighbors to be utilised in the KNN algorithm in the hierarchical clustering (should be an odd value)
 
 The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present
-
-
-
-## Code Guidelines
-
-This project uses the [_Black_ code style](https://github.com/psf/black) for consistency and clarity. Before committing,
-format the project code by running `black .` in the project directory.  For docstrings and comments,
-the [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) is used.
-
-Some more guidelines to follow:
-* Write a lot of [unit tests](https://docs.python.org/3/library/unittest.html). This catches errors close to the source and gives you confidence that your code works. If you're using PyCharm, create unit tests for a method by Right-click > Go To > Tests. From the console, all tests can be run using `python -m unittest` or using the script in `bin/tests.sh`.
-* Use [type hints](https://docs.python.org/3/library/typing.html) and [docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for every method. This helps prevent errors and assists others with using your method properly.
-* Ideally, only a single person works on a file at a time to prevent merge conflicts. This requires a certain file structure,
-  avoiding long files and preferring small, specialized files.
-* If you start using a package that is not yet in `requirements.txt`, add it with the specific version you are using, so your code works for everyone else as it does for you.
-* If your code creates files that change with every execution or are user-specific, add them to the `.gitignore`.
-* If you are writing a new feature extractor or clustering method, read the docstrings of the base classes carefully to implement your class correctly.
-
-### Array Shapes
-Clearly documenting the meaning of each dimension in the shape of NumPy arrays/Pandas DataFrames helps prevent errors
-that can be hard to find. The following names are used in docstrings for this purpose:
-
-* `n_examples`: the number of examples in the dataset
-* `n_examples_valid`: the number of valid examples in the dataset
-* `n_samples`: the number of samples in a single example
-* `n_features`: the number of features
-* `n_features_reduced`: the number of features after PCA
-* `n_clusterers`: the number of clusterers in the pipeline
-
-For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
-time for all examples, the corresponding shape is `n_examples x n_samples`. The 7th sample of the 3rd example can
-then be accessed as `array[2][6]` (note that arrays start at 0).
-
-
-
-## Git Guidelines
-[GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow) is used as Git model for this repository. Please become familiar with it before committing. Follow these guidelines:
-* The main branch should always be in a usable state.
-* Never commit to the main branch directly (in fact, pushing to main is blocked). Always work on your feature branch, then use a pull request to merge your changes into main.
-* Use pull requests as platform for discussions and questions. You can open a pull request even if your code is not done yet. Tagging people in pull requests to get feedback on work-in-progress code is explicitly encouraged. Once you're done, the pull request will be approved for merging into main.
-* Always start new branch for new feature, do not reuse a branch for multiple features. A feature should be a single component of about a week's work, if more, split into smaller features. Always update main before starting a new feature branch, then start your feature branch from main.
-* If it can be avoided, do not merge feature branches into another. This leads to messy pull requests with much manual labor. Instead, use [cherry-picking](https://gitbetter.substack.com/p/how-to-use-git-cherry-pick-effectively) if you need another branches' code before it has been merged into main.
-* Commit often, after finishing a small part of a feature, even if the code does not work fully yet. Since you commit to your own feature branch, no one else is affected, and you can keep a history of your changes in case something goes wrong.
-* Use descriptive commit messages (not just "fix bugs"). Follow [these guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53). Use the imperative ("add" instead of "added") for verbs.
-* No data should ever be committed to Git. The repository is for code only. Store any local data files in the `data/` folder which is ignored by commits.
+* `skip_statistics`: printing of cluster and PCA statistics is skipped if flag is present
+* `enable_identification`: enable identification of damage mode based on cluster memberships
 
 
 
@@ -101,19 +75,6 @@ then be accessed as `array[2][6]` (note that arrays start at 0).
 All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
 * `data/Waveforms.csv`: first AE recording that Davide gave us
 * `data/pipeline_name/`: trained pipeline models for feature extraction and clustering
-
-
-
-## Useful topics to learn
-In order of decreasing relevance:
-* [Object-oriented programming](https://realpython.com/python3-object-oriented-programming/)
-* [Unit testing](https://docs.python.org/3/library/unittest.html)
-* [GitHub](https://docs.github.com/en/get-started/quickstart/hello-world) and [Git](https://docs.github.com/en/get-started/using-git/about-git)
-* [NumPy](https://numpy.org/devdocs/user/quickstart.html) (math and linear algebra package for Python)
-* [pandas](https://pandas.pydata.org/docs/user_guide/10min.html) (tabular data package for Python)
-* [PyCharm](https://www.jetbrains.com/pycharm/) (highly recommended Python IDE/editor)
-* [scikit-learn](https://scikit-learn.org/stable/getting_started.html) (machine learning package for Python)
-* [PyTorch](https://pytorch.org/tutorials/beginner/basics/intro.html) (neural network package for Python)
 
 
 

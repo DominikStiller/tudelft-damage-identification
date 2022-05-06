@@ -24,6 +24,10 @@ def parse_cli_args() -> dict[str, Any]:
     # Therefore, set defaults manually here
     if "skip_filter" not in params:
         params["skip_filter"] = False
+    if "enable_peak_splitting" not in params:
+        params["enable_peak_splitting"] = False
+    if "enable_identification" not in params:
+        params["enable_identification"] = False
     if "sampling_rate" not in params:
         params["sampling_rate"] = 1000 * 2048  # 2048 samples per ms
 
@@ -47,6 +51,7 @@ def _construct_parser() -> ArgumentParser:
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
     parser_params.add_argument("--skip_filter", action="store_true")
+    parser_params.add_argument("--enable_peak_splitting", action="store_true")
     parser_params.add_argument("-n", "--pipeline_name")
     parser_params.add_argument("data_file")
 
@@ -57,9 +62,13 @@ def _construct_parser() -> ArgumentParser:
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
 
     parser_training.add_argument("--sampling_rate", type=float)
-    parser_training.add_argument("--wavelet_family", type=str)
-    parser_training.add_argument("--wavelet_scale", type=int)
-    parser_training.add_argument("--wavelet_threshold", type=str)
+    parser_training.add_argument("--filtering_wavelet_family", type=str)
+    parser_training.add_argument("--filtering_wavelet_scale", type=int)
+    parser_training.add_argument("--filtering_wavelet_threshold", type=str)
+    parser_training.add_argument("--mra_wavelet_family", type=str)
+    parser_training.add_argument("--mra_wavelet_scale", type=int)
+    parser_training.add_argument("--mra_time_bands", type=int)
+    parser_training.add_argument("--mra_levels", type=int)
     parser_training.add_argument("--bandpass_low", type=float)
     parser_training.add_argument("--bandpass_high", type=float)
     parser_training.add_argument("--bandpass_order", type=int)
@@ -70,10 +79,13 @@ def _construct_parser() -> ArgumentParser:
     parser_training.add_argument("--first_peak_domain", type=float)
     parser_training.add_argument("--explained_variance", type=float)
     parser_training.add_argument("--n_principal_components", type=int)
+    parser_training.add_argument("--n_neighbours", type=int)
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])
     parser_prediction.add_argument("--skip_visualization", action="store_true")
+    parser_prediction.add_argument("--skip_statistics", action="store_true")
+    parser_prediction.add_argument("--enable_identification", action="store_true")
     parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
 
     # Evaluation mode
