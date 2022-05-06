@@ -20,9 +20,7 @@ The shapes are explained in the README.
 import os.path
 import pickle
 import sys
-from builtins import filter
 from enum import auto, Enum
-from fileinput import filename
 from typing import Any
 
 import numpy as np
