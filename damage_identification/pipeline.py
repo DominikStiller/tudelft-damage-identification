@@ -29,6 +29,7 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
+from damage_identification.clustering.hierarchical import HierarchicalClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.evaluation.cluster_statistics import (
@@ -185,6 +186,7 @@ class Pipeline:
         self.clusterers: list[Clusterer] = [
             KmeansClusterer(self.params),
             FCMeansClusterer(self.params),
+            HierarchicalClusterer(self.params),
         ]
         self.visualization_clustering = ClusteringVisualization()
 

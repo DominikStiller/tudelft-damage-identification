@@ -88,5 +88,5 @@ class HierarchicalClusterer(Clusterer):
         Args:
             data: datapoint for which the label should be predicted using the KNN classifier trained using the
             hierarchical clusters"""
-        prediction = self.model.predict(data)
+        prediction = self.model.predict(data)[0]
         return prediction

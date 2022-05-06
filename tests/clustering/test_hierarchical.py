@@ -67,9 +67,8 @@ class TestHierarchicalClusterer(TestCase):
         )
         hierarchical_model = HierarchicalClusterer({"n_clusters": 4, "n_neighbors": 5})
         hierarchical_model.train(test_set)
-        new_set = np.array([[6], [29]])
-        prediction = hierarchical_model.predict(new_set)
-        testing.assert_array_equal(prediction, [3, 0])
+        self.assertEqual(hierarchical_model.predict(np.array([[6]])), 3)
+        self.assertEqual(hierarchical_model.predict(np.array([[29]])), 0)
 
     def test_dump_file_load(self):
         test_point = [[1]]
