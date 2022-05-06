@@ -26,6 +26,7 @@ class HierarchicalClusterer(Clusterer):
             params: parameters for the clustering method
         """
         self.model = None
+        self.hcmodel = None
         super(HierarchicalClusterer, self).__init__("hclust", params)
 
     def save(self, directory):
@@ -37,8 +38,10 @@ class HierarchicalClusterer(Clusterer):
         Args:
             directory: The location the dump file will be saved to.
         """
-        with open(os.path.join(directory, "hclust.pickle"), "wb") as f:
+        with open(os.path.join(directory, "classifier.pickle"), "wb") as f:
             pickle.dump(self.model, f)
+        with open(os.path.join(directory, "hclust.pickle"), "wb") as f:
+            pickle.dump(self.hcmodel, f)
 
     def load(self, directory):
         """
@@ -48,7 +51,7 @@ class HierarchicalClusterer(Clusterer):
         Args:
             directory: the directory where the dump file form the save function was saved.
         """
-        with open(os.path.join(directory, "hclust.pickle"), "rb") as f:
+        with open(os.path.join(directory, "classifier.pickle"), "rb") as f:
             self.model = pickle.load(f)
 
     def train(self, data):
@@ -62,8 +65,8 @@ class HierarchicalClusterer(Clusterer):
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
-        clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeleddata = clusterer.fit_predict(data)
+        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
+        labeleddata = self.hcmodel.fit_predict(data)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
         self.model.fit(data, labeleddata)
         return self.model
