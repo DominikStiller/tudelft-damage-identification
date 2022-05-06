@@ -7,8 +7,9 @@ Loading and saving of the pipeline is also done here.
 
 Data structures used through the pipeline:
 - Raw waveforms (data): np.ndarray (shape n_examples x n_samples)
-- Wavelet-filtered waveforms (data_filtered): np.ndarray (shape n_examples x n_samples)
-- Raw features (features): pd.DataFrame (shape n_examples x n_features)
+- Bandpass/wavelet-filtered waveforms (data_filtered): np.ndarray (shape n_examples x n_samples)
+- Peak-split waveforms (data_split): np.ndarray (shape n_examples_split x n_samples)
+- Raw features (features): pd.DataFrame (shape n_examples_split x n_features)
 - Features of valid examples (features_valid): pd.DataFrame (shape n_examples_valid x n_features)
 - Normalized features (features_normalized): pd.DataFrame (shape n_examples_valid x n_features)
 - Reduces features after PCA (features_reduced): pd.DataFrame (shape n_examples_valid x n_features_reduced)
@@ -29,6 +30,7 @@ from tqdm import tqdm
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
 from damage_identification.clustering.identification import assign_damage_mode
+from damage_identification.clustering.hierarchical import HierarchicalClusterer
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
@@ -44,6 +46,7 @@ from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_uncompressed_data, load_compressed_data
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
+from damage_identification.preprocessing.peak_splitter import PeakSplitter
 from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
 
 
@@ -75,14 +78,17 @@ class Pipeline:
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
 
+        # Split by peaks
+        data_split, n_examples_split = self._split_by_peaks(data_filtered)
+
         # Train feature extractor
         print("Training feature extractors...")
         for feature_extractor in self.feature_extractors:
-            feature_extractor.train(data_filtered)
+            feature_extractor.train(data_split)
         print("-> Trained feature extractors")
 
         # Extract features for PCA training
-        features, valid_mask, _ = self._extract_features(data_filtered, n_examples)
+        features, valid_mask, _ = self._extract_features(data_split, n_examples_split)
         features_valid = features.loc[valid_mask]
 
         # Normalize features
@@ -105,8 +111,7 @@ class Pipeline:
             print("Finding optimal number of clusters...")
             self.params["n_clusters"] = find_optimal_number_of_clusters(
                 features_reduced, self.params["n_clusters_start"], self.params["n_clusters_end"]
-            )["kmeans"]
-            # TODO possibly change kmeans to overall or make method-specific
+            )
             print(f"-> Found optimal number of clusters (k = {self.params['n_clusters']})")
 
         # Train clustering
@@ -131,8 +136,13 @@ class Pipeline:
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
 
+        # Split by peaks
+        data_split, n_examples_split = self._split_by_peaks(data_filtered)
+
         # Extract, normalize and reduce features
-        features, valid_mask, n_valid_examples = self._extract_features(data_filtered, n_examples)
+        features, valid_mask, n_valid_examples = self._extract_features(
+            data_split, n_examples_split
+        )
         features_valid = features.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
@@ -181,6 +191,7 @@ class Pipeline:
         self.clusterers: list[Clusterer] = [
             KmeansClusterer(self.params),
             FCMeansClusterer(self.params),
+            HierarchicalClusterer(self.params),
         ]
         self.visualization_clustering = ClusteringVisualization()
 
@@ -203,6 +214,24 @@ class Pipeline:
         n_examples = data.shape[0]
 
         return data, n_examples
+
+    def _split_by_peaks(self, data: np.ndarray) -> tuple[np.ndarray, int]:
+        # Split examples into two if multiple peaks are present
+        if self.params["enable_peak_splitting"]:
+            print("Splitting by peaks...")
+            data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
+
+            print("Dataset contains")
+            print(f" - {n_no_peaks} examples without peaks")
+            print(f" - {n_one_peak} examples with one peak peaks")
+            print(f" - {n_over_two_peaks} examples with two peaks or more")
+            print("-> Split examples by peaks")
+        else:
+            data_split = data
+
+        n_examples_split = data_split.shape[0]
+
+        return data_split, n_examples_split
 
     def _load_pipeline(self):
         """Load all components of a saved pipeline"""
