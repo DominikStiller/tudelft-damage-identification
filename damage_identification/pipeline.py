@@ -47,6 +47,7 @@ from damage_identification.io import load_data_from_csv, load_data_from_tradb, l
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
+from damage_identification.preprocessing.saturation_detection import SaturationDetection
 from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
 
 
@@ -73,7 +74,6 @@ class Pipeline:
                 print(f" - {k}: {v}")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded training dataset ({n_examples} examples)")
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -131,7 +131,6 @@ class Pipeline:
         print("-> Loaded trained pipeline")
 
         data, n_examples = self._load_data()
-        print(f"-> Loaded prediction dataset ({n_examples} examples)")
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -165,7 +164,6 @@ class Pipeline:
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
         data, n_examples = self._load_data()
-        print(f"-> Loaded evaluation dataset ({n_examples} examples)")
 
         # TODO implement evaluation mode
 
@@ -174,6 +172,7 @@ class Pipeline:
         # Pre-processing
         self.bandpass_filter = BandpassFiltering(self.params)
         self.wavelet_filter = WaveletFiltering(self.params)
+        self.saturation_detection = SaturationDetection(self.params)
 
         # Feature extraction
         self.feature_extractors: list[FeatureExtractor] = [
@@ -218,9 +217,15 @@ class Pipeline:
         if "limit_data" in self.params:
             data = data[: self.params["limit_data"], :]
 
-        n_examples = data.shape[0]
+        # Filter out saturated examples
+        data_unsaturated = self.saturation_detection.filter_all(data)
 
-        return data, n_examples
+        n_examples = data_unsaturated.shape[0]
+        n_saturated = data.shape[0] - n_examples
+
+        print(f"-> Loaded dataset ({n_examples} examples, {n_saturated} were saturated)")
+
+        return data_unsaturated, n_examples
 
     def _split_by_peaks(self, data: np.ndarray) -> tuple[np.ndarray, int]:
         # Split examples into two if multiple peaks are present

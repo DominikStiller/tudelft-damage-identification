@@ -10,12 +10,12 @@ class SaturationDetection:
     """
 
     def __init__(self, params: dict[str, Any] = None):
-        if "saturation_threshold" not in self:
+        if "saturation_threshold" not in params:
             params["saturation_threshold"] = 0.0995
         self.params = params
 
-    def filter_signal(self, data):
+    def filter_all(self, data):
         """
-        Filters all waveforms as previously described
+        Filter out all saturated waveforms
         """
         return data[np.where(np.amax(data, axis=1) <= self.params["saturation_threshold"])]
