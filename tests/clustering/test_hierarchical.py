@@ -1,7 +1,9 @@
-from unittest import TestCase
 import tempfile
+from unittest import TestCase
+
 import numpy as np
 from numpy import testing
+
 from damage_identification.clustering.hierarchical import HierarchicalClusterer
 
 
@@ -34,7 +36,7 @@ class TestHierarchicalClusterer(TestCase):
 
         hierarchical_model = HierarchicalClusterer({"n_clusters": 4, "n_neighbors": 5})
         testing.assert_array_equal(
-            hierarchical_model.testmethod(test_set),
+            hierarchical_model._do_hierarchical_clustering(test_set),
             (3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0),
         )
 
