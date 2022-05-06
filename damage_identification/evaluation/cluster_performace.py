@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from validclust import dunn
 
+
 def load_data(directory):
     with open(os.path.join(directory), "rb") as f:
         model = pickle.load(f)
@@ -29,3 +30,6 @@ def collate_metrics(clusterers, data):
     collated = [k_metrics, f_metrics, h_metrics]
     return pd.DataFrame(collated, index=['Davies', 'Silhouette', 'Dunn'], columns=['kmeans', 'fcmeans', 'hierarchical'])
 
+testdata = pd.read_pickle("data/pca.pickle").reset_index(drop=True)#.pop("index")
+print(testdata)
+arr = collate_metrics(testdata)
