@@ -20,7 +20,7 @@ def get_metrics(data, labels):
     dunnmetric = dunn(distmatrix, labels)
     return davies, silhouette, dunnmetric
 
-def collate_metrics(clusterers, data):
+def collate_metrics(data):
     k_labels = load_data("data/pipeline_default/kmeans/model.pickle")
     k_metrics = np.array(get_metrics(data, k_labels)).T
     f_labels = load_data("data/pipeline_default/fcmeans/fcmeans.pickle")
