@@ -21,7 +21,7 @@ The main script can then be executed using `python -m damage_identification [mod
 * `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
-Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters. The data file(s) are specified as positional argument, separated by commas.
 
 ### Configuration parameters
 
@@ -55,6 +55,19 @@ The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present
 * `skip_statistics`: printing of cluster and PCA statistics is skipped if flag is present
 * `enable_identification`: enable identification of damage mode based on cluster memberships
+
+### Examples
+Train the pipeline on `data/dataset.tradb`, finding the optimal number of clusters between 2 and 5, and requiring 90% of explained variance for PCA:
+```
+python -m damage_identification train --n_clusters 2...5 --explained_variance 0.9 data/dataset.tradb"
+```
+
+Predict the cluster memberships of the first 1000 examples in `data/other_dataset.csv`:
+```
+python -m damage_identification predict --limit_data 1000 data/other_dataset.csv"
+```
+
+Ensure that the virtual environment with Python 3.9 and all dependencies is activated before running these commands.
 
 
 
