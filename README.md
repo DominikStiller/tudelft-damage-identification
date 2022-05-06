@@ -59,12 +59,12 @@ The following parameters are available during prediction:
 ### Examples
 Train the pipeline on `data/dataset.tradb`, finding the optimal number of clusters between 2 and 5, and requiring 90% of explained variance for PCA:
 ```
-python -m damage_identification train --n_clusters 2...5 --explained_variance 0.9 data/dataset.tradb"
+python -m damage_identification train --n_clusters 2...5 --explained_variance 0.9 data/dataset.tradb
 ```
 
 Predict the cluster memberships of the first 1000 examples in `data/other_dataset.csv`:
 ```
-python -m damage_identification predict --limit_data 1000 data/other_dataset.csv"
+python -m damage_identification predict --limit_data 1000 data/other_dataset.csv
 ```
 
 Ensure that the virtual environment with Python 3.9 and all dependencies is activated before running these commands.
