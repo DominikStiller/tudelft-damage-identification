@@ -20,9 +20,7 @@ The shapes are explained in the README.
 import os.path
 import pickle
 import sys
-from builtins import filter
 from enum import auto, Enum
-from fileinput import filename
 from typing import Any
 
 import numpy as np
@@ -45,7 +43,7 @@ from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
 from damage_identification.features.normalization import Normalization
-from damage_identification.io import load_uncompressed_data, load_compressed_data
+from damage_identification.io import load_data_from_csv, load_data_from_tradb, load_data_from_numpy
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
@@ -207,9 +205,11 @@ class Pipeline:
         data = []
         for filename in filenames:
             if filename.endswith(".csv"):
-                data.append(load_uncompressed_data(filename))
+                data.append(load_data_from_csv(filename))
             elif filename.endswith(".tradb"):
-                data.append(load_compressed_data(filename))
+                data.append(load_data_from_tradb(filename))
+            elif filename.endswith(".npy"):
+                data.append(load_data_from_numpy(filename))
             else:
                 raise Exception("Unsupported data file type")
 

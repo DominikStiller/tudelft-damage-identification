@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spkit as sp
 
-from damage_identification.io import load_compressed_data
+from damage_identification.io import load_data_from_tradb
 
 
 class WaveletFiltering:
@@ -109,7 +109,7 @@ class WaveletFiltering:
 
 if __name__ == "__main__":
     filter = WaveletFiltering({"filtering_wavelet_family": "db", "filtering_wavelet_scale": 3})
-    raw = load_compressed_data("data/comp0.tradb")
+    raw = load_data_from_tradb("data/comp0.tradb")
     filtered = filter.filter(raw)
     # np.savetxt("sample.csv", filtered[6722, :], delimiter=",")
     filter.wavelet_plot(raw, filtered, 6722)

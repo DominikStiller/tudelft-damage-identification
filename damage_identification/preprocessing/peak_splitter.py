@@ -1,10 +1,5 @@
-import sys
-import time
-
 import numpy as np
 from tqdm import tqdm
-
-from damage_identification.io import load_uncompressed_data
 
 
 class PeakSplitter:
@@ -113,3 +108,32 @@ class PeakSplitter:
                 pbar.update()
 
         return np.vstack(examples), n_no_peaks, n_one_peak, n_over_two_peaks
+
+
+if __name__ == "__main__":
+    import os
+    import sys
+
+    from damage_identification.io import load_data_from_csv, load_data_from_tradb
+
+    filename = sys.argv[1]
+    filename_split = os.path.splitext(filename)[0] + "_split.npy"
+
+    print("Loading data...")
+    if filename.endswith(".csv"):
+        data = load_data_from_csv(filename)
+    elif filename.endswith(".tradb"):
+        data = load_data_from_tradb(filename)
+    else:
+        raise Exception("Unsupported data file type")
+
+    print("Splitting data...")
+    data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
+
+    print(f"Dataset with originally {data.shape[0]} contains")
+    print(f" - {n_no_peaks} examples without peaks")
+    print(f" - {n_one_peak} examples with one peak peaks")
+    print(f" - {n_over_two_peaks} examples with two peaks or more")
+
+    np.save(filename_split, data_split)
+    print(f"Saved split data of {data_split.shape[0]} examples to {filename_split}")
