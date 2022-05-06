@@ -54,6 +54,7 @@ The following parameters are available during training:
 The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present
 * `skip_statistics`: printing of cluster and PCA statistics is skipped if flag is present
+* `enable_identification`: enable identification of damage mode based on cluster memberships
 
 
 

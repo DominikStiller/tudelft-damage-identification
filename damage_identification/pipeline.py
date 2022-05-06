@@ -160,9 +160,7 @@ class Pipeline:
         if not self.params["skip_visualization"]:
             self.visualization_clustering.visualize(data_display, clusterer_names)
 
-        identifications = self._identify_damage_modes(predictions, features_valid, valid_mask)
-        print("\nIDENTIFIED DAMAGE MODES")
-        print(identifications)
+        self._identify_damage_modes(predictions, features_valid, valid_mask)
 
     def run_evaluation(self):
         """Run the pipeline in evaluation mode"""
@@ -238,7 +236,7 @@ class Pipeline:
         with open(os.path.join(self.pipeline_persistence_folder, "params.pickle"), "rb") as f:
             saved_params: dict = pickle.load(f)
             self.params |= saved_params
-            for k, v in saved_params.items():
+            for k, v in self.params.items():
                 print(f" - {k}: {v}")
 
         for feature_extractor in self.feature_extractors:
@@ -360,7 +358,10 @@ class Pipeline:
 
     def _identify_damage_modes(
         self, predictions: pd.DataFrame, features: pd.DataFrame, valid_mask: pd.Series
-    ) -> pd.DataFrame:
+    ):
+        if not self.params["enable_identification"]:
+            return
+
         identifications_valid = assign_damage_mode(predictions, features)
 
         identifications = pd.DataFrame(index=valid_mask.index)
@@ -369,7 +370,8 @@ class Pipeline:
             DamageMode.INVALID
         )
 
-        return identifications
+        print("\nIDENTIFIED DAMAGE MODES")
+        print(identifications)
 
 
 class PipelineMode(Enum):
