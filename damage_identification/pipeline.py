@@ -20,7 +20,9 @@ The shapes are explained in the README.
 import os.path
 import pickle
 import sys
+from builtins import filter
 from enum import auto, Enum
+from fileinput import filename
 from typing import Any
 
 import numpy as np
@@ -195,16 +197,23 @@ class Pipeline:
 
     def _load_data(self) -> tuple[np.ndarray, int]:
         """Load the dataset for the session"""
-        filename: str = self.params["data_file"]
+        filenames: list[str] = self.params["data_file"].split(",")
 
-        print("Loading dataset...")
-
-        if filename.endswith(".csv"):
-            data = load_uncompressed_data(filename)
-        elif filename.endswith(".tradb"):
-            data = load_compressed_data(filename)
+        if len(filenames) == 1:
+            print("Loading dataset...")
         else:
-            raise Exception("Unsupported data file type")
+            print(f"Loading {len(filenames)} datasets...")
+
+        data = []
+        for filename in filenames:
+            if filename.endswith(".csv"):
+                data.append(load_uncompressed_data(filename))
+            elif filename.endswith(".tradb"):
+                data.append(load_compressed_data(filename))
+            else:
+                raise Exception("Unsupported data file type")
+
+        data = np.vstack(data)
 
         if "limit_data" in self.params:
             data = data[: self.params["limit_data"], :]
