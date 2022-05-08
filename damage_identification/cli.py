@@ -26,6 +26,8 @@ def parse_cli_args() -> dict[str, Any]:
         params["skip_filter"] = False
     if "enable_peak_splitting" not in params:
         params["enable_peak_splitting"] = False
+    if "skip_shuffling" not in params:
+        params["skip_shuffling"] = False
     if "enable_identification" not in params:
         params["enable_identification"] = False
     if "sampling_rate" not in params:
@@ -51,6 +53,7 @@ def _construct_parser() -> ArgumentParser:
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
     parser_params.add_argument("--skip_filter", action="store_true")
+    parser_params.add_argument("--skip_shuffling", action="store_true")
     parser_params.add_argument("--enable_peak_splitting", action="store_true")
     parser_params.add_argument("-n", "--pipeline_name")
     parser_params.add_argument("data_file")

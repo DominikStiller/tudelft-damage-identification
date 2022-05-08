@@ -42,6 +42,7 @@ Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
 * `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `skip_shuffling`: shuffling of dataset is skipped if flag is present
 * `enable_peak_splitting`: enable splitting of waveform if multiple peaks are detected (slow!)
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 

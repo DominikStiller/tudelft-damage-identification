@@ -214,6 +214,9 @@ class Pipeline:
 
         data = np.vstack(data)
 
+        if not self.params["skip_shuffling"]:
+            np.random.shuffle(data)
+
         if "limit_data" in self.params:
             data = data[: self.params["limit_data"], :]
 
