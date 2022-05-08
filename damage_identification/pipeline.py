@@ -29,8 +29,8 @@ from tqdm import tqdm
 
 from damage_identification.clustering.base import Clusterer
 from damage_identification.clustering.fcmeans import FCMeansClusterer
-from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.hierarchical import HierarchicalClusterer
+from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
@@ -43,7 +43,7 @@ from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
 from damage_identification.features.normalization import Normalization
-from damage_identification.io import load_data_from_csv, load_data_from_tradb, load_data_from_numpy
+from damage_identification.io import load_data
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
@@ -201,18 +201,7 @@ class Pipeline:
         else:
             print(f"Loading {len(filenames)} datasets...")
 
-        data = []
-        for filename in filenames:
-            if filename.endswith(".csv"):
-                data.append(load_data_from_csv(filename))
-            elif filename.endswith(".tradb"):
-                data.append(load_data_from_tradb(filename))
-            elif filename.endswith(".npy"):
-                data.append(load_data_from_numpy(filename))
-            else:
-                raise Exception("Unsupported data file type")
-
-        data = np.vstack(data)
+        data = load_data(filenames)
 
         if not self.params["skip_shuffling"]:
             np.random.shuffle(data)

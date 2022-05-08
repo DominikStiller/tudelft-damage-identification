@@ -114,18 +114,13 @@ if __name__ == "__main__":
     import os
     import sys
 
-    from damage_identification.io import load_data_from_csv, load_data_from_tradb
+    from damage_identification.io import load_data
 
     filename = sys.argv[1]
     filename_split = os.path.splitext(filename)[0] + "_split.npy"
 
     print("Loading data...")
-    if filename.endswith(".csv"):
-        data = load_data_from_csv(filename)
-    elif filename.endswith(".tradb"):
-        data = load_data_from_tradb(filename)
-    else:
-        raise Exception("Unsupported data file type")
+    data = load_data(filename)
 
     print("Splitting data...")
     data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
