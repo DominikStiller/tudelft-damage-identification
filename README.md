@@ -53,7 +53,7 @@ The following parameters are available during training:
 * `filtering_wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
 * `bandpass_low` (float, default: 100): the low cutoff for the bandpass filter in kHz
 * `bandpass_high` (float, default: 900): the high cutoff for the bandpass filter in kHz
-* `bandpass_order` (int, default: 5): the order for the Butterworth bandpass filter
+* `bandpass_order` (int, default: 25): the order for the Butterworth bandpass filter
 * `direct_features_threshold` (float between 0 and 1): threshold for direct features like counts and duration, as fraction of the peak amplitude
 * `direct_features_n_samples` (int): how many raw first `n` samples should be used as features, without further transformation
 * `mra_wavelet_family` (str): the wavelet family name for MRA (multi-resolution analysis), either db for Daubechies or coif for Coiflet
