@@ -194,7 +194,7 @@ class Pipeline:
         self.clusterers: list[Clusterer] = [
             KmeansClusterer(self.params),
             FCMeansClusterer(self.params),
-            # HierarchicalClusterer(self.params),
+            HierarchicalClusterer(self.params),
         ]
         self.visualization_clustering = ClusteringVisualization()
 
