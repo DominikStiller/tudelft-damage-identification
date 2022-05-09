@@ -52,7 +52,6 @@ def _construct_parser() -> ArgumentParser:
     # Parent parser for common parameters
     parser_params = ArgumentParser(add_help=False)
     parser_params.add_argument("--limit_data", type=int)
-    parser_params.add_argument("--skip_filter", action="store_true")
     parser_params.add_argument("--skip_shuffling", action="store_true")
     parser_params.add_argument("--enable_peak_splitting", action="store_true")
     parser_params.add_argument("-n", "--pipeline_name")
@@ -65,6 +64,7 @@ def _construct_parser() -> ArgumentParser:
     parser_training.set_defaults(mode=PipelineMode.TRAINING)
 
     parser_training.add_argument("--sampling_rate", type=float)
+    parser_params.add_argument("--skip_filter", action="store_true")
     parser_training.add_argument("--filtering_wavelet_family", type=str)
     parser_training.add_argument("--filtering_wavelet_scale", type=int)
     parser_training.add_argument("--filtering_wavelet_threshold", type=str)

@@ -53,7 +53,14 @@ from damage_identification.preprocessing.wavelet_filtering import WaveletFilteri
 
 class Pipeline:
     # Parameters that change with every execution and should not be saved
-    PER_RUN_PARAMS = ["mode", "data_file", "limit_data"]
+    PER_RUN_PARAMS = [
+        "mode",
+        "data_file",
+        "limit_data",
+        "pipeline_name",
+        "skip_shuffling",
+        "enable_peak_splitting",
+    ]
 
     def __init__(self, params: dict[str, Any]):
         if ("pipeline_name" not in params) or (params["pipeline_name"] is None):
@@ -70,8 +77,7 @@ class Pipeline:
         """Run the pipeline in training mode"""
         print("Parameters:")
         for k, v in self.params.items():
-            if k not in self.PER_RUN_PARAMS:
-                print(f" - {k}: {v}")
+            print(f" - {k}: {v}")
 
         data, n_examples = self._load_data()
 
@@ -188,7 +194,7 @@ class Pipeline:
         self.clusterers: list[Clusterer] = [
             KmeansClusterer(self.params),
             FCMeansClusterer(self.params),
-            HierarchicalClusterer(self.params),
+            # HierarchicalClusterer(self.params),
         ]
         self.visualization_clustering = ClusteringVisualization()
 

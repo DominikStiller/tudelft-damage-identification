@@ -8,7 +8,7 @@ import vallenae as vae
 def load_data(filenames: Union[str, list[str]]) -> np.ndarray:
     """
     Load acoustic emission data from one or more files. The file type is detected through the file extension.
-    
+
     Args:
         filenames: One or more filenames to load data from
 

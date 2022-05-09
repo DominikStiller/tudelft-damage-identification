@@ -41,13 +41,13 @@ Ensure that the virtual environment with Python 3.9 and all dependencies is acti
 Configurable parameters are passed to the pipeline as command line arguments
 using `--parameter_name value`. The following parameters are available in every mode:
 * `limit_data` (int): only process the first `limit_data` rows of the specified dataset
-* `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
 * `skip_shuffling`: shuffling of dataset is skipped if flag is present
 * `enable_peak_splitting`: enable splitting of waveform if multiple peaks are detected (slow!)
 * `pipeline_name`/`-n`: name of the pipeline model, enables training on different data
 
 The following parameters are available during training:
 * `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
+* `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
 * `filtering_wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `filtering_wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `filtering_wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
