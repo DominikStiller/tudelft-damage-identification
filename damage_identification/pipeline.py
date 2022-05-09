@@ -53,7 +53,7 @@ from damage_identification.preprocessing.wavelet_filtering import WaveletFilteri
 
 class Pipeline:
     # Parameters that change with every execution and should not be saved
-    PER_RUN_PARAMS = ["mode", "training_data_file", "limit_data"]
+    PER_RUN_PARAMS = ["mode", "data_file", "limit_data"]
 
     def __init__(self, params: dict[str, Any]):
         if ("pipeline_name" not in params) or (params["pipeline_name"] is None):
