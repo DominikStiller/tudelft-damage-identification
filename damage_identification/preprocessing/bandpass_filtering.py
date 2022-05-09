@@ -15,7 +15,7 @@ class BandpassFiltering:
         if "bandpass_high" not in self.params:
             self.params["bandpass_high"] = 900
         if "bandpass_order" not in self.params:
-            self.params["bandpass_order"] = 5
+            self.params["bandpass_order"] = 25
 
         self.bandpass_filter = signal.butter(
             self.params["bandpass_order"],
