@@ -43,11 +43,14 @@ def collate_metrics(data, directory = "data/pipeline_test_performance"):
     h_labels = load_labels(os.path.join(directory, "hierarchical/hclust.pickle"))
     h_metrics = np.array(get_metrics(data, h_labels))
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
+    collated[:, 0] = np.abs((collated[:, 0] - np.abs(np.max(collated[:, 0])))/np.max(collated[:, 0]))
+    collated[:, 1] = (collated[:, 0] + 1) * 0.5
     return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn'], index=['kmeans', 'fcmeans', "hierarchical"])
 
 
-
+'''
 testdata = pd.read_pickle("data/test.pickle").reset_index(drop=True)
 #print(testdata)
 arr = collate_metrics(testdata)
 print(arr)
+'''
