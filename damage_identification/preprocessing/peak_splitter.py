@@ -130,7 +130,7 @@ if __name__ == "__main__":
     filename_split_idx = os.path.splitext(filename)[0] + "_split_idx.npy"
 
     print("Loading data...")
-    data = load_data(filename)[:100]
+    data = load_data(filename)
 
     print("Filtering data...")
     data_filtered = SaturationDetection(params).filter(data)
