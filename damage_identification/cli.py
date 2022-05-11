@@ -20,6 +20,10 @@ def parse_cli_args() -> dict[str, Any]:
         else:
             raise "Invalid value for n_clusters"
 
+    if "split" in params["data_file"]:
+        print("WARNING: skipping filtering since operating on split dataset")
+        params["skip_filter"] = True
+
     # Default params for argparse are not working for some reason
     # Therefore, set defaults manually here
     if "skip_filter" not in params:
