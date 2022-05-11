@@ -71,7 +71,7 @@ class MultiResolutionAnalysis(FeatureExtractor):
                 "WARNING: The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
             )
 
-        for i in range(0, 2**self.dec_level):
+        for i in range(0, 2 ** self.dec_level):
             for t in range(0, self.time_bands):
                 left_t_bound = int(
                     (t / self.time_bands) * len(wave_coeffs[self.dec_level - 1][i][:])
@@ -86,13 +86,13 @@ class MultiResolutionAnalysis(FeatureExtractor):
             energy.append(time_energy)
             time_energy = []
 
-        for j in range(0, 2**self.dec_level):
+        for j in range(0, 2 ** self.dec_level):
             c = c + sum(energy[j][:])
 
         energies = {}
         for a in range(0, len(energy)):
-            band_lower = a * 2048 / (2**self.dec_level)
-            band_upper = (a + 1) * 2048 / (2**self.dec_level)
+            band_lower = a * 2048 / (2 ** self.dec_level)
+            band_upper = (a + 1) * 2048 / (2 ** self.dec_level)
             for i, coeff in enumerate(energy[a]):
                 energies[f"mra_{band_lower:.0f}_{band_upper:.0f}_{i}"] = coeff
 
