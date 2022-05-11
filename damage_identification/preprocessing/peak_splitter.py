@@ -1,4 +1,9 @@
 import numpy as np
+from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
+
+from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
+
+from damage_identification.preprocessing.saturation_detection import SaturationDetection
 from tqdm import tqdm
 
 
@@ -73,7 +78,7 @@ class PeakSplitter:
         return slices
 
     @staticmethod
-    def split_all(data: np.ndarray) -> tuple[np.ndarray, int, int, int]:
+    def split(data: np.ndarray) -> tuple[np.ndarray, np.ndarray, int, int, int]:
         """
         Split all examples in a dataset if the example contains two peaks
 
@@ -84,6 +89,7 @@ class PeakSplitter:
             A tuple of the processed dataset, and the numbers of examples with no peaks, one peak and two peaks
         """
         examples = []
+        examples_idx = []
 
         n_no_peaks = 0
         n_one_peak = 0
@@ -95,6 +101,7 @@ class PeakSplitter:
             for i in range(n_examples):
                 slices = PeakSplitter(data[i]).split_single()
                 examples.extend(slices)
+                examples_idx.extend([i] * len(slices))
 
                 n_slices = len(slices)
 
@@ -107,7 +114,7 @@ class PeakSplitter:
 
                 pbar.update()
 
-        return np.vstack(examples), n_no_peaks, n_one_peak, n_over_two_peaks
+        return np.vstack(examples), np.array(examples_idx), n_no_peaks, n_one_peak, n_over_two_peaks
 
 
 if __name__ == "__main__":
@@ -116,19 +123,32 @@ if __name__ == "__main__":
 
     from damage_identification.io import load_data
 
+    params = {"sampling_rate": 2048 * 1000}
+
     filename = sys.argv[1]
     filename_split = os.path.splitext(filename)[0] + "_split.npy"
+    filename_split_idx = os.path.splitext(filename)[0] + "_split_idx.npy"
 
     print("Loading data...")
-    data = load_data(filename)
+    data = load_data(filename)[:100]
+
+    print("Filtering data...")
+    data_filtered = SaturationDetection(params).filter(data)
+    data_filtered = BandpassFiltering(params).filter(data_filtered)
+    data_filtered = WaveletFiltering(params).filter(data_filtered)
 
     print("Splitting data...")
-    data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
+    data_split, idx, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split(data_filtered)
 
-    print(f"Dataset with originally {data.shape[0]} contains")
+    print(f"Dataset with originally {data.shape[0]} examples contains")
+    print(f" - {data.shape[0] - data_filtered.shape[0]} examples that are saturated")
     print(f" - {n_no_peaks} examples without peaks")
     print(f" - {n_one_peak} examples with one peak peaks")
     print(f" - {n_over_two_peaks} examples with two peaks or more")
 
     np.save(filename_split, data_split)
-    print(f"Saved split data of {data_split.shape[0]} examples to {filename_split}")
+    np.save(filename_split_idx, idx)
+    print(
+        f"Saved split data of {data_split.shape[0]} examples to {filename_split} "
+        f"with indexes in {filename_split_idx}"
+    )

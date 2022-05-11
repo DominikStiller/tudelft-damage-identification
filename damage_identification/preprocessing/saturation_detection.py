@@ -14,7 +14,7 @@ class SaturationDetection:
             params["saturation_threshold"] = 0.0995
         self.params = params
 
-    def filter_all(self, data):
+    def filter(self, data):
         """
         Filter out all saturated waveforms
         """

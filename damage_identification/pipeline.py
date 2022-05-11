@@ -222,7 +222,7 @@ class Pipeline:
             data = data[: self.params["limit_data"], :]
 
         # Filter out saturated examples
-        data_unsaturated = self.saturation_detection.filter_all(data)
+        data_unsaturated = self.saturation_detection.filter(data)
 
         n_examples = data_unsaturated.shape[0]
         n_saturated = data.shape[0] - n_examples
@@ -235,7 +235,7 @@ class Pipeline:
         # Split examples into two if multiple peaks are present
         if self.params["enable_peak_splitting"]:
             print("Splitting by peaks...")
-            data_split, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split_all(data)
+            data_split, _, n_no_peaks, n_one_peak, n_over_two_peaks = PeakSplitter.split(data)
 
             print("Dataset contains")
             print(f" - {n_no_peaks} examples without peaks")
