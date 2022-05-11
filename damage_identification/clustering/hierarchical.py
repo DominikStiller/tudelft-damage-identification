@@ -1,15 +1,23 @@
 import os
 import pickle
-import numpy as np
 from typing import Dict, Any
+
+import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
+
 from damage_identification.clustering.base import Clusterer
 
 
 class HierarchicalClusterer(Clusterer):
     """
-    This class Clusters the data according to the K-means clustering method
+    This class approximated hierarchical clustering through a KNN classifier.
+
+    sklearn's hierachical clustering does not have a separate predict method and
+    therefore always needs to retrain before prediction. Since this is inefficient,
+    we do hierarchical clustering only during training of this class, and then approximate
+    the cluster memberships through a KNN classifier, where each cluster corresponds
+    to one classification label.
 
     Parameters:
         - n_clusters: number of clusters in HAC
@@ -27,7 +35,7 @@ class HierarchicalClusterer(Clusterer):
         """
         self.model = None
         self.hcmodel = None
-        super(HierarchicalClusterer, self).__init__("hclust", params)
+        super(HierarchicalClusterer, self).__init__("hierarchical", params)
 
     def save(self, directory):
         """
@@ -45,7 +53,7 @@ class HierarchicalClusterer(Clusterer):
 
     def load(self, directory):
         """
-        Loads the hclust-knn model object from an external file in the state it was saved. From this object the usual class
+        Loads the knn model object from an external file in the state it was saved. From this object the usual class
         methods can be used to extract information such as cluster center coordinates, etc.
 
         Args:
@@ -59,25 +67,22 @@ class HierarchicalClusterer(Clusterer):
         Clusters testdata and trains the KNN model.
 
         Args:
-            testdata: data used to create the clusters to train the hclust model
-
-        Returns:
-            self.model: the trained KNN classifier model
+            data: data used to create the clusters to train the hclust model
         """
         if "n_neighbors" not in self.params:
+            # Using an odd k = sqrt(n) is a best practice
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
-        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeleddata = self.hcmodel.fit_predict(data)
+        labeled_data = self._do_hierarchical_clustering(data)
         self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
-        self.model.fit(data, labeleddata)
-        return self.model
+        self.model.fit(data, labeled_data)
 
-    def testmethod(self, testdata):
+    def _do_hierarchical_clustering(self, data):
+        """Generate labels for data through hierarchical clustering"""
         clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeleddata = clusterer.fit_predict(testdata)
-        return labeleddata
+        labeled_data = clusterer.fit_predict(data)
+        return labeled_data
 
     def predict(self, data) -> int:
         """
@@ -86,5 +91,5 @@ class HierarchicalClusterer(Clusterer):
         Args:
             data: datapoint for which the label should be predicted using the KNN classifier trained using the
             hierarchical clusters"""
-        prediction = self.model.predict(data)
+        prediction = self.model.predict(data)[0]
         return prediction
