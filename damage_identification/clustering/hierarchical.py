@@ -34,6 +34,7 @@ class HierarchicalClusterer(Clusterer):
             params: parameters for the clustering method
         """
         self.model = None
+        self.hcmodel = None
         super(HierarchicalClusterer, self).__init__("hierarchical", params)
 
     def save(self, directory):
@@ -45,18 +46,20 @@ class HierarchicalClusterer(Clusterer):
         Args:
             directory: The location the dump file will be saved to.
         """
-        with open(os.path.join(directory, "hclust.pickle"), "wb") as f:
+        with open(os.path.join(directory, "classifier.pickle"), "wb") as f:
             pickle.dump(self.model, f)
+        with open(os.path.join(directory, "hclust.pickle"), "wb") as f:
+            pickle.dump(self.hcmodel, f)
 
     def load(self, directory):
         """
-        Loads the hclust-knn model object from an external file in the state it was saved. From this object the usual class
+        Loads the knn model object from an external file in the state it was saved. From this object the usual class
         methods can be used to extract information such as cluster center coordinates, etc.
 
         Args:
             directory: the directory where the dump file form the save function was saved.
         """
-        with open(os.path.join(directory, "hclust.pickle"), "rb") as f:
+        with open(os.path.join(directory, "classifier.pickle"), "rb") as f:
             self.model = pickle.load(f)
 
     def train(self, data):
@@ -64,7 +67,7 @@ class HierarchicalClusterer(Clusterer):
         Clusters testdata and trains the KNN model.
 
         Args:
-            testdata: data used to create the clusters to train the hclust model
+            data: data used to create the clusters to train the hclust model
         """
         if "n_neighbors" not in self.params:
             # Using an odd k = sqrt(n) is a best practice
