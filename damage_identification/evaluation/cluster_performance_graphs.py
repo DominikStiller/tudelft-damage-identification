@@ -8,23 +8,28 @@ from cluster_performace import collate_metrics
 def graph_metrics(directory):
     dirs = [os.path.join(directory, name) for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
     fig = plt.figure()
-    minclusters = 3
+    minclusters = 2
     x = range(minclusters, len(dirs) + minclusters)
     k_metrics = np.zeros((len(dirs), 3))
     f_metrics = np.zeros((len(dirs), 3))
     h_metrics = np.zeros((len(dirs), 3))
     for i, d in enumerate(dirs):
-        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2"))
-        k_metrics[i] = collate_metrics(data, d).to_numpy()[0]
-        f_metrics[i] = collate_metrics(data, d).to_numpy()[1]
-        h_metrics[i] = collate_metrics(data, d).to_numpy()[2]
+        print(d)
+        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2")).sample(n = 20000)
+        indices = data.index
+        metrics = collate_metrics(data, d, indices).to_numpy()
+        k_metrics[i] = metrics[0]
+        f_metrics[i] = metrics[1]
+        h_metrics[i] = metrics[2]
 
     labels = ["Davies-Bouldin", "Silhouette", "Dunn"]
     for i in range(3):
        plt.scatter(x, k_metrics[:, i], label=labels[i])
 
     plt.xticks(x)
-    plt.legend()
+    plt.legend(loc=6)
+    plt.ylabel("Index score")
+    plt.xlabel("n clusters")
     plt.savefig("kmeans.png")
     plt.clf()
 
@@ -33,6 +38,8 @@ def graph_metrics(directory):
         plt.scatter(x, f_metrics[:, i], label=labels[i])
     plt.xticks(x)
     plt.legend()
+    plt.ylabel("Index score")
+    plt.xlabel("n clusters")
     plt.savefig("fcmeans.png")
     plt.clf()
 
@@ -40,7 +47,10 @@ def graph_metrics(directory):
         plt.scatter(x, h_metrics[:, i], label=labels[i])
     plt.xticks(x)
     plt.legend()
+    plt.ylabel("Index score")
+    plt.xlabel("n clusters")
     plt.savefig("hierarchical.png")
 
 
 graph_metrics("data")
+print("success!")

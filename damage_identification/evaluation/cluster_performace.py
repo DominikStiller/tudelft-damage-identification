@@ -1,17 +1,18 @@
 from sklearn.metrics import davies_bouldin_score, silhouette_score
-from sklearn.metrics.pairwise import euclidean_distances
 import pickle
 import os
 import pandas as pd
 import numpy as np
 from validclust import dunn
+from fastdist import fastdist
 
 
-def load_labels(directory):
+def load_labels(directory, indices):
     with open(os.path.join(directory), "rb") as f:
         model = pickle.load(f)
-    labeled_data = model.labels_
+    labeled_data = model.labels_[indices]
     return labeled_data
+
 
 def load_fcmeans_labels(directory, data):
     with open(os.path.join(directory), "rb") as f:
@@ -19,38 +20,34 @@ def load_fcmeans_labels(directory, data):
     labeled_data = model.predict(data.to_numpy())
     return labeled_data
 
-def get_metrics(data, labels):
+
+def get_metrics(data, labels, distmatrix):
     davies = davies_bouldin_score(data, labels)
     silhouette = silhouette_score(data, labels)
-    distmatrix = euclidean_distances(data)
+    #distmatrix = euclidean_distances(data)
+    #distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
+    #distmatrix = FCM._dist(data, data)
     dunnmetric = dunn(distmatrix, labels)
     return [davies, silhouette, dunnmetric]
 
-def collate_metrics(data, directory = "data/pipeline_test_performance"):
+def collate_metrics(data, directory , indices):
     """
     Args:
         data: the training data from PCA with reduced features
         dir: the folder of the saved pipeline e.g. "data/pipeline_default"
 
     Returns:
-        DataFrame containing the performance indeces for all the clsuterers
+        DataFrame containing the performance indices for all the clusterers
     """
-
-    k_labels = load_labels(os.path.join(directory, "kmeans/model.pickle"))
-    k_metrics = np.array(get_metrics(data, k_labels))
+    distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
+    print("calculated distance matrix!!")
+    k_labels = load_labels(os.path.join(directory, "kmeans/model.pickle"), indices)
+    k_metrics = np.array(get_metrics(data, k_labels, distmatrix))
     f_labels = load_fcmeans_labels(os.path.join(directory, "fcmeans/fcmeans.pickle"), data)
-    f_metrics = np.array(get_metrics(data, f_labels))
-    h_labels = load_labels(os.path.join(directory, "hierarchical/hclust.pickle"))
-    h_metrics = np.array(get_metrics(data, h_labels))
+    f_metrics = np.array(get_metrics(data, f_labels, distmatrix))
+    h_labels = load_labels(os.path.join(directory, "hierarchical/hclust.pickle"), indices)
+    h_metrics = np.array(get_metrics(data, h_labels, distmatrix))
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
     collated[:, 0] = np.abs((collated[:, 0] - np.abs(np.max(collated[:, 0])))/np.max(collated[:, 0]))
     collated[:, 1] = (collated[:, 0] + 1) * 0.5
     return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn'], index=['kmeans', 'fcmeans', "hierarchical"])
-
-
-'''
-testdata = pd.read_pickle("data/test.pickle").reset_index(drop=True)
-#print(testdata)
-arr = collate_metrics(testdata)
-print(arr)
-'''
