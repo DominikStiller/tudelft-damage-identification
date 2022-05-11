@@ -60,6 +60,9 @@ class HierarchicalClusterer(Clusterer):
 
         Args:
             testdata: data used to create the clusters to train the hclust model
+
+        Returns:
+            self.model: the trained KNN classifier model
         """
         if "n_neighbors" not in self.params:
             self.params["n_neighbors"] = round(np.sqrt(np.shape(data)[0]))
