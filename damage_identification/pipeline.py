@@ -112,6 +112,12 @@ class Pipeline:
             f"explained by {self.pca.n_components} principal components)"
         )
 
+        # Save reduced features for cluster index analysis
+        features_reduced.to_pickle(
+            os.path.join(self.pipeline_persistence_folder, "training_features_pca.pickle.bz2"),
+            compression="bz2",
+        )
+
         # Find optimal number of clusters if desired by user
         if self.params["n_clusters"] == "auto":
             print("Finding optimal number of clusters...")
