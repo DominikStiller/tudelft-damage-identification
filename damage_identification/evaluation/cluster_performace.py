@@ -26,19 +26,26 @@ def get_metrics(data, labels):
     dunnmetric = dunn(distmatrix, labels)
     return [davies, silhouette, dunnmetric]
 
-def collate_metrics(data):
-    k_labels = load_labels("data/pipeline_comp0/kmeans/model.pickle")
+def collate_metrics(data, dir):
+    """
+    Args:
+        data: the training data from PCA with reduced features
+        dir: the folder of the saved pipeline e.g. "data/pipeline_default"
+
+    Returns:
+        DataFrame containing the performance indeces for all the clsuterers
+    """
+    dir = "data/pipeline_test_performance"
+    k_labels = load_labels(os.path.join(dir, "kmeans/model.pickle"))
     k_metrics = np.array(get_metrics(data, k_labels))
-    #f_labels = load_data("data/pipeline_comp0/fcmeans/fcmeans.pickle")
-
-    f_labels = load_fcmeans_labels("data/pipeline_comp0/fcmeans/fcmeans.pickle", data)
+    f_labels = load_fcmeans_labels(os.path.join(dir, "fcmeans/fcmeans.pickle"), data)
     f_metrics = np.array(get_metrics(data, f_labels))
-    #h_labels = load_labels("data/pipeline_comp0/hclust/hclust.pickle")
-    #h_metrics = np.array(get_metrics(data, h_labels)).T
-    collated = np.vstack((k_metrics, f_metrics)) #h_metrics]
-    return pd.DataFrame(collated)#, index=['Davies', 'Silhouette', 'Dunn'])#, columns=['kmeans', 'fcmeans', "hclust"])
+    h_labels = load_labels(os.path.join(dir, "hierarchical/hclust.pickle"))
+    h_metrics = np.array(get_metrics(data, h_labels))
+    collated = np.vstack((k_metrics, f_metrics, h_metrics))
+    return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn'], index=['kmeans', 'fcmeans', "hierarchical"])
 
-testdata = pd.read_pickle("data/reduced_features_test.pickle").reset_index(drop=True)#.pop("index")
+testdata = pd.read_pickle("data/test.pickle").reset_index(drop=True)
 #print(testdata)
 arr = collate_metrics(testdata)
 print(arr)

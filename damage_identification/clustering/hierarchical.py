@@ -80,8 +80,8 @@ class HierarchicalClusterer(Clusterer):
 
     def _do_hierarchical_clustering(self, data):
         """Generate labels for data through hierarchical clustering"""
-        clusterer = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeled_data = clusterer.fit_predict(data)
+        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
+        labeled_data = self.hcmodel.fit_predict(data)
         return labeled_data
 
     def predict(self, data) -> int:
