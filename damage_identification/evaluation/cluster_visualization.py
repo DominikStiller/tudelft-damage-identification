@@ -31,6 +31,8 @@ class ClusteringVisualization:
             },
         )
 
+        current_time = datetime.datetime.now()
+
         def save_plot(name: str, type="pdf"):
             os.makedirs(f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}", exist_ok=True)
             fig.savefig(
