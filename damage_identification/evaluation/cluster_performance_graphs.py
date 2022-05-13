@@ -33,7 +33,6 @@ def graph_metrics(directory):
     plt.savefig("kmeans.png")
     plt.clf()
 
-
     for i in range(3):
         plt.scatter(x, f_metrics[:, i], label=labels[i])
     plt.xticks(x)
