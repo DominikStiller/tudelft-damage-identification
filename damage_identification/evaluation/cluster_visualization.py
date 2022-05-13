@@ -40,7 +40,7 @@ class ClusteringVisualization:
                 exist_ok=True,
             )
             fig.savefig(
-                f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}/{name}.{type}",
+                f"data/plots/{time}/{name}.{type}",
                 dpi=300,
                 bbox_inches="tight",
                 pad_inches=0,
