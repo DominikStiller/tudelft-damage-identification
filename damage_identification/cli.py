@@ -48,7 +48,7 @@ def _construct_parser() -> ArgumentParser:
     parser = ArgumentParser(
         prog="python -m damage_identification",
         description="A tool for identifying the damage mode in CFRP composites using acoustic emissions. "
-        "The tool has 3 modes: training, prediction and evaluation."
+        "The tool has 2 modes: training and prediction."
         "See https://github.com/DominikStiller/tudelft-damage-identification for more documentation.",
     )
     subparsers = parser.add_subparsers()
@@ -94,9 +94,5 @@ def _construct_parser() -> ArgumentParser:
     parser_prediction.add_argument("--skip_statistics", action="store_true")
     parser_prediction.add_argument("--enable_identification", action="store_true")
     parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
-
-    # Evaluation mode
-    parser_evaluation = subparsers.add_parser("evaluate", parents=[parser_params])
-    parser_evaluation.set_defaults(mode=PipelineMode.EVALUATION)
 
     return parser
