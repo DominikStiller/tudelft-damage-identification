@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import os
 
 
 class ClusteringVisualization:
@@ -26,11 +29,12 @@ class ClusteringVisualization:
         cmap = plt.get_cmap("tab10")
         n_rows = len(clusterer_names)
 
-        fig = plt.figure(figsize=(12, 6))
+        sns.set(style="whitegrid")
 
         for i, clusterer in enumerate(clusterer_names):
-            ax1 = fig.add_subplot(n_rows, 2, 2 * i + 1, projection="3d")
-            ax2 = fig.add_subplot(n_rows, 2, 2 * i + 2, projection="3d")
+            fig = plt.figure(figsize=(12, 6))
+            ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+            ax2 = fig.add_subplot(1, 2, 2, projection="3d")
 
             ax1.scatter3D(
                 data["pca_1"],
@@ -40,9 +44,9 @@ class ClusteringVisualization:
                 depthshade=False,
             )
             ax1.set_title(f"PCA ({clusterer})")
-            ax1.set_xlabel("pca_1")
-            ax1.set_ylabel("pca_2")
-            ax1.set_zlabel("pca_3")
+            ax1.set_xlabel("pca 1")
+            ax1.set_ylabel("pca 2")
+            ax1.set_zlabel("pca 3")
 
             # TODO check if contribute most to PCs
             features = ["duration [μs]", "peak_frequency [kHz]", "central_frequency [kHz]"]
@@ -59,4 +63,7 @@ class ClusteringVisualization:
             ax2.set_ylabel(features[1].replace('_', ' '))
             ax2.set_zlabel(features[2].replace('_', ' '))
 
-        plt.show()
+            plt.tight_layout(pad= 2.5, h_pad=2, w_pad=0.2)
+            plt.show()
+            directory = "data/"
+            fig.savefig(os.path.join(directory, f"tf{i}.pdf"))

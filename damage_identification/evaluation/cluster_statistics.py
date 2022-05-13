@@ -47,7 +47,7 @@ def prepare_data_for_display(
         features_reduced: principal components of features
 
     Returns:
-        A tuple of the display dataframe and the list of clusterer names, which are colums in the display dataframe
+        A tuple of the display dataframe and the list of clusterer names, which are columns in the display dataframe
     """
     data = pd.concat([predictions, features, features_reduced], axis=1)
 
