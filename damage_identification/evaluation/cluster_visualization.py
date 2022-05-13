@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import pandas as pd
-import numpy as np
-import seaborn as sns
+import seaborn as sb
 import os
 
 
@@ -20,6 +20,30 @@ class ClusteringVisualization:
         Args:
             data: the combined features and predictions
         """
+
+        sb.set(
+            context="paper",
+            style="ticks",
+            font_scale=1.6,
+            font="sans-serif",
+            rc={
+                "lines.linewidth": 1.2,
+                "axes.titleweight": "bold",
+            },
+        )
+
+        def save_plot(name: str, type="pdf"):
+            os.makedirs("plots", exist_ok=True)
+            name = name.replace(".", "-")
+            fig.savefig(
+                f"plots/plot_{name}.{type}",
+                dpi=300,
+                bbox_inches="tight",
+                pad_inches=0,
+            )
+
+            plt.close()
+
         # Add dimensions if PCA components are not long enough
         for i in [1, 2, 3]:
             col = f"pca_{i}"
@@ -27,9 +51,6 @@ class ClusteringVisualization:
                 data[col] = 0
 
         cmap = plt.get_cmap("tab10")
-        n_rows = len(clusterer_names)
-
-        sns.set(style="whitegrid")
 
         for i, clusterer in enumerate(clusterer_names):
             fig = plt.figure(figsize=(12, 6))
@@ -44,9 +65,9 @@ class ClusteringVisualization:
                 depthshade=False,
             )
             ax1.set_title(f"PCA ({clusterer})")
-            ax1.set_xlabel("pca 1")
-            ax1.set_ylabel("pca 2")
-            ax1.set_zlabel("pca 3")
+            ax1.set_xlabel("pca 1", labelpad=10)
+            ax1.set_ylabel("pca 2", labelpad=10)
+            ax1.set_zlabel("pca 3", labelpad=10)
 
             # TODO check if contribute most to PCs
             features = ["duration [μs]", "peak_frequency [kHz]", "central_frequency [kHz]"]
@@ -59,11 +80,12 @@ class ClusteringVisualization:
                 depthshade=False,
             )
             ax2.set_title(f"Features ({clusterer})")
-            ax2.set_xlabel(features[0].replace('_', ' '))
-            ax2.set_ylabel(features[1].replace('_', ' '))
-            ax2.set_zlabel(features[2].replace('_', ' '))
+            ax2.set_xlabel(features[0].replace("_", " "), labelpad=10)
+            ax2.set_ylabel(features[1].replace("_", " "), labelpad=10)
+            ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
-            plt.tight_layout(pad= 2.5, h_pad=2, w_pad=0.2)
+            fig.tight_layout(pad=2.5, h_pad=2, w_pad=0.2)
             plt.show()
-            directory = "data/"
-            fig.savefig(os.path.join(directory, f"tf{i}.pdf"))
+            save_plot(f"clustering_visualization_{clusterer}")
+
+
