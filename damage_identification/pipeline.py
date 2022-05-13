@@ -42,6 +42,7 @@ from damage_identification.evaluation.cluster_visualization import ClusteringVis
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
+from damage_identification.features.mra import MultiResolutionAnalysisExtractor
 from damage_identification.features.normalization import Normalization
 from damage_identification.io import load_data, load_metadata
 from damage_identification.pca import PrincipalComponents
@@ -184,6 +185,7 @@ class Pipeline:
         self.feature_extractors: list[FeatureExtractor] = [
             DirectFeatureExtractor(self.params),
             FourierExtractor(self.params),
+            MultiResolutionAnalysisExtractor(self.params),
         ]
         self.normalization = Normalization()
 

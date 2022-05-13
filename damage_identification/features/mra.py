@@ -6,7 +6,7 @@ import pywt
 from damage_identification.features.base import FeatureExtractor
 
 
-class MultiResolutionAnalysis(FeatureExtractor):
+class MultiResolutionAnalysisExtractor(FeatureExtractor):
     """
     This class extracts the signal data to decompose into energy levels at specified time bands and carrier frequencies.
     """

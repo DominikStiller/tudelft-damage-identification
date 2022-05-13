@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from numpy import testing
 
-from damage_identification.features.mra import MultiResolutionAnalysis
+from damage_identification.features.mra import MultiResolutionAnalysisExtractor
 
 
 class TestMultiResolutionAnalysis(TestCase):
@@ -19,7 +19,7 @@ class TestMultiResolutionAnalysis(TestCase):
     #     print(mra._decompose(data)[0])
 
     def test_short_signal_decomposition(self):
-        mra = MultiResolutionAnalysis(
+        mra = MultiResolutionAnalysisExtractor(
             {
                 "mra_wavelet_family": "db",
                 "mra_wavelet_scale": 1,
