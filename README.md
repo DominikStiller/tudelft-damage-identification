@@ -17,8 +17,7 @@ To run the code from the console, make sure you are in the project directory and
 
 The main script can then be executed using `python -m damage_identification [mode]` where possible modes are:
 * `train`: train the pipeline (mostly feature extraction, PCA and clustering) on a training data set
-* `predict`: predict the damage mode of one or multiple examples using a trained pipeline 
-* `evaluate`: compile metrics about the classification performance of the pipeline based on an evaluation data set
+* `predict`: predict the damage mode of one or multiple examples using a trained pipeline and show evaluation results
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
 Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters. The data file(s) are specified as positional argument, separated by commas.

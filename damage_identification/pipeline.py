@@ -173,12 +173,6 @@ class Pipeline:
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
 
-    def run_evaluation(self):
-        """Run the pipeline in evaluation mode"""
-        data, n_examples = self._load_data()
-
-        # TODO implement evaluation mode
-
     def _initialize_components(self):
         """Initialize all components including parameters"""
         # Pre-processing
@@ -395,4 +389,3 @@ class Pipeline:
 class PipelineMode(Enum):
     TRAINING = auto()
     PREDICTION = auto()
-    EVALUATION = auto()
