@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sb
-import os
-import datetime
+from damage_identification.evaluation.save_plot import save_plot
 
 
 class ClusteringVisualization:
@@ -31,23 +30,6 @@ class ClusteringVisualization:
                 "axes.titleweight": "bold",
             },
         )
-
-        current_time = datetime.datetime.now()
-
-        def save_plot(name: str, type="pdf"):
-            time = current_time.strftime("%Y-%m-%d_%H-%M")
-            os.makedirs(
-                f"data/plots/{time}",
-                exist_ok=True,
-            )
-            fig.savefig(
-                f"data/plots/{time}/{name}.{type}",
-                dpi=300,
-                bbox_inches="tight",
-                pad_inches=0,
-            )
-
-            plt.close()
 
         # Add dimensions if PCA components are not long enough
         for i in [1, 2, 3]:
@@ -90,4 +72,4 @@ class ClusteringVisualization:
             ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
             fig.tight_layout(pad=2.5, h_pad=2, w_pad=0.2)
-            save_plot(f"clustering_visualization_{clusterer}")
+            save_plot(f"clustering_visualization_{clusterer}", fig)

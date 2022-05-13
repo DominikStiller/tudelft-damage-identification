@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+
 def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
     for clusterer in clusterer_names:
         array = np.array(data[clusterer])
@@ -20,7 +21,7 @@ def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
             plt.xlabel("Index of waveform [-]")
             plt.ylabel("Cumulative energy [J]")
             plt.title(f"Cluster {i}")
-            plt.show()
+            save_plot(f"energy_plot_{clusterer}_{i}", plt)
         print(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
@@ -30,7 +31,6 @@ def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
         print("\nMEANS:")
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
             print(data_grouped.mean())
-
 
 def prepare_data_for_display(
     predictions: pd.DataFrame,
