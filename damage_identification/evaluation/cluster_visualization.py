@@ -4,6 +4,7 @@ import seaborn as sb
 import os
 import datetime
 
+
 class ClusteringVisualization:
     """
     Performs visualization of clustered data based on a tuple of the first three primary components and their predicted
@@ -34,7 +35,10 @@ class ClusteringVisualization:
         current_time = datetime.datetime.now()
 
         def save_plot(name: str, type="pdf"):
-            os.makedirs(f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}", exist_ok=True)
+            os.makedirs(
+                f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}",
+                exist_ok=True,
+            )
             fig.savefig(
                 f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}/{name}.{type}",
                 dpi=300,
