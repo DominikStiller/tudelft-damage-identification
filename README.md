@@ -76,13 +76,24 @@ The following parameters are available during prediction:
 Next to the main program, this project contains some standalone scripts.
 
 ### Peak splitting
-Some AE waveforms actually contain multiple hits, which can be detected by their initial peaks. Splitting waveforms by their peaks can be enabled in the pipeline using `enable_peak_splitting`. However, since it takes long, it is usually more efficient to perform peak-splitting before, so the pipeline can operate on an already peak-split dataset. This will also generate an index file, associating the split examples with the original one.
+Some AE waveforms actually contain multiple hits, which can be detected by their initial peaks. Splitting waveforms by their peaks can be enabled in the pipeline using `enable_peak_splitting`. However, since it takes long, it is usually more efficient to perform peak-splitting before, so the pipeline can operate on an already peak-split dataset. This will also generate an index file ending in `_idx.npy`, associating the split examples with the original one.
 
 Usage:
 ```
 python damage_identification/preprocessing/peak_splitter.py [data_file]
 ```
 * `data_file`: the dataset to split
+
+
+### Metadata extraction
+Each example of AE measurements has associated metadata. These include the timestamp, displacement and applied force, stored in the .pridb file. This script can extract these metadata, using interpolation and the index file in case of a peak-split dataset.
+
+Usage:
+```
+python damage_identification/metadata.py [index_file] [pridb_file]
+```
+* `index_file`: a file containing the indexes of the dataset. Either the datas et file (.tradb or .csv) itself for unsplit data, or the index file `_idx.npy` for a peak-split dataset.
+* `pridb_file`: the .pridb file containing the metadata
 
 
 ## Data folder layout
