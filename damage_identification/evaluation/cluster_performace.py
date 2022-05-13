@@ -40,7 +40,7 @@ def collate_metrics(data, directory , indices):
         DataFrame containing the performance indices for all the clusterers
     """
     distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
-    print("calculated distance matrix!!")
+    print("calculated distance matrix!")
     k_labels = load_labels(os.path.join(directory, "kmeans/model.pickle"), indices)
     k_metrics = np.array(get_metrics(data, k_labels, distmatrix))
     f_labels = load_fcmeans_labels(os.path.join(directory, "fcmeans/fcmeans.pickle"), data)
@@ -49,5 +49,5 @@ def collate_metrics(data, directory , indices):
     h_metrics = np.array(get_metrics(data, h_labels, distmatrix))
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
     collated[:, 0] = np.abs((collated[:, 0] - np.abs(np.max(collated[:, 0])))/np.max(collated[:, 0]))
-    collated[:, 1] = (collated[:, 0] + 1) * 0.5
+    collated[:, 1] = (collated[:, 1] + 1) * 0.5
     return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn'], index=['kmeans', 'fcmeans', "hierarchical"])
