@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib
 import pandas as pd
 import seaborn as sb
 import os
@@ -33,10 +32,9 @@ class ClusteringVisualization:
         )
 
         def save_plot(name: str, type="pdf"):
-            os.makedirs("plots", exist_ok=True)
-            name = name.replace(".", "-")
+            os.makedirs(f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}", exist_ok=True)
             fig.savefig(
-                f"plots/plot_{name}.{type}",
+                f"data/plots/{current_time.year}-{current_time.month}-{current_time.day}_{current_time.hour}-{current_time.minute}/{name}.{type}",
                 dpi=300,
                 bbox_inches="tight",
                 pad_inches=0,
