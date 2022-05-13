@@ -55,8 +55,8 @@ class ClusteringVisualization:
                 depthshade=False,
             )
             ax2.set_title(f"Features ({clusterer})")
-            ax2.set_xlabel(features[0])
-            ax2.set_ylabel(features[1])
-            ax2.set_zlabel(features[2])
+            ax2.set_xlabel(features[0].replace('_', ' '))
+            ax2.set_ylabel(features[1].replace('_', ' '))
+            ax2.set_zlabel(features[2].replace('_', ' '))
 
         plt.show()
