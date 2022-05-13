@@ -89,5 +89,4 @@ class ClusteringVisualization:
             ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
             fig.tight_layout(pad=2.5, h_pad=2, w_pad=0.2)
-            plt.show()
             save_plot(f"clustering_visualization_{clusterer}")
