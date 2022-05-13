@@ -12,7 +12,7 @@ if __name__ == "__main__":
     filename_data = sys.argv[1]
     filename_metadata = sys.argv[2]
 
-    filename_out = os.path.splitext(filename_metadata)[0] + "_metadata.pickle"
+    filename_out = os.path.splitext(filename_data)[0].replace("_idx", "") + "_metadata.pickle"
 
     # Load index, either from index file (after splitting) or from original data file
     if filename_data.endswith("_idx.npy"):

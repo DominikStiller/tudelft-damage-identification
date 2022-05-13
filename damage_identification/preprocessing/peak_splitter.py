@@ -147,7 +147,7 @@ if __name__ == "__main__":
     data = load_data(filename)
 
     print("Filtering data...")
-    data_filtered = SaturationDetection(params).filter(data)
+    data_filtered, _ = SaturationDetection(params).filter(data)
     data_filtered = BandpassFiltering(params).filter(data_filtered)
     data_filtered = WaveletFiltering(params).filter(data_filtered)
 

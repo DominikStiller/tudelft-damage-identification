@@ -90,9 +90,11 @@ def _construct_parser() -> ArgumentParser:
 
     # Prediction mode
     parser_prediction = subparsers.add_parser("predict", parents=[parser_params])
+    parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
+
     parser_prediction.add_argument("--skip_visualization", action="store_true")
     parser_prediction.add_argument("--skip_statistics", action="store_true")
     parser_prediction.add_argument("--enable_identification", action="store_true")
-    parser_prediction.set_defaults(mode=PipelineMode.PREDICTION)
+    parser_prediction.add_argument("--metadata_file")
 
     return parser
