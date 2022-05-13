@@ -56,6 +56,9 @@ class PeakSplitter:
         )
         windows_waveform = np.lib.stride_tricks.sliding_window_view(padded_waveform, self.lag)
         threshold_stds = np.apply_along_axis(np.std, 1, windows_waveform) * self.threshold
+        threshold_stds = np.maximum(
+            threshold_stds, (1e-1) * np.max(np.abs(self.waveform))
+        )  # Needs to be changed in main
         self.signal = np.less(threshold_stds, abs(self.waveform)).astype(int)
         windows_signal = np.lib.stride_tricks.sliding_window_view(self.signal, self.window)
         signal = np.apply_along_axis(np.sum, 1, windows_signal)
@@ -71,10 +74,11 @@ class PeakSplitter:
         slices = []
         for i in range(len(indexes) - 1):
             slice = self.waveform[indexes[i] : indexes[i + 1]]
-            slice = np.pad(
-                slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
-            )
-            slices.append(slice)
+            if len(slice) > len(self.waveform) * 0.2:
+                slice = np.pad(
+                    slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
+                )
+                slices.append(slice)
         return slices
 
     @staticmethod
