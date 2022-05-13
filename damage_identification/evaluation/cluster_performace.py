@@ -1,4 +1,4 @@
-from sklearn.metrics import davies_bouldin_score, silhouette_score
+from sklearn.metrics import davies_bouldin_score, silhouette_score, calinski_harabasz_score
 import pickle
 import os
 import pandas as pd
@@ -28,7 +28,8 @@ def get_metrics(data, labels, distmatrix):
     #distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
     #distmatrix = FCM._dist(data, data)
     dunnmetric = dunn(distmatrix, labels)
-    return [davies, silhouette, dunnmetric]
+    calinski = calinski_harabasz_score(data, labels)
+    return [davies, silhouette, dunnmetric, calinski]
 
 def collate_metrics(data, directory , indices):
     """
@@ -48,6 +49,5 @@ def collate_metrics(data, directory , indices):
     h_labels = load_labels(os.path.join(directory, "hierarchical/hclust.pickle"), indices)
     h_metrics = np.array(get_metrics(data, h_labels, distmatrix))
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
-    collated[:, 0] = np.abs((collated[:, 0] - np.abs(np.max(collated[:, 0])))/np.max(collated[:, 0]))
-    collated[:, 1] = (collated[:, 1] + 1) * 0.5
-    return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn'], index=['kmeans', 'fcmeans', "hierarchical"])
+
+    return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn', 'Calinski-Harabasz'], index=['kmeans', 'fcmeans', "hierarchical"])
