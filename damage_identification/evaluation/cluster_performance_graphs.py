@@ -17,7 +17,7 @@ def graph_metrics(directory):
     h_metrics = np.zeros((len(dirs), 4))
     for i, d in enumerate(dirs):
         print(d)
-        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2")).sample(n = 30000)
+        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2")).sample(n = 21000)
         indices = data.index
         metrics = collate_metrics(data, d, indices).to_numpy()
         print(metrics)

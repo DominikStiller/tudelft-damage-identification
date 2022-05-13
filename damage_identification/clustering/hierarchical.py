@@ -5,6 +5,7 @@ from typing import Dict, Any
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
+from damage_identification.evaluation.cluster_performace import gpu_dist_matrix
 
 from damage_identification.clustering.base import Clusterer
 
@@ -80,8 +81,9 @@ class HierarchicalClusterer(Clusterer):
 
     def _do_hierarchical_clustering(self, data):
         """Generate labels for data through hierarchical clustering"""
-        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeled_data = self.hcmodel.fit_predict(data)
+        distmatrix = gpu_dist_matrix(data)
+        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='complete')
+        labeled_data = self.hcmodel.fit_predict(distmatrix)
         return labeled_data
 
     def predict(self, data) -> int:

@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from validclust import dunn
 from fastdist import fastdist
+from numba import cuda
 
 
 def load_labels(directory, indices):
@@ -24,9 +25,6 @@ def load_fcmeans_labels(directory, data):
 def get_metrics(data, labels, distmatrix):
     davies = davies_bouldin_score(data, labels)
     silhouette = silhouette_score(data, labels)
-    #distmatrix = euclidean_distances(data)
-    #distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
-    #distmatrix = FCM._dist(data, data)
     dunnmetric = dunn(distmatrix, labels)
     calinski = calinski_harabasz_score(data, labels)
     return [davies, silhouette, dunnmetric, calinski]
@@ -40,7 +38,8 @@ def collate_metrics(data, directory , indices):
     Returns:
         DataFrame containing the performance indices for all the clusterers
     """
-    distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
+    #distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
+    distmatrix = gpu_dist_matrix(data.to_numpy())
     print("calculated distance matrix!")
     k_labels = load_labels(os.path.join(directory, "kmeans/model.pickle"), indices)
     k_metrics = np.array(get_metrics(data, k_labels, distmatrix))
@@ -51,3 +50,35 @@ def collate_metrics(data, directory , indices):
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
 
     return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn', 'Calinski-Harabasz'], index=['kmeans', 'fcmeans', "hierarchical"])
+
+
+np_type = np.float64
+
+
+@cuda.jit("void(float{}[:, :], float{}[:, :])".format(64, 64))
+def distance_matrix(mat, out):
+    m = mat.shape[0]
+    n = mat.shape[1]
+    i, j = cuda.grid(2)
+    d = 0
+    if i < m and j < m:
+        for k in range(n):
+            tmp = mat[i, k] - mat[j, k]
+            d += tmp * tmp
+        out[i, j] = d
+
+
+def gpu_dist_matrix(mat):
+    rows = mat.shape[0]
+
+    block_dim = (16, 16)
+    grid_dim = (int(rows/block_dim[0] + 1), int(rows/block_dim[1] + 1))
+
+    stream = cuda.stream()
+    mat2 = cuda.to_device(np.asarray(mat, dtype=np_type), stream=stream)
+    out2 = cuda.device_array((rows, rows))
+    distance_matrix[grid_dim, block_dim](mat2, out2)
+    out = out2.copy_to_host(stream=stream)
+
+    return out
+
