@@ -72,6 +72,19 @@ The following parameters are available during prediction:
 
 
 
+## Additional scripts
+Next to the main program, this project contains some standalone scripts.
+
+### Peak splitting
+Some AE waveforms actually contain multiple hits, which can be detected by their initial peaks. Splitting waveforms by their peaks can be enabled in the pipeline using `enable_peak_splitting`. However, since it takes long, it is usually more efficient to perform peak-splitting before, so the pipeline can operate on an already peak-split dataset. This will also generate an index file, associating the split examples with the original one.
+
+Usage:
+```
+python damage_identification/preprocessing/peak_splitter.py [data_file]
+```
+* `data_file`: the dataset to split
+
+
 ## Data folder layout
 All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
 * `data/Waveforms.csv`: first AE recording that Davide gave us
