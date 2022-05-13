@@ -32,6 +32,7 @@ def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
             print(data_grouped.mean())
 
+
 def prepare_data_for_display(
     predictions: pd.DataFrame,
     features: pd.DataFrame,

@@ -11,7 +11,7 @@ class ClusteringVisualization:
     """
 
     def visualize(self, data: pd.DataFrame, clusterer_names: list[str]):
-        """
+        """import matplotlib
         To visualize clustering from kmeans. Loops over all the damage modes present in the data, and plots the
         datapoints for each of these in a different
         colour, in 3D space.
