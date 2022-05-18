@@ -51,12 +51,12 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
             c=data[clusterer].map(cmap),
             depthshade=False,
         )
-        ax2.set_title(f"Features ({clusterer})")
+        ax2.set_title(f"Features ({clusterer})",y=1.04)
         ax2.set_xlabel(features[0].replace("_", " "), labelpad=10)
         ax2.set_ylabel(features[1].replace("_", " "), labelpad=10)
         ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
-        fig.tight_layout(pad=2.5, h_pad=2, w_pad=0.2)
+        format_plot_3D()
         save_plot(f"clustering_visualization_{clusterer}", fig)
 
 
