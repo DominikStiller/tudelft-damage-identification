@@ -231,7 +231,7 @@ class Pipeline:
                 metadata.shape[0] == data.shape[0]
             ), "Number of examples in data and metadata do not match"
 
-        if not self.params["skip_shuffling"]:
+        if self.params["mode"] == PipelineMode.TRAINING and not self.params["skip_shuffling"]:
             # Shuffle data and metadata in unison
             idx = np.arange(data.shape[0])
             np.random.shuffle(idx)
