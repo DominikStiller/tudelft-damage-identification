@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3D, format_plot_2D
+
+from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3d, format_plot_2d
 
 
 def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
@@ -13,7 +14,6 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_f
     Args:
     data: the combined features and predictions
     """
-
     # Add dimensions if PCA components are not long enough
     for i in [1, 2, 3]:
         col = f"pca_{i}"
@@ -54,7 +54,7 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_f
         ax2.set_ylabel(features[1].replace("_", " "), labelpad=10)
         ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
-        format_plot_3D()
+        format_plot_3d()
         save_plot(results_folder, f"clustering_visualization_{clusterer}", fig)
 
 
@@ -76,5 +76,5 @@ def visualize_cumulative_energy(
             plt.yscale("log")
             plt.title(f"Cluster {current_cluster}")
 
-            format_plot_2D()
+            format_plot_2d()
             save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}", plt)

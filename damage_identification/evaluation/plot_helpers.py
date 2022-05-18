@@ -1,10 +1,10 @@
-import datetime
 import os
+
+import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sb
-import matplotlib
 
-
+# Initialize seaborn formatting once module is loaded
 sb.set(
     context="paper",
     style="ticks",
@@ -33,12 +33,12 @@ def save_plot(results_folder: str, name: str, fig, type="pdf"):
     plt.close()
 
 
-def format_plot_3D():
+def format_plot_3d():
     fig = plt.gcf()
     fig.tight_layout(pad=2.5, h_pad=0.3, w_pad=0.2)
 
 
-def format_plot_2D(
+def format_plot_2d(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
     zeroline=True,
 ):
