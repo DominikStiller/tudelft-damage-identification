@@ -5,6 +5,18 @@ import seaborn as sb
 import matplotlib
 
 
+sb.set(
+    context="paper",
+    style="ticks",
+    font_scale=1.6,
+    font="sans-serif",
+    rc={
+        "lines.linewidth": 1.2,
+        "axes.titleweight": "bold",
+    },
+)
+
+
 def save_plot(name: str, fig, type="pdf"):
     current_time = datetime.datetime.now()
     time = current_time.strftime("%Y-%m-%d_%H-%M")
@@ -21,16 +33,6 @@ def save_plot(name: str, fig, type="pdf"):
 
     plt.close()
 
-sb.set(
-    context="paper",
-    style="ticks",
-    font_scale=1.6,
-    font="sans-serif",
-    rc={
-        "lines.linewidth": 1.2,
-        "axes.titleweight": "bold",
-    },
-)
 
 def format_plot(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
