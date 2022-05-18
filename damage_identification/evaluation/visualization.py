@@ -4,7 +4,7 @@ import pandas as pd
 from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3D, format_plot_2D
 
 
-def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
+def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
     """import matplotlib
     To visualize clustering from kmeans. Loops over all the damage modes present in the data, and plots the
     datapoints for each of these in a different
@@ -55,10 +55,12 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
         ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
 
         format_plot_3D()
-        save_plot(f"clustering_visualization_{clusterer}", fig)
+        save_plot(results_folder, f"clustering_visualization_{clusterer}", fig)
 
 
-def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
+def visualize_cumulative_energy(
+    data: pd.DataFrame, clusterer_names: list[str], results_folder: str
+):
     for clusterer in clusterer_names:
         predicted_clusters = data[clusterer].to_numpy()
         energy = data["energy"].to_numpy()
@@ -75,4 +77,4 @@ def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
             plt.title(f"Cluster {current_cluster}")
 
             format_plot_2D()
-            save_plot(f"energy_plot_{clusterer}_{current_cluster}", plt)
+            save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}", plt)

@@ -174,11 +174,11 @@ class Pipeline:
         )
 
         if not self.params["skip_statistics"]:
-            print_cluster_statistics(data_display, clusterer_names)
+            print_cluster_statistics(data_display, clusterer_names, self.results_folder)
             self.pca.print_correlations()
         if not self.params["skip_visualization"]:
-            visualize_clusters(data_display, clusterer_names)
-            visualize_cumulative_energy(data_display, clusterer_names)
+            visualize_clusters(data_display, clusterer_names, self.results_folder)
+            visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
 

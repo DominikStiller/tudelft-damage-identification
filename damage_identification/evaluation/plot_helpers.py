@@ -28,7 +28,7 @@ def save_plot(name: str, fig, type="pdf"):
         f"data/plots/{time}/{name}.{type}",
         dpi=300,
         bbox_inches="tight",
-        pad_inches=0.25,
+        pad_inches=0.01,
     )
 
     plt.close()

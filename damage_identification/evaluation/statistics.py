@@ -3,7 +3,7 @@ from typing import Optional
 import pandas as pd
 
 
-def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
+def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
     for clusterer in clusterer_names:
         print(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
