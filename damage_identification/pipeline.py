@@ -73,6 +73,8 @@ class Pipeline:
             params["pipeline_name"] = "default"
         self.params = params
 
+    def initialize(self):
+        # Separate methods so these are not run during unit testing
         self._initialize_folders()
         self._initialize_components()
 

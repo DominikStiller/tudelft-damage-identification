@@ -5,6 +5,7 @@ from damage_identification.pipeline import Pipeline, PipelineMode
 def main():
     params = parse_cli_args()
     pipeline = Pipeline(params)
+    pipeline.initialize()
 
     if "mode" not in params:
         print_cli_help()
