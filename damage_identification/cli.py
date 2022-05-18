@@ -23,11 +23,14 @@ def parse_cli_args() -> dict[str, Any]:
     if "split" in params["data_file"]:
         print("WARNING: skipping filtering since operating on split dataset")
         params["skip_filter"] = True
+        params["skip_saturation_detection"] = True
 
     # Default params for argparse are not working for some reason
     # Therefore, set defaults manually here
     if "skip_filter" not in params:
         params["skip_filter"] = False
+    if "skip_saturation_detection" not in params:
+        params["skip_saturation_detection"] = False
     if "enable_peak_splitting" not in params:
         params["enable_peak_splitting"] = False
     if "skip_shuffling" not in params:
@@ -69,6 +72,7 @@ def _construct_parser() -> ArgumentParser:
 
     parser_training.add_argument("--sampling_rate", type=float)
     parser_params.add_argument("--skip_filter", action="store_true")
+    parser_params.add_argument("--skip_saturation_detection", action="store_true")
     parser_training.add_argument("--filtering_wavelet_family", type=str)
     parser_training.add_argument("--filtering_wavelet_scale", type=int)
     parser_training.add_argument("--filtering_wavelet_threshold", type=str)

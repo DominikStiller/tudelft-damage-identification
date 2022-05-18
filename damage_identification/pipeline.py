@@ -156,6 +156,7 @@ class Pipeline:
             data_split, n_examples_split
         )
         features_valid = features.loc[valid_mask]
+        metadata_valid = metadata.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
 
@@ -163,7 +164,7 @@ class Pipeline:
         predictions = self._predict(features_reduced, n_valid_examples)
 
         data_display, clusterer_names = prepare_data_for_display(
-            predictions, features_valid, features_reduced, metadata
+            predictions, features_valid, features_reduced, metadata_valid
         )
 
         if not self.params["skip_statistics"]:
@@ -236,10 +237,13 @@ class Pipeline:
             if metadata is not None:
                 metadata = metadata.head(self.params["limit_data"])
 
-        # Filter out saturated examples
-        data_unsaturated, idx_unsaturated = self.saturation_detection.filter(data)
-        if metadata is not None:
-            metadata = metadata.iloc[idx_unsaturated]
+        if not self.params["skip_saturation_detection"]:
+            # Filter out saturated examples
+            data_unsaturated, idx_unsaturated = self.saturation_detection.filter(data)
+            if metadata is not None:
+                metadata = metadata.iloc[idx_unsaturated].reset_index(drop=True)
+        else:
+            data_unsaturated = data
 
         n_examples = data_unsaturated.shape[0]
         n_saturated = data.shape[0] - n_examples
@@ -386,7 +390,7 @@ class Pipeline:
 
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
-        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy()).astype("int")
+        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
         print("-> Predicted cluster memberships")
 
         return predictions

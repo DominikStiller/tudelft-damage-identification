@@ -48,6 +48,7 @@ using `--parameter_name value`. The following parameters are available in every 
 The following parameters are available during training:
 * `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
 * `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `skip_saturation_detection`: saturation detection is skipped if flag is present
 * `filtering_wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `filtering_wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `filtering_wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
