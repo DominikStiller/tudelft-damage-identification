@@ -386,7 +386,7 @@ class Pipeline:
 
                 predictions[clusterer.name] = features.apply(do_predict, axis=1)
 
-        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy())
+        predictions = pd.concat(predictions, axis=1).reindex(features.index.copy()).astype("int")
         print("-> Predicted cluster memberships")
 
         return predictions
