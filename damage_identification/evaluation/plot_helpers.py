@@ -65,6 +65,7 @@ def format_plot_2D(
         ax.get_xaxis().set_minor_locator(xlocator)
         ax.get_yaxis().set_minor_locator(ylocator)
         ax.set_ylim(ymin=0)
+        ax.set_xlim(xmin=0)
         ax.grid(b=True, which="major", linewidth=1.0)
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 
