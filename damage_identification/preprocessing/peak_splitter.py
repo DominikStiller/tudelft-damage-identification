@@ -1,10 +1,9 @@
 import numpy as np
-from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
+from tqdm import tqdm
 
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
-
 from damage_identification.preprocessing.saturation_detection import SaturationDetection
-from tqdm import tqdm
+from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
 
 
 class PeakSplitter:
@@ -147,7 +146,7 @@ if __name__ == "__main__":
     data = load_data(filename)
 
     print("Filtering data...")
-    data_filtered = SaturationDetection(params).filter(data)
+    data_filtered, _ = SaturationDetection(params).filter(data)
     data_filtered = BandpassFiltering(params).filter(data_filtered)
     data_filtered = WaveletFiltering(params).filter(data_filtered)
 

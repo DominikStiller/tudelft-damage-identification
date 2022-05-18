@@ -27,6 +27,7 @@ that can be hard to find. The following names are used in docstrings for this pu
 * `n_features`: the number of features
 * `n_features_reduced`: the number of features after PCA
 * `n_clusterers`: the number of clusterers in the pipeline
+* `n_metadata`: the number of metadata columns (time, displacement, force)
 
 For example, if a number of examples is stored as rows in an array, so that each column contains the sample at a certain
 time for all examples, the corresponding shape is `n_examples x n_samples`. The 7th sample of the 3rd example can

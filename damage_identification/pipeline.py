@@ -21,7 +21,7 @@ import os.path
 import pickle
 import sys
 from enum import auto, Enum
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -45,8 +45,9 @@ from damage_identification.evaluation.visualization import (
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
+from damage_identification.features.mra import MultiResolutionAnalysisExtractor
 from damage_identification.features.normalization import Normalization
-from damage_identification.io import load_data
+from damage_identification.io import load_data, load_metadata
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
@@ -82,7 +83,7 @@ class Pipeline:
         for k, v in self.params.items():
             print(f" - {k}: {v}")
 
-        data, n_examples = self._load_data()
+        data, _, n_examples = self._load_data()
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -145,7 +146,7 @@ class Pipeline:
         self._load_pipeline()
         print("-> Loaded trained pipeline")
 
-        data, n_examples = self._load_data()
+        data, metadata, n_examples = self._load_data()
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -165,7 +166,7 @@ class Pipeline:
         predictions = self._predict(features_reduced, n_valid_examples)
 
         data_display, clusterer_names = prepare_data_for_display(
-            predictions, features_valid, features_reduced
+            predictions, features_valid, features_reduced, metadata
         )
 
         if not self.params["skip_statistics"]:
@@ -188,6 +189,7 @@ class Pipeline:
         self.feature_extractors: list[FeatureExtractor] = [
             DirectFeatureExtractor(self.params),
             FourierExtractor(self.params),
+            MultiResolutionAnalysisExtractor(self.params),
         ]
         self.normalization = Normalization()
 
@@ -201,8 +203,8 @@ class Pipeline:
             HierarchicalClusterer(self.params),
         ]
 
-    def _load_data(self) -> tuple[np.ndarray, int]:
-        """Load the dataset for the session"""
+    def _load_data(self) -> tuple[np.ndarray, Optional[pd.DataFrame], int]:
+        """Load the dataset and optional metadata for the session"""
         filenames: list[str] = self.params["data_file"].split(",")
 
         if len(filenames) == 1:
@@ -212,21 +214,43 @@ class Pipeline:
 
         data = load_data(filenames)
 
+        metadata = None
+        if "metadata_file" in self.params and self.params["metadata_file"]:
+            filenames: list[str] = self.params["metadata_file"].split(",")
+
+            print("Loading metadata...")
+            metadata = load_metadata(filenames)
+
+            print(metadata.shape, data.shape)
+            assert (
+                metadata.shape[0] == data.shape[0]
+            ), "Number of examples in data and metadata do not match"
+
         if not self.params["skip_shuffling"]:
-            np.random.shuffle(data)
+            # Shuffle data and metadata in unison
+            idx = np.arange(data.shape[0])
+            np.random.shuffle(idx)
+
+            data = data[idx]
+            if metadata is not None:
+                metadata = metadata.iloc[idx].reset_index(drop=True)
 
         if "limit_data" in self.params:
             data = data[: self.params["limit_data"], :]
+            if metadata is not None:
+                metadata = metadata.head(self.params["limit_data"])
 
         # Filter out saturated examples
-        data_unsaturated = self.saturation_detection.filter(data)
+        data_unsaturated, idx_unsaturated = self.saturation_detection.filter(data)
+        if metadata is not None:
+            metadata = metadata.iloc[idx_unsaturated]
 
         n_examples = data_unsaturated.shape[0]
         n_saturated = data.shape[0] - n_examples
 
         print(f"-> Loaded dataset ({n_examples} examples, {n_saturated} were saturated)")
 
-        return data_unsaturated, n_examples
+        return data_unsaturated, metadata, n_examples
 
     def _split_by_peaks(self, data: np.ndarray) -> tuple[np.ndarray, int]:
         # Split examples into two if multiple peaks are present

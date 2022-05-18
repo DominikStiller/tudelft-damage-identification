@@ -1,3 +1,6 @@
+from typing import Optional
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -21,6 +24,7 @@ def prepare_data_for_display(
     predictions: pd.DataFrame,
     features: pd.DataFrame,
     features_reduced: pd.DataFrame,
+    metadata: Optional[pd.DataFrame],
 ) -> tuple[pd.DataFrame, list[str]]:
     """
     Prepares the features and prediction results for display. Columns are renamed and units adjusted for
@@ -30,11 +34,15 @@ def prepare_data_for_display(
         predictions: clustering predictions
         features: original features
         features_reduced: principal components of features
+        metadata: metadata
 
     Returns:
         A tuple of the display dataframe and the list of clusterer names, which are columns in the display dataframe
     """
-    data = pd.concat([predictions, features, features_reduced], axis=1)
+    data = [predictions, features, features_reduced]
+    if metadata is not None:
+        data.append(metadata)
+    data = pd.concat(data, axis=1)
 
     # Add index and relative index as column
     data.reset_index(inplace=True)

@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import numpy as np
 
 from damage_identification.preprocessing.peak_splitter import PeakSplitter

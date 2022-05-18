@@ -14,8 +14,12 @@ class SaturationDetection:
             params["saturation_threshold"] = 0.0995
         self.params = params
 
-    def filter(self, data):
+    def filter(self, data: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Filter out all saturated waveforms
+
+        Returns:
+            Tuple of filtered dataset, and indexes of retained rows
         """
-        return data[np.where(np.amax(data, axis=1) <= self.params["saturation_threshold"])]
+        idx = np.where(np.amax(data, axis=1) <= self.params["saturation_threshold"])
+        return data[idx], idx
