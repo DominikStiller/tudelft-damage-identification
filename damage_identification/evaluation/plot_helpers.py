@@ -17,11 +17,10 @@ sb.set(
 )
 
 
-def save_plot(name: str, fig, type="pdf"):
-    current_time = datetime.datetime.now()
-    time = current_time.strftime("%Y-%m-%d_%H-%M")
+def save_plot(results_folder: str, name: str, fig, type="pdf"):
+    plots_folder = os.path.join(results_folder, "plots")
     os.makedirs(
-        f"data/plots/{time}",
+        plots_folder,
         exist_ok=True,
     )
     fig.savefig(
