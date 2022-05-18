@@ -25,7 +25,7 @@ def save_plot(name: str, fig, type="pdf"):
         exist_ok=True,
     )
     fig.savefig(
-        f"data/plots/{time}/{name}.{type}",
+        os.path.join(plots_folder, f"{name}.{type}"),
         dpi=300,
         bbox_inches="tight",
         pad_inches=0.01,
@@ -49,7 +49,7 @@ def format_plot_2D(
             ax.axhline(0, linewidth=1.5, c="black")
 
         ax.get_xaxis().set_minor_locator(xlocator)
-        ax.get_yaxis().get_major_formatter().labelOnlyBase = False
+        ax.get_yaxis().set_minor_locator(plt.LogLocator(base=10, subs="all", numticks=100))
         ax.grid(b=True, which="major", linewidth=1.0)
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 
