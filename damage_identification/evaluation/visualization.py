@@ -60,22 +60,20 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
 
 def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
     for clusterer in clusterer_names:
-        array = np.array(data[clusterer]).astype("int")
-        k = np.max(array) + 1
-        arrayindex = []
-        clusterenergy = []
-        cumenergy = []
-        energy = np.array(data["energy"])
+        predicted_clusters = data[clusterer].to_numpy()
+        energy = data["energy"].to_numpy()
+        displacement = data["displacement"].to_numpy()
 
-        for i in range(k):
-            buffer = np.array(np.where(array == i))
-            arrayindex.append(buffer)
-            clusterenergy.append(energy[arrayindex[i]])
-            cumenergy.append(np.cumsum(clusterenergy[i]))
-            plt.scatter(arrayindex[i], cumenergy[i], c="b")
-            plt.xlabel("Index of waveform [-]")
+        for current_cluster in np.unique(predicted_clusters):
+            idx_current_cluster = np.where(predicted_clusters == current_cluster)
+            cumulative_energy = np.cumsum(energy[idx_current_cluster])
+            plt.scatter(displacement[idx_current_cluster], cumulative_energy, c="b")
+
+            plt.xlabel("Displacement [mm]")
             plt.ylabel("Cumulative energy [J]")
+            plt.yscale("log")
             plt.ticklabel_format(axis="y", style="sci", scilimits=None)
-            plt.title(f"Cluster {i}")
+            plt.title(f"Cluster {current_cluster}")
+
             format_plot_2D()
-            save_plot(f"energy_plot_{clusterer}_{i}", plt)
+            save_plot(f"energy_plot_{clusterer}_{current_cluster}", plt)
