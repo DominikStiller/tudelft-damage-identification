@@ -73,12 +73,13 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
 
 def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
     for clusterer in clusterer_names:
-        array = np.array(data[clusterer])
+        array = np.array(data[clusterer]).astype("int")
         k = np.max(array) + 1
         arrayindex = []
         clusterenergy = []
         cumenergy = []
         energy = np.array(data["energy"])
+
         for i in range(k):
             buffer = np.array(np.where(array == i))
             arrayindex.append(buffer)
