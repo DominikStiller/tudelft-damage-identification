@@ -20,6 +20,7 @@ The shapes are explained in the README.
 import os.path
 import pickle
 import sys
+from datetime import datetime
 from enum import auto, Enum
 from typing import Any, Optional
 
@@ -68,11 +69,7 @@ class Pipeline:
             params["pipeline_name"] = "default"
         self.params = params
 
-        self.pipeline_persistence_folder = os.path.join(
-            "data", f"pipeline_{self.params['pipeline_name']}"
-        )
-        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
-
+        self._initialize_folders()
         self._initialize_components()
 
     def run_training(self):
@@ -179,6 +176,17 @@ class Pipeline:
             self.visualization_clustering.visualize(data_display, clusterer_names)
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
+
+    def _initialize_folders(self):
+        self.pipeline_persistence_folder = os.path.join(
+            "data", f"pipeline_{self.params['pipeline_name']}"
+        )
+        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
+
+        if self.params["mode"] == PipelineMode.PREDICTION:
+            timestamp = datetime.now().replace(microsecond=0).isoformat().replace(":", "-")
+            self.results_folder = os.path.join("data", "results", timestamp)
+            os.makedirs(self.results_folder, exist_ok=True)
 
     def _initialize_components(self):
         """Initialize all components including parameters"""
