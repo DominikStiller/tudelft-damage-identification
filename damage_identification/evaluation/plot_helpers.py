@@ -49,16 +49,3 @@ def format_plot(
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 
     fig.tight_layout(pad=0.1, h_pad=0.4, w_pad=0.4)
-
-
-def save_plot(name: str, type="pdf"):
-    os.makedirs("plots", exist_ok=True)
-    name = name.replace(".", "-")
-    plt.savefig(
-        f"plots/plot_{name}.{type}",
-        dpi=300,
-        bbox_inches="tight",
-        pad_inches=0,
-    )
-
-    plt.close()
