@@ -218,7 +218,6 @@ class Pipeline:
             print("Loading metadata...")
             metadata = load_metadata(filenames)
 
-            print(metadata.shape, data.shape)
             assert (
                 metadata.shape[0] == data.shape[0]
             ), "Number of examples in data and metadata do not match"
