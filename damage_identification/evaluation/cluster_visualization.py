@@ -29,8 +29,8 @@ class ClusteringVisualization:
         fig = plt.figure(figsize=(12, 6))
 
         for i, clusterer in enumerate(clusterer_names):
-            ax1 = fig.add_subplot(2, n_columns, i+1, projection="3d")
-            ax2 = fig.add_subplot(2, n_columns, n_columns+i+1, projection="3d")
+            ax1 = fig.add_subplot(2, n_columns, i + 1, projection="3d")
+            ax2 = fig.add_subplot(2, n_columns, n_columns + i + 1, projection="3d")
 
             ax1.scatter3D(
                 data["pca_1"],
