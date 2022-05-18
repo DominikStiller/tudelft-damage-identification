@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from damage_identification.evaluation.save_plot import save_plot
+from damage_identification.evaluation.plot_helpers import save_plot
 
 
 def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
