@@ -17,10 +17,12 @@ Data structures used through the pipeline:
 
 The shapes are explained in the README.
 """
+import json
 import os.path
 import pickle
 import sys
-from enum import auto, Enum
+from datetime import datetime
+from enum import IntEnum
 from typing import Any, Optional
 
 import numpy as np
@@ -71,11 +73,7 @@ class Pipeline:
             params["pipeline_name"] = "default"
         self.params = params
 
-        self.pipeline_persistence_folder = os.path.join(
-            "data", f"pipeline_{self.params['pipeline_name']}"
-        )
-        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
-
+        self._initialize_folders()
         self._initialize_components()
 
     def run_training(self):
@@ -184,6 +182,17 @@ class Pipeline:
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
 
+    def _initialize_folders(self):
+        self.pipeline_persistence_folder = os.path.join(
+            "data", f"pipeline_{self.params['pipeline_name']}"
+        )
+        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
+
+        if self.params["mode"] == PipelineMode.PREDICTION:
+            timestamp = datetime.now().replace(microsecond=0).isoformat().replace(":", "-")
+            self.results_folder = os.path.join("data", "results", timestamp)
+            os.makedirs(self.results_folder, exist_ok=True)
+
     def _initialize_components(self):
         """Initialize all components including parameters"""
         # Pre-processing
@@ -285,6 +294,10 @@ class Pipeline:
             self.params |= saved_params
             for k, v in self.params.items():
                 print(f" - {k}: {v}")
+
+            if self.params["mode"] == PipelineMode.PREDICTION:
+                with open(os.path.join(self.results_folder, "params.json"), "w") as f:
+                    json.dump(self.params, f, indent=4)
 
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
@@ -421,6 +434,6 @@ class Pipeline:
         print(identifications)
 
 
-class PipelineMode(Enum):
-    TRAINING = auto()
-    PREDICTION = auto()
+class PipelineMode(IntEnum):
+    TRAINING = 0
+    PREDICTION = 1
