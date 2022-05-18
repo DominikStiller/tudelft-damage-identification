@@ -24,13 +24,13 @@ class ClusteringVisualization:
                 data[col] = 0
 
         cmap = plt.get_cmap("tab10")
-        n_rows = len(clusterer_names)
+        n_columns = len(clusterer_names)
 
         fig = plt.figure(figsize=(12, 6))
 
         for i, clusterer in enumerate(clusterer_names):
-            ax1 = fig.add_subplot(n_rows, 2, 2 * i + 1, projection="3d")
-            ax2 = fig.add_subplot(n_rows, 2, 2 * i + 2, projection="3d")
+            ax1 = fig.add_subplot(2, n_columns, i + 1, projection="3d")
+            ax2 = fig.add_subplot(2, n_columns, n_columns + i + 1, projection="3d")
 
             ax1.scatter3D(
                 data["pca_1"],
