@@ -36,11 +36,14 @@ from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
-from damage_identification.evaluation.cluster_statistics import (
+from damage_identification.evaluation.statistics import (
     print_cluster_statistics,
     prepare_data_for_display,
 )
-from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
+from damage_identification.evaluation.visualization import (
+    visualize_clusters,
+    visualize_cumulative_energy,
+)
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
@@ -173,10 +176,11 @@ class Pipeline:
         )
 
         if not self.params["skip_statistics"]:
-            print_cluster_statistics(data_display, clusterer_names)
+            print_cluster_statistics(data_display, clusterer_names, self.results_folder)
             self.pca.print_correlations()
         if not self.params["skip_visualization"]:
-            self.visualization_clustering.visualize(data_display, clusterer_names)
+            visualize_clusters(data_display, clusterer_names, self.results_folder)
+            visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
 
@@ -215,7 +219,6 @@ class Pipeline:
             FCMeansClusterer(self.params),
             HierarchicalClusterer(self.params),
         ]
-        self.visualization_clustering = ClusteringVisualization()
 
     def _load_data(self) -> tuple[np.ndarray, Optional[pd.DataFrame], int]:
         """Load the dataset and optional metadata for the session"""
