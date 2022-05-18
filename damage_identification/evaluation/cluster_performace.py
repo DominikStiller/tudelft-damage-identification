@@ -7,6 +7,8 @@ from validclust import dunn
 from fastdist import fastdist
 from numba import cuda
 
+np_type = np.float64
+
 
 def load_labels(directory, indices):
     with open(os.path.join(directory), "rb") as f:
@@ -29,7 +31,7 @@ def get_metrics(data, labels, distmatrix):
     calinski = calinski_harabasz_score(data, labels)
     return [davies, silhouette, dunnmetric, calinski]
 
-def collate_metrics(data, directory , indices):
+def collate_metrics(data, directory , indices, distmatrix):
     """
     Args:
         data: the training data from PCA with reduced features
@@ -38,9 +40,7 @@ def collate_metrics(data, directory , indices):
     Returns:
         DataFrame containing the performance indices for all the clusterers
     """
-    #distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean", return_matrix=True)
-    distmatrix = gpu_dist_matrix(data.to_numpy())
-    print("calculated distance matrix!")
+
     k_labels = load_labels(os.path.join(directory, "kmeans/model.pickle"), indices)
     k_metrics = np.array(get_metrics(data, k_labels, distmatrix))
     f_labels = load_fcmeans_labels(os.path.join(directory, "fcmeans/fcmeans.pickle"), data)
@@ -48,11 +48,7 @@ def collate_metrics(data, directory , indices):
     h_labels = load_labels(os.path.join(directory, "hierarchical/hclust.pickle"), indices)
     h_metrics = np.array(get_metrics(data, h_labels, distmatrix))
     collated = np.vstack((k_metrics, f_metrics, h_metrics))
-
     return pd.DataFrame(collated, columns=['Davies', 'Silhouette', 'Dunn', 'Calinski-Harabasz'], index=['kmeans', 'fcmeans', "hierarchical"])
-
-
-np_type = np.float64
 
 
 @cuda.jit("void(float{}[:, :], float{}[:, :])".format(64, 64))

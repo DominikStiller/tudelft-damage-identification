@@ -6,8 +6,9 @@ import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
 from damage_identification.evaluation.cluster_performace import gpu_dist_matrix
-
+from fastdist import fastdist
 from damage_identification.clustering.base import Clusterer
+from numba import cuda
 
 
 class HierarchicalClusterer(Clusterer):
@@ -81,7 +82,12 @@ class HierarchicalClusterer(Clusterer):
 
     def _do_hierarchical_clustering(self, data):
         """Generate labels for data through hierarchical clustering"""
-        distmatrix = gpu_dist_matrix(data)
+        '''if cuda.is_available():
+            distmatrix = gpu_dist_matrix(data.to_numpy())
+        else:'''
+        print("computing slow distmatrix")
+        distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean",
+                                                           return_matrix=True)
         self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='complete')
         labeled_data = self.hcmodel.fit_predict(distmatrix)
         return labeled_data
