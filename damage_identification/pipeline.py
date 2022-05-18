@@ -17,11 +17,12 @@ Data structures used through the pipeline:
 
 The shapes are explained in the README.
 """
+import json
 import os.path
 import pickle
 import sys
 from datetime import datetime
-from enum import auto, Enum
+from enum import IntEnum
 from typing import Any, Optional
 
 import numpy as np
@@ -291,6 +292,10 @@ class Pipeline:
             for k, v in self.params.items():
                 print(f" - {k}: {v}")
 
+            if self.params["mode"] == PipelineMode.PREDICTION:
+                with open(os.path.join(self.results_folder, "params.json"), "w") as f:
+                    json.dump(self.params, f, indent=4)
+
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
                 os.path.join(self.pipeline_persistence_folder, feature_extractor.name)
@@ -426,6 +431,6 @@ class Pipeline:
         print(identifications)
 
 
-class PipelineMode(Enum):
-    TRAINING = auto()
-    PREDICTION = auto()
+class PipelineMode(IntEnum):
+    TRAINING = 0
+    PREDICTION = 1
