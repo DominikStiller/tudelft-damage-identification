@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sb
-
-from damage_identification.evaluation.plot_helpers import save_plot
+from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3D, format_plot_2D
 
 
 def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
@@ -36,7 +34,7 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
             c=data[clusterer].map(cmap),
             depthshade=False,
         )
-        ax1.set_title(f"PCA ({clusterer})")
+        ax1.set_title(f"PCA ({clusterer})", y=1.04)
         ax1.set_xlabel("pca 1", labelpad=10)
         ax1.set_ylabel("pca 2", labelpad=10)
         ax1.set_zlabel("pca 3", labelpad=10)

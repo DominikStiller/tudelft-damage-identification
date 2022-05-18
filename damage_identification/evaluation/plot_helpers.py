@@ -34,7 +34,7 @@ def save_plot(name: str, fig, type="pdf"):
     plt.close()
 
 
-def format_plot(
+def format_plot_3D(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
     ylocator=matplotlib.ticker.AutoMinorLocator(),
 
