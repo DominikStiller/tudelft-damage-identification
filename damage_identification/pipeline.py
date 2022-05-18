@@ -159,12 +159,16 @@ class Pipeline:
             data_split, n_examples_split
         )
         features_valid = features.loc[valid_mask]
-        metadata_valid = metadata.loc[valid_mask]
         features_normalized = self.normalization.transform(features_valid)
         features_reduced = self._reduce_features(features_normalized)
 
         # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_valid_examples)
+
+        if metadata is not None:
+            metadata_valid = metadata.loc[valid_mask]
+        else:
+            metadata_valid = None
 
         data_display, clusterer_names = prepare_data_for_display(
             predictions, features_valid, features_reduced, metadata_valid
