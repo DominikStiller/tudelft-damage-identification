@@ -28,7 +28,7 @@ def save_plot(name: str, fig, type="pdf"):
         f"data/plots/{time}/{name}.{type}",
         dpi=300,
         bbox_inches="tight",
-        pad_inches=0,
+        pad_inches=0.25,
     )
 
     plt.close()
@@ -37,7 +37,7 @@ def save_plot(name: str, fig, type="pdf"):
 def format_plot(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
     ylocator=matplotlib.ticker.AutoMinorLocator(),
-    zeroline=True,
+
 ):
     fig = plt.gcf()
     for ax in fig.axes[:1]:

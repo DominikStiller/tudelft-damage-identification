@@ -16,17 +16,6 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str]):
     data: the combined features and predictions
     """
 
-    sb.set(
-        context="paper",
-        style="ticks",
-        font_scale=1.6,
-        font="sans-serif",
-        rc={
-            "lines.linewidth": 1.2,
-            "axes.titleweight": "bold",
-        },
-    )
-
     # Add dimensions if PCA components are not long enough
     for i in [1, 2, 3]:
         col = f"pca_{i}"
@@ -89,5 +78,5 @@ def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
             plt.xlabel("Index of waveform [-]")
             plt.ylabel("Cumulative energy [J]")
             plt.title(f"Cluster {i}")
-
+            format_plot_2D()
             save_plot(f"energy_plot_{clusterer}_{i}", plt)
