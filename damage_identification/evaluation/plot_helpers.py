@@ -34,16 +34,13 @@ def save_plot(name: str, fig, type="pdf"):
     plt.close()
 
 
-def format_plot_3D(
-
-):
+def format_plot_3D():
     fig = plt.gcf()
     fig.tight_layout(pad=2.5, h_pad=0.3, w_pad=0.2)
 
 
 def format_plot_2D(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
-    ylocator=matplotlib.ticker.AutoMinorLocator(),
     zeroline=True,
 ):
     fig = plt.gcf()
@@ -52,9 +49,7 @@ def format_plot_2D(
             ax.axhline(0, linewidth=1.5, c="black")
 
         ax.get_xaxis().set_minor_locator(xlocator)
-        ax.get_yaxis().set_minor_locator(ylocator)
-        ax.set_ylim(ymin=0)
-        ax.set_xlim(xmin=0)
+        ax.get_yaxis().get_major_formatter().labelOnlyBase = False
         ax.grid(b=True, which="major", linewidth=1.0)
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 

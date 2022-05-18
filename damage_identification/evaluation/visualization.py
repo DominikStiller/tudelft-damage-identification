@@ -72,7 +72,6 @@ def visualize_cumulative_energy(data: pd.DataFrame, clusterer_names: list[str]):
             plt.xlabel("Displacement [mm]")
             plt.ylabel("Cumulative energy [J]")
             plt.yscale("log")
-            plt.ticklabel_format(axis="y", style="sci", scilimits=None)
             plt.title(f"Cluster {current_cluster}")
 
             format_plot_2D()
