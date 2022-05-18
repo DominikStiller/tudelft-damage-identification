@@ -71,6 +71,7 @@ class Pipeline:
         self.pipeline_persistence_folder = os.path.join(
             "data", f"pipeline_{self.params['pipeline_name']}"
         )
+        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
 
         self._initialize_components()
 
