@@ -37,7 +37,6 @@ def save_plot(name: str, fig, type="pdf"):
 def format_plot_3D(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
     ylocator=matplotlib.ticker.AutoMinorLocator(),
-
 ):
     fig = plt.gcf()
     # for ax in fig.axes:
@@ -49,7 +48,6 @@ def format_plot_3D(
     #     ax.grid(b=True, which="minor", linewidth=1.0, linestyle="-.")
 
     fig.tight_layout(pad=2.5, h_pad=0.3, w_pad=0.2)
-
 
 
 def format_plot_2D(
