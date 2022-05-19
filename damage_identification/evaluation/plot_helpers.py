@@ -54,24 +54,3 @@ def format_plot_2d(
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 
     fig.tight_layout(pad=0.1, h_pad=0.4, w_pad=0.4)
-
-
-def format_plot_2d_linear(
-    xlocator=matplotlib.ticker.AutoMinorLocator(),
-    ylocator=matplotlib.ticker.AutoMinorLocator(),
-    zeroline=True,
-):
-    fig = plt.gcf()
-    for ax in fig.axes[:1]:
-        if zeroline:
-            ax.axhline(0, linewidth=1.5, c="black")
-
-        ax.get_xaxis().set_minor_locator(xlocator)
-        ax.get_yaxis().set_minor_locator(ylocator)
-        plt.gca().set_xlim(left=0)
-        plt.gca().set_ylim(bottom=0)
-
-        ax.grid(b=True, which="major", linewidth=1.0)
-        ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
-
-    fig.tight_layout(pad=0.1, h_pad=0.4, w_pad=0.4)
