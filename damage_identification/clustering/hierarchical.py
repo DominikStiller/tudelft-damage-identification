@@ -3,13 +3,15 @@ import pickle
 from typing import Dict, Any
 
 import numpy as np
+import sklearn
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import pairwise_distances_chunked
 from damage_identification.evaluation.cluster_performace import gpu_dist_matrix
 from fastdist import fastdist
 from damage_identification.clustering.base import Clusterer
 from numba import cuda
-from numba import jit
+from numba import njit
 
 class HierarchicalClusterer(Clusterer):
     """
@@ -86,10 +88,17 @@ class HierarchicalClusterer(Clusterer):
             distmatrix = gpu_dist_matrix(data.to_numpy())
         else:'''
         print("computing slow distmatrix")
-        distmatrix = matrix_to_matrix_distance(data.to_numpy(), data[0:3].to_numpy, "euclidean",
-                                                           return_matrix=True)
+        shape = (np.shape(data)[0], np.shape(data)[0])
+        #distmatrix = fastdist.matrix_to_matrix_distance(data.to_numpy(), data[0:3].to_numpy(), fastdist.euclidean, "euclidean")
+        #distmatrix = split_distmatrix(data.to_numpy(), 1)
+        with open('test.npy', 'ba+') as f:
+            for chunk in pairwise_distances_chunked(data.to_numpy(), working_memory=4096, metric='euclidean'):
+                chunk.tofile(f)
+
+        distmatrix = np.memmap('test.npy', dtype=np.float64, mode='r+', shape=shape)
         print(distmatrix)
-        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='complete')
+        print(np.shape(distmatrix))
+        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='single')
         labeled_data = self.hcmodel.fit_predict(distmatrix)
         return labeled_data
 
@@ -104,22 +113,23 @@ class HierarchicalClusterer(Clusterer):
         return prediction
 
 
-@jit(nopython=True, fastmath=True)
-def matrix_to_matrix_distance(a, b, metric):
-    """
-    :purpose:
-    Computes the distance between the rows of two matrices using any given metric
-    :params:
-    a, b   : input matrices either of shape (m, n) and (k, n)
-             the matrices must share a common dimension at index 1
-    metric : the function used to calculate the distance
-    :returns:
-    distance matrix  : np.array, an (m, k) array of the distance
-                       between the rows of a and b
-    """
-    n, m = a.shape[0], b.shape[0]
-    out = np.zeros((n, m))
-    for i in range(n):
-        for j in range(m):
-            out[i][j] = metric(a[i], b[j])
-    return out
+'''@njit
+def split_distmatrix(data, mem_size):
+    if np.shape(data)[0]**2 > mem_size*150e6:
+        n_chunks = int(mem_size*150e6/np.shape(data)[0])
+    else:
+        n_chunks = 1
+    print(n_chunks)
+    chunks = np.array_split(data, n_chunks)
+    #distmatrix = np.array([[]])
+    distmatrix = np.empty((np.shape(data)[0], np.shape(data)[0]))
+    #for c in chunks:
+    #    np.append(distmatrix, fastdist.matrix_to_matrix_distance(data, c, fastdist.euclidean, "euclidean").T)
+
+
+    distmatrix = [fastdist.matrix_to_matrix_distance(data, c, fastdist.euclidean, "euclidean").tolist() for c in chunks]
+    print(distmatrix[-1])
+    print(np.shape(distmatrix[-1]))
+    print(np.shape(distmatrix[0]))
+    return distmatrix
+'''
