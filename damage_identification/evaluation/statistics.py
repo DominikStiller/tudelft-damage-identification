@@ -1,19 +1,25 @@
 from typing import Optional
-
+import os
 import pandas as pd
 
 
 def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
+
+    file_name = "cluster_statistics.txt"
+    open_file = open(os.path.join(results_folder, file_name), "w", encoding="utf-8")
+
     for clusterer in clusterer_names:
-        print(f"\nCLUSTER STATISTICS ({clusterer})")
+        open_file.write(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
-        print("COUNTS:")
-        print(data_grouped.size().to_string())
+        open_file.write("COUNTS:")
+        open_file.write(data_grouped.size().to_string())
 
-        print("\nMEANS:")
+        open_file.write("\nMEANS:")
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
-            print(data_grouped.mean())
+            open_file.write(data_grouped.mean().to_string())
+
+    open_file.close()
 
 
 def prepare_data_for_display(
