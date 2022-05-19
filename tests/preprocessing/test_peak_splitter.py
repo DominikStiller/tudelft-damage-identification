@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import numpy as np
 
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
@@ -67,7 +68,7 @@ class TestTwoPeakDetection(TestCase):
                 0,
             ]
         )
-        self.peakdetection = PeakSplitter(example, 10, 2, 1, 5, 10)
+        self.peakdetection = PeakSplitter(example, 10, 2, 1, 2, 10)
         result = self.peakdetection.split_single()
         self.assertEqual(len(result), 2)
 
