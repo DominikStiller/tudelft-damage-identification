@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import LogLocator
 
 from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3d, format_plot_2d
 
@@ -66,6 +67,11 @@ def visualize_cumulative_energy(
         energy = data["energy"].to_numpy()
         displacement = data["displacement"].to_numpy()
 
+        # Sort by displacement
+        order_idx = displacement.argsort()
+        energy = energy[order_idx]
+        displacement = displacement[order_idx]
+
         for current_cluster in np.unique(predicted_clusters):
             idx_current_cluster = np.where(predicted_clusters == current_cluster)
             cumulative_energy = np.cumsum(energy[idx_current_cluster])
@@ -76,5 +82,5 @@ def visualize_cumulative_energy(
             plt.yscale("log")
             plt.title(f"Cluster {current_cluster}")
 
-            format_plot_2d()
+            format_plot_2d(ylocator=LogLocator(base=10, subs="all", numticks=100))
             save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}", plt)
