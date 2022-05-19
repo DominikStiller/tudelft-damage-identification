@@ -1,10 +1,9 @@
 import numpy as np
-from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
+from tqdm import tqdm
 
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
-
 from damage_identification.preprocessing.saturation_detection import SaturationDetection
-from tqdm import tqdm
+from damage_identification.preprocessing.wavelet_filtering import WaveletFiltering
 
 
 class PeakSplitter:
@@ -51,30 +50,44 @@ class PeakSplitter:
         Returns:
             A tuple of two signals, or the original signal and None
         """
+        # Pad the original waveform and create a window with window length for each n_sample
+        # from the original waveform.
         padded_waveform = np.pad(
             abs(self.waveform), (self.lag - 1, 0), "constant", constant_values=(0, 0)
         )
         windows_waveform = np.lib.stride_tricks.sliding_window_view(padded_waveform, self.lag)
+
+        # Calculate standard deviation for each window, filter for very small stds and multiply
+        # with the desired threshold
         threshold_stds = np.apply_along_axis(np.std, 1, windows_waveform) * self.threshold
+        threshold_stds = np.maximum(threshold_stds, (1e-1) * np.max(np.abs(self.waveform)))
+
+        # Compare all n_samples of original waveform with the thresholded stds to form the binary signal array.
+        # Then add signal values in windows and check if the sum is greater than the counetr threshold.
         self.signal = np.less(threshold_stds, abs(self.waveform)).astype(int)
         windows_signal = np.lib.stride_tricks.sliding_window_view(self.signal, self.window)
         signal = np.apply_along_axis(np.sum, 1, windows_signal)
         indexes = np.where(signal > self.threshold_counter)[0]
+
+        # Modify indexes where the counter threshold is surpassed in order to nicely return distinct  and correct
+        # slices of the original waveform.
         pad_left = np.pad(indexes, (1, 0), "constant", constant_values=(0, 0))
         pad_right = np.pad(indexes, (0, 1), "constant", constant_values=(0, 0))
         consecutives = np.where(pad_right == pad_left + 1)[0]
         indexes = np.delete(indexes, consecutives)
-        indexes = np.delete(
-            indexes, np.where(indexes < len(self.waveform) * 0.2)
-        )  # Select first 20% of waveform as single hit
+        indexes = np.delete(indexes, np.where(indexes < len(self.waveform) * 0.2))
         indexes = np.concatenate((np.array([0]), indexes, np.array([len(self.waveform)])))
         slices = []
+
+        # Create the hit slices from the waveform, pad to have same length of 2048.
         for i in range(len(indexes) - 1):
             slice = self.waveform[indexes[i] : indexes[i + 1]]
-            slice = np.pad(
-                slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
-            )
-            slices.append(slice)
+            if len(slice) > len(self.waveform) * 0.2:
+                slice = np.pad(
+                    slice, [0, len(self.waveform) - len(slice)], mode="constant", constant_values=0
+                )
+                slices.append(slice)
+
         return slices
 
     @staticmethod
@@ -133,7 +146,7 @@ if __name__ == "__main__":
     data = load_data(filename)
 
     print("Filtering data...")
-    data_filtered = SaturationDetection(params).filter(data)
+    data_filtered, _ = SaturationDetection(params).filter(data)
     data_filtered = BandpassFiltering(params).filter(data_filtered)
     data_filtered = WaveletFiltering(params).filter(data_filtered)
 

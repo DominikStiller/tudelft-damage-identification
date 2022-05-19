@@ -28,9 +28,10 @@ Train the pipeline on `data/dataset.tradb`, finding the optimal number of cluste
 python -m damage_identification train --n_clusters 2...5 --explained_variance 0.9 data/dataset.tradb
 ```
 
-Predict the cluster memberships of the first 1000 examples in `data/other_dataset.csv`:
+Predict the cluster memberships of the first 1000 examples in `data/other_dataset.csv` and associate with metadata:
 ```
-python -m damage_identification predict --limit_data 1000 data/other_dataset.csv
+python -m damage_identification predict --limit_data 1000 data/other_dataset.csv \
+   --metadata_file data/other_dataset_metadata.pickle
 ```
 
 Ensure that the virtual environment with Python 3.9 and all dependencies is activated before running these commands.
@@ -47,6 +48,7 @@ using `--parameter_name value`. The following parameters are available in every 
 The following parameters are available during training:
 * `sampling_rate` (float, default: 2 048 000): the sampling rate/frequency of the examples
 * `skip_filter`: bandpass and wavelet filtering is skipped if flag is present
+* `skip_saturation_detection`: saturation detection is skipped if flag is present
 * `filtering_wavelet_family` (str): the wavelet family name for wavelet filtering, either db for Daubechies or coif for Coiflet
 * `filtering_wavelet_scale` (int): the magnification scale of the wavelet family for wavelet filtering, must be 3-38 for Daubechies or 1-17 for Coiflet
 * `filtering_wavelet_threshold` (str or float): the threshold for wavelet filtering, either a numerical value or a threshold optimization method (optimal, iqr or sd)
@@ -68,6 +70,7 @@ The following parameters are available during prediction:
 * `skip_visualization`: plotting is skipped if flag is present
 * `skip_statistics`: printing of cluster and PCA statistics is skipped if flag is present
 * `enable_identification`: enable identification of damage mode based on cluster memberships
+* `metadata_file`: path of metadata files generated with metadata extraction script (see below), separated by commas. Order must match the order of data files.
 
 
 

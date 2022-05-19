@@ -68,3 +68,30 @@ def load_data_from_numpy(filename: str) -> np.ndarray:
         Numpy array of the data in the data file: n_examples x n_samples
     """
     return np.load(filename)
+
+
+def load_metadata(filenames: Union[str, list[str]]) -> pd.DataFrame:
+    """
+    Load metadata that have been generated with metadata.py
+
+    Args:
+        filenames: One or more filenames to load metadata from
+
+    Returns:
+        Pandas DataFrame of the metadata [n_examples x n_metadata]
+    """
+    if isinstance(filenames, str):
+        filenames = [filenames]
+
+    metadata = []
+    for filename in filenames:
+        metadata.append(pd.read_pickle(filename))
+
+    metadata = pd.concat(metadata)
+
+    # Normalize displacement and force
+    # The loaded values are only proportional to the real displacement/force
+    metadata["displacement"] = -metadata["displacement"] / metadata["displacement"].abs().max()
+    metadata["force"] = -metadata["force"] / metadata["force"].abs().max()
+
+    return metadata

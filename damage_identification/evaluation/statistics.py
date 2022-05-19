@@ -1,26 +1,10 @@
-import numpy as np
+from typing import Optional
+
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
-def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str]):
+def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
     for clusterer in clusterer_names:
-        array = np.array(data[clusterer])
-        k = np.max(array) + 1
-        arrayindex = []
-        clusterenergy = []
-        cumenergy = []
-        energy = np.array(data["energy"])
-        for i in range(k):
-            buffer = np.array(np.where(array == i))
-            arrayindex.append(buffer)
-            clusterenergy.append(energy[arrayindex[i]])
-            cumenergy.append(np.cumsum(clusterenergy[i]))
-            plt.scatter(arrayindex[i], cumenergy[i], c="b")
-            plt.xlabel("Index of waveform [-]")
-            plt.ylabel("Cumulative energy [J]")
-            plt.title(f"Cluster {i}")
-            plt.show()
         print(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
@@ -36,6 +20,7 @@ def prepare_data_for_display(
     predictions: pd.DataFrame,
     features: pd.DataFrame,
     features_reduced: pd.DataFrame,
+    metadata: Optional[pd.DataFrame],
 ) -> tuple[pd.DataFrame, list[str]]:
     """
     Prepares the features and prediction results for display. Columns are renamed and units adjusted for
@@ -45,11 +30,15 @@ def prepare_data_for_display(
         predictions: clustering predictions
         features: original features
         features_reduced: principal components of features
+        metadata: metadata
 
     Returns:
-        A tuple of the display dataframe and the list of clusterer names, which are colums in the display dataframe
+        A tuple of the display dataframe and the list of clusterer names, which are columns in the display dataframe
     """
-    data = pd.concat([predictions, features, features_reduced], axis=1)
+    data = [predictions, features, features_reduced]
+    if metadata is not None:
+        data.append(metadata)
+    data = pd.concat(data, axis=1)
 
     # Add index and relative index as column
     data.reset_index(inplace=True)

@@ -1,8 +1,9 @@
 from unittest import TestCase
 
+import numpy as np
 from numpy import testing
 
-from damage_identification.features.mra import MultiResolutionAnalysis
+from damage_identification.features.mra import MultiResolutionAnalysisExtractor
 
 
 class TestMultiResolutionAnalysis(TestCase):
@@ -16,10 +17,10 @@ class TestMultiResolutionAnalysis(TestCase):
     #         }
     #     )
     #     data = io.load_compressed_data("data/comp0.tradb")[11145, :]
-    #     print(mra._decompose(data)[0])
+    #     print(mra.extract_features(data))
 
     def test_short_signal_decomposition(self):
-        mra = MultiResolutionAnalysis(
+        mra = MultiResolutionAnalysisExtractor(
             {
                 "mra_wavelet_family": "db",
                 "mra_wavelet_scale": 1,
@@ -27,8 +28,8 @@ class TestMultiResolutionAnalysis(TestCase):
                 "mra_levels": 2,
             }
         )
-        test_decomposition, total_energy = mra._decompose(
-            [1, 2, 3, 4, -1, -2, -3, -4, 1, 2, 3, 4, -1, -2, -3, -4]
+        test_decomposition = mra.extract_features(
+            np.array([1, 2, 3, 4, -1, -2, -3, -4, 1, 2, 3, 4, -1, -2, -3, -4])
         )
         known_decomposition = {
             "mra_0_512_0": 0.20833333333333337,
@@ -48,6 +49,7 @@ class TestMultiResolutionAnalysis(TestCase):
             "mra_1536_2048_2": 1.0271626370065256e-34,
             "mra_1536_2048_3": 1.0271626370065256e-34,
         }
+        total_energy = sum(test_decomposition.values())
 
-        self.assertAlmostEqual(total_energy, 1, 1)
+        self.assertAlmostEqual(total_energy, 1)
         testing.assert_array_equal(test_decomposition, known_decomposition)
