@@ -77,7 +77,7 @@ def visualize_cumulative_energy(
             idx_current_cluster = np.where(predicted_clusters == current_cluster)
             cumulative_energy = np.cumsum(energy[idx_current_cluster])
 
-            plt.scatter(displacement[idx_current_cluster]*100, cumulative_energy, c="b")
+            plt.scatter(displacement[idx_current_cluster] * 100, cumulative_energy, c="b")
 
             plt.xlabel("Relative displacement [%]")
             plt.ylabel("Cumulative energy [J]")
