@@ -99,7 +99,7 @@ python damage_identification/metadata.py [index_file] [pridb_file]
 
 
 ### Cluster indexes
-The quality of clustering, for example how well clustering actually separates data, can be measured by indexes. This script can calculate the Davies, Silhouette, Dunn and Calinski-Harabasz indexes for different numbers of clusters.
+The quality of clustering, for example how well clustering actually separates data, can be measured by indexes. This script can calculate the Davies, Silhouette, Dunn and Calinski-Harabasz indexes for different numbers of clusters. Note that only the first 10000 training examples are used for index calculations. The pipeline has to be trained with more examples than that.
 
 ```
 python damage_identification/evaluation/cluster_indexes.py [pipelines]
