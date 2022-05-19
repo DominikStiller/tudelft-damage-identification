@@ -40,7 +40,7 @@ def format_plot_3d():
 
 def format_plot_2d(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
-    zeroline=True,
+    zeroline=False,
 ):
     fig = plt.gcf()
     for ax in fig.axes[:1]:
