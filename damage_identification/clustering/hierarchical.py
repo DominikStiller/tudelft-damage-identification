@@ -7,7 +7,6 @@ import sklearn
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import pairwise_distances_chunked
-from damage_identification.evaluation.cluster_performace import gpu_dist_matrix
 from fastdist import fastdist
 from damage_identification.clustering.base import Clusterer
 from numba import cuda
