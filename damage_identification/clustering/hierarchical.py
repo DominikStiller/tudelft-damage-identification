@@ -9,7 +9,7 @@ from damage_identification.evaluation.cluster_performace import gpu_dist_matrix
 from fastdist import fastdist
 from damage_identification.clustering.base import Clusterer
 from numba import cuda
-
+from numba import jit
 
 class HierarchicalClusterer(Clusterer):
     """
@@ -86,8 +86,9 @@ class HierarchicalClusterer(Clusterer):
             distmatrix = gpu_dist_matrix(data.to_numpy())
         else:'''
         print("computing slow distmatrix")
-        distmatrix = fastdist.matrix_pairwise_distance(data.to_numpy(), fastdist.euclidean, "euclidean",
+        distmatrix = matrix_to_matrix_distance(data.to_numpy(), data[0:3].to_numpy, "euclidean",
                                                            return_matrix=True)
+        print(distmatrix)
         self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='complete')
         labeled_data = self.hcmodel.fit_predict(distmatrix)
         return labeled_data
@@ -101,3 +102,24 @@ class HierarchicalClusterer(Clusterer):
             hierarchical clusters"""
         prediction = self.model.predict(data)[0]
         return prediction
+
+
+@jit(nopython=True, fastmath=True)
+def matrix_to_matrix_distance(a, b, metric):
+    """
+    :purpose:
+    Computes the distance between the rows of two matrices using any given metric
+    :params:
+    a, b   : input matrices either of shape (m, n) and (k, n)
+             the matrices must share a common dimension at index 1
+    metric : the function used to calculate the distance
+    :returns:
+    distance matrix  : np.array, an (m, k) array of the distance
+                       between the rows of a and b
+    """
+    n, m = a.shape[0], b.shape[0]
+    out = np.zeros((n, m))
+    for i in range(n):
+        for j in range(m):
+            out[i][j] = metric(a[i], b[j])
+    return out
