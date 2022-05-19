@@ -25,6 +25,10 @@ def parse_cli_args() -> dict[str, Any]:
         params["skip_filter"] = True
         params["skip_saturation_detection"] = True
 
+    if params["mode"] == PipelineMode.PREDICTION:
+        print("WARNING: skipping shuffling by default since in prediction mode")
+        params["skip_shuffling"] = True
+
     # Default params for argparse are not working for some reason
     # Therefore, set defaults manually here
     if "skip_filter" not in params:
