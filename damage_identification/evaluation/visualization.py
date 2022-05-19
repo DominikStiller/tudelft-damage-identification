@@ -66,6 +66,11 @@ def visualize_cumulative_energy(
         energy = data["energy"].to_numpy()
         displacement = data["displacement"].to_numpy()
 
+        # Sort by displacement
+        order_idx = displacement.argsort()
+        energy = energy[order_idx]
+        displacement = displacement[order_idx]
+
         for current_cluster in np.unique(predicted_clusters):
             idx_current_cluster = np.where(predicted_clusters == current_cluster)
             cumulative_energy = np.cumsum(energy[idx_current_cluster])
