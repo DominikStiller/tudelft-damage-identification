@@ -20,13 +20,20 @@ def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], resu
         cluster_statistics.write("\n\nMEANS:\n")
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
             cluster_statistics.write(data_grouped.mean().to_string())
+            data_grouped.mean().to_pickle(
+                os.path.join(results_folder, clusterer + "_statistics.pickle")
+            )
         cluster_statistics.write("\n")
 
     cluster_statistics.close()
 
 
 def save_pca_correlations(pca: PrincipalComponents, results_folder: str):
-    print("\nPCA CORRELATION (with every feature)")
+
+    file_name = "pca_correlations"
+    pca_correlations = open(os.path.join(results_folder, file_name + ".txt"), "w", encoding="utf-8")
+
+    pca_correlations.write("\nPCA CORRELATION (with every feature)\n")
     display_composition = pd.DataFrame(
         pca.correlations,
         columns=pca.feature_names,
@@ -35,7 +42,10 @@ def save_pca_correlations(pca: PrincipalComponents, results_folder: str):
     with pd.option_context(
         "display.max_rows", None, "display.max_columns", None, "display.precision", 3
     ):
-        print(display_composition)
+        pca_correlations.write(display_composition.to_string())
+        display_composition.to_pickle(os.path.join(results_folder, file_name + ".pickle"))
+
+    pca_correlations.close()
 
 
 def prepare_data_for_display(
