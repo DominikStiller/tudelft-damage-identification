@@ -1,19 +1,48 @@
 from typing import Optional
-
+import os
 import pandas as pd
 
+from damage_identification.pca import PrincipalComponents
 
-def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
+
+def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
+    file_name = "cluster_statistics.txt"
+    cluster_statistics = open(os.path.join(results_folder, file_name), "w", encoding="utf-8")
+
     for clusterer in clusterer_names:
-        print(f"\nCLUSTER STATISTICS ({clusterer})")
+        cluster_statistics.write(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
+        data_grouped.to_pickle(os.path.join(results_folder, clusterer + "_statistics.pickle"))
 
-        print("COUNTS:")
-        print(data_grouped.size().to_string())
+        cluster_statistics.write("\n\nCOUNTS:\n")
+        cluster_statistics.write(data_grouped.size().to_string())
 
-        print("\nMEANS:")
+        cluster_statistics.write("\n\nMEANS:\n")
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
-            print(data_grouped.mean())
+            cluster_statistics.write(data_grouped.mean().to_string())
+        cluster_statistics.write("\n")
+
+    cluster_statistics.close()
+
+
+def save_pca_correlations(pca: PrincipalComponents, results_folder: str):
+    file_name = "pca_correlations.txt"
+    pca_correlations = open(os.path.join(results_folder, file_name + ".txt"), "w", encoding="utf-8")
+
+    pca_correlations.write("\nPCA CORRELATION (with every feature)\n")
+    display_composition = pd.DataFrame(
+        pca.correlations,
+        columns=pca.feature_names,
+        index=[f"PC {n+1}" for n in range(pca.n_components)],
+    )
+    with pd.option_context(
+        "display.max_rows", None, "display.max_columns", None, "display.precision", 3
+    ):
+        pca_correlations.write(display_composition.to_string())
+
+    pca_correlations.close()
+
+    display_composition.to_pickle(os.path.join(results_folder, file_name + ".pickle"))
 
 
 def prepare_data_for_display(

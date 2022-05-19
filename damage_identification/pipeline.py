@@ -37,8 +37,9 @@ from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
 from damage_identification.evaluation.statistics import (
-    print_cluster_statistics,
+    save_cluster_statistics,
     prepare_data_for_display,
+    save_pca_correlations,
 )
 from damage_identification.evaluation.visualization import (
     visualize_clusters,
@@ -175,12 +176,14 @@ class Pipeline:
             predictions, features_valid, features_reduced, metadata_valid
         )
 
+        print("Generating results...")
         if not self.params["skip_statistics"]:
-            print_cluster_statistics(data_display, clusterer_names, self.results_folder)
-            self.pca.print_correlations()
+            save_cluster_statistics(data_display, clusterer_names, self.results_folder)
+            save_pca_correlations(self.pca, self.results_folder)
         if not self.params["skip_visualization"]:
             visualize_clusters(data_display, clusterer_names, self.results_folder)
             visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
+        print(f"-> Saved results to {self.results_folder}")
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
 
@@ -242,7 +245,7 @@ class Pipeline:
                 metadata.shape[0] == data.shape[0]
             ), "Number of examples in data and metadata do not match"
 
-        if self.params["mode"] == PipelineMode.TRAINING and not self.params["skip_shuffling"]:
+        if not self.params["skip_shuffling"]:
             # Shuffle data and metadata in unison
             idx = np.arange(data.shape[0])
             np.random.shuffle(idx)

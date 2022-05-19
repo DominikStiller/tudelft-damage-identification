@@ -98,6 +98,16 @@ python damage_identification/metadata.py [index_file] [pridb_file]
 * `pridb_file`: the .pridb file containing the metadata
 
 
+### Cluster indexes
+The quality of clustering, for example how well clustering actually separates data, can be measured by indexes. This script can calculate the Davies, Silhouette, Dunn and Calinski-Harabasz indexes for different numbers of clusters. Note that only the first 10000 training examples are used for index calculations. The pipeline has to be trained with more examples than that.
+
+```
+python damage_identification/evaluation/cluster_indexes.py [pipelines]
+```
+* `pipelines`: a comma-separated list of pipeline directories (e.g. `data/pipeline_comp0_3,data/pipeline_comp0_5`). These pipelines should have been trained on the same dataset with different `--n_clusters`.
+
+
+
 ## Data folder layout
 All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
 * `data/Waveforms.csv`: first AE recording that Davide gave us
