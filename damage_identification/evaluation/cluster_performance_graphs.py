@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import pickle
-from cluster_performace import collate_metrics
+from cluster_performance import collate_metrics
 from sklearn.datasets import make_blobs
 from validclust import ValidClust
 
