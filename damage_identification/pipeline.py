@@ -17,11 +17,13 @@ Data structures used through the pipeline:
 
 The shapes are explained in the README.
 """
+import json
 import os.path
 import pickle
 import sys
-from enum import auto, Enum
-from typing import Any
+from datetime import datetime
+from enum import IntEnum
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -34,16 +36,21 @@ from damage_identification.clustering.identification import assign_damage_mode
 from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
-from damage_identification.evaluation.cluster_statistics import (
-    print_cluster_statistics,
+from damage_identification.evaluation.statistics import (
+    save_cluster_statistics,
     prepare_data_for_display,
+    save_pca_correlations,
 )
-from damage_identification.evaluation.cluster_visualization import ClusteringVisualization
+from damage_identification.evaluation.visualization import (
+    visualize_clusters,
+    visualize_cumulative_energy,
+)
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
+from damage_identification.features.mra import MultiResolutionAnalysisExtractor
 from damage_identification.features.normalization import Normalization
-from damage_identification.io import load_data
+from damage_identification.io import load_data, load_metadata
 from damage_identification.pca import PrincipalComponents
 from damage_identification.preprocessing.bandpass_filtering import BandpassFiltering
 from damage_identification.preprocessing.peak_splitter import PeakSplitter
@@ -67,10 +74,9 @@ class Pipeline:
             params["pipeline_name"] = "default"
         self.params = params
 
-        self.pipeline_persistence_folder = os.path.join(
-            "data", f"pipeline_{self.params['pipeline_name']}"
-        )
-
+    def initialize(self):
+        # Separate methods so these are not run during unit testing
+        self._initialize_folders()
         self._initialize_components()
 
     def run_training(self):
@@ -79,7 +85,7 @@ class Pipeline:
         for k, v in self.params.items():
             print(f" - {k}: {v}")
 
-        data, n_examples = self._load_data()
+        data, _, n_examples = self._load_data()
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -142,7 +148,7 @@ class Pipeline:
         self._load_pipeline()
         print("-> Loaded trained pipeline")
 
-        data, n_examples = self._load_data()
+        data, metadata, n_examples = self._load_data()
 
         # Apply bandpass and wavelet filtering
         data_filtered = self._apply_filtering(data, n_examples)
@@ -161,17 +167,36 @@ class Pipeline:
         # Make and visualize cluster predictions
         predictions = self._predict(features_reduced, n_valid_examples)
 
+        if metadata is not None:
+            metadata_valid = metadata.loc[valid_mask]
+        else:
+            metadata_valid = None
+
         data_display, clusterer_names = prepare_data_for_display(
-            predictions, features_valid, features_reduced
+            predictions, features_valid, features_reduced, metadata_valid
         )
 
+        print("Generating results...")
         if not self.params["skip_statistics"]:
-            print_cluster_statistics(data_display, clusterer_names)
-            self.pca.print_correlations()
+            save_cluster_statistics(data_display, clusterer_names, self.results_folder)
+            save_pca_correlations(self.pca, self.results_folder)
         if not self.params["skip_visualization"]:
-            self.visualization_clustering.visualize(data_display, clusterer_names)
+            visualize_clusters(data_display, clusterer_names, self.results_folder)
+            visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
+        print(f"-> Saved results to {self.results_folder}")
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
+
+    def _initialize_folders(self):
+        self.pipeline_persistence_folder = os.path.join(
+            "data", f"pipeline_{self.params['pipeline_name']}"
+        )
+        os.makedirs(self.pipeline_persistence_folder, exist_ok=True)
+
+        if self.params["mode"] == PipelineMode.PREDICTION:
+            timestamp = datetime.now().replace(microsecond=0).isoformat().replace(":", "-")
+            self.results_folder = os.path.join("data", "results", timestamp)
+            os.makedirs(self.results_folder, exist_ok=True)
 
     def _initialize_components(self):
         """Initialize all components including parameters"""
@@ -184,6 +209,7 @@ class Pipeline:
         self.feature_extractors: list[FeatureExtractor] = [
             DirectFeatureExtractor(self.params),
             FourierExtractor(self.params),
+            MultiResolutionAnalysisExtractor(self.params),
         ]
         self.normalization = Normalization()
 
@@ -196,10 +222,9 @@ class Pipeline:
             FCMeansClusterer(self.params),
             HierarchicalClusterer(self.params),
         ]
-        self.visualization_clustering = ClusteringVisualization()
 
-    def _load_data(self) -> tuple[np.ndarray, int]:
-        """Load the dataset for the session"""
+    def _load_data(self) -> tuple[np.ndarray, Optional[pd.DataFrame], int]:
+        """Load the dataset and optional metadata for the session"""
         filenames: list[str] = self.params["data_file"].split(",")
 
         if len(filenames) == 1:
@@ -209,21 +234,45 @@ class Pipeline:
 
         data = load_data(filenames)
 
+        metadata = None
+        if "metadata_file" in self.params and self.params["metadata_file"]:
+            filenames: list[str] = self.params["metadata_file"].split(",")
+
+            print("Loading metadata...")
+            metadata = load_metadata(filenames)
+
+            assert (
+                metadata.shape[0] == data.shape[0]
+            ), "Number of examples in data and metadata do not match"
+
         if not self.params["skip_shuffling"]:
-            np.random.shuffle(data)
+            # Shuffle data and metadata in unison
+            idx = np.arange(data.shape[0])
+            np.random.shuffle(idx)
+
+            data = data[idx]
+            if metadata is not None:
+                metadata = metadata.iloc[idx].reset_index(drop=True)
 
         if "limit_data" in self.params:
             data = data[: self.params["limit_data"], :]
+            if metadata is not None:
+                metadata = metadata.head(self.params["limit_data"])
 
-        # Filter out saturated examples
-        data_unsaturated = self.saturation_detection.filter(data)
+        if not self.params["skip_saturation_detection"]:
+            # Filter out saturated examples
+            data_unsaturated, idx_unsaturated = self.saturation_detection.filter(data)
+            if metadata is not None:
+                metadata = metadata.iloc[idx_unsaturated].reset_index(drop=True)
+        else:
+            data_unsaturated = data
 
         n_examples = data_unsaturated.shape[0]
         n_saturated = data.shape[0] - n_examples
 
         print(f"-> Loaded dataset ({n_examples} examples, {n_saturated} were saturated)")
 
-        return data_unsaturated, n_examples
+        return data_unsaturated, metadata, n_examples
 
     def _split_by_peaks(self, data: np.ndarray) -> tuple[np.ndarray, int]:
         # Split examples into two if multiple peaks are present
@@ -250,6 +299,10 @@ class Pipeline:
             self.params |= saved_params
             for k, v in self.params.items():
                 print(f" - {k}: {v}")
+
+            if self.params["mode"] == PipelineMode.PREDICTION:
+                with open(os.path.join(self.results_folder, "params.json"), "w") as f:
+                    json.dump(self.params, f, indent=4)
 
         for feature_extractor in self.feature_extractors:
             feature_extractor.load(
@@ -386,6 +439,6 @@ class Pipeline:
         print(identifications)
 
 
-class PipelineMode(Enum):
-    TRAINING = auto()
-    PREDICTION = auto()
+class PipelineMode(IntEnum):
+    TRAINING = 0
+    PREDICTION = 1

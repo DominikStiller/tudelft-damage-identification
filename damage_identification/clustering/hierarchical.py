@@ -13,6 +13,7 @@ from damage_identification.clustering.base import Clusterer
 from numba import cuda
 from numba import njit
 
+
 class HierarchicalClusterer(Clusterer):
     """
     This class approximated hierarchical clustering through a KNN classifier.
@@ -84,21 +85,25 @@ class HierarchicalClusterer(Clusterer):
 
     def _do_hierarchical_clustering(self, data):
         """Generate labels for data through hierarchical clustering"""
-        '''if cuda.is_available():
+        """if cuda.is_available():
             distmatrix = gpu_dist_matrix(data.to_numpy())
-        else:'''
+        else:"""
         print("computing slow distmatrix")
         shape = (np.shape(data)[0], np.shape(data)[0])
-        #distmatrix = fastdist.matrix_to_matrix_distance(data.to_numpy(), data[0:3].to_numpy(), fastdist.euclidean, "euclidean")
-        #distmatrix = split_distmatrix(data.to_numpy(), 1)
-        with open('test.npy', 'ba+') as f:
-            for chunk in pairwise_distances_chunked(data.to_numpy(), working_memory=4096, metric='euclidean'):
+        # distmatrix = fastdist.matrix_to_matrix_distance(data.to_numpy(), data[0:3].to_numpy(), fastdist.euclidean, "euclidean")
+        # distmatrix = split_distmatrix(data.to_numpy(), 1)
+        with open("test.npy", "ba+") as f:
+            for chunk in pairwise_distances_chunked(
+                data.to_numpy(), working_memory=4096, metric="euclidean"
+            ):
                 chunk.tofile(f)
 
-        distmatrix = np.memmap('test.npy', dtype=np.float64, mode='r+', shape=shape)
+        distmatrix = np.memmap("test.npy", dtype=np.float64, mode="r+", shape=shape)
         print(distmatrix)
         print(np.shape(distmatrix))
-        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], affinity='precomputed', linkage='single')
+        self.hcmodel = AgglomerativeClustering(
+            n_clusters=self.params["n_clusters"], affinity="precomputed", linkage="single"
+        )
         labeled_data = self.hcmodel.fit_predict(distmatrix)
         return labeled_data
 
@@ -113,7 +118,7 @@ class HierarchicalClusterer(Clusterer):
         return prediction
 
 
-'''@njit
+"""@njit
 def split_distmatrix(data, mem_size):
     if np.shape(data)[0]**2 > mem_size*150e6:
         n_chunks = int(mem_size*150e6/np.shape(data)[0])
@@ -132,4 +137,4 @@ def split_distmatrix(data, mem_size):
     print(np.shape(distmatrix[-1]))
     print(np.shape(distmatrix[0]))
     return distmatrix
-'''
+"""

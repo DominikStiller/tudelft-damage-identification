@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Any, Optional
+from typing import Any, Optional
 
 import numpy as np
 import pywt
@@ -6,12 +6,12 @@ import pywt
 from damage_identification.features.base import FeatureExtractor
 
 
-class MultiResolutionAnalysis(FeatureExtractor):
+class MultiResolutionAnalysisExtractor(FeatureExtractor):
     """
     This class extracts the signal data to decompose into energy levels at specified time bands and carrier frequencies.
     """
 
-    def __init__(self, params: Dict[str, Optional[Any]] = None):
+    def __init__(self, params: dict[str, Optional[Any]] = None):
         """
         Initializes object with specifications for decomposing signal.
 
@@ -47,74 +47,75 @@ class MultiResolutionAnalysis(FeatureExtractor):
         super().__init__("mra", params)
 
     def extract_features(self, example: np.ndarray) -> dict[str, float]:
-        return self._decompose(example)[0]
-
-    def _decompose(self, signal_data) -> Tuple[Dict[str, float], float]:
         """
         Decomposes frequency band energy data into frequency and time band data.
 
-        Parameters:
-            - None
         Returns:
-            - A dictionary containing the frequency bands and the energies for each time band.
-            - The decomposition level energy divided by the total energy.
+            A dictionary containing the frequency bands and the energies for each time band.
         """
-        energy = []
-        time_energy = []
-        c = 0
-        wave_coeffs = self._find_wave_coeffs(signal_data)
-        tot_energy = sum(wave_coeffs[0][0][:] ** 2) + sum(wave_coeffs[0][1][:] ** 2)
+        wave_coeffs, dec_level = self._find_wavelet_coeffs(example)
+        total_energy = sum(wave_coeffs[0][0][:] ** 2) + sum(wave_coeffs[0][1][:] ** 2)
 
-        if len(wave_coeffs[self.dec_level - 1][0][:]) < self.time_bands:
-            self.time_bands = len(wave_coeffs[self.dec_level - 1][0][:])
+        # Determine number of time bands
+        max_time_bands = len(wave_coeffs[dec_level - 1][0][:])
+        time_bands = self.time_bands
+        if max_time_bands < time_bands:
+            time_bands = max_time_bands
             print(
-                "WARNING: The time band resolution is too high for this decomposition level. Defaulted to maximum allowable resolution (frequency energy is for entire wave). Consider choosing a lower time resolution."
+                "WARNING: The time band resolution is too high for this decomposition level. "
+                "Defaulted to maximum allowable resolution (frequency energy is for entire wave). "
+                "Consider choosing a lower time resolution."
             )
 
-        for i in range(0, 2 ** self.dec_level):
-            for t in range(0, self.time_bands):
-                left_t_bound = int(
-                    (t / self.time_bands) * len(wave_coeffs[self.dec_level - 1][i][:])
-                )
-                right_t_bound = int(
-                    (((t + 1) / self.time_bands) * len(wave_coeffs[self.dec_level - 1][i][:]))
-                )
-                time_energy.append(
-                    sum(wave_coeffs[(self.dec_level - 1)][i][left_t_bound:right_t_bound] ** 2)
-                    / tot_energy
-                )
-            energy.append(time_energy)
-            time_energy = []
+        if total_energy != 0:
+            energies = []  # will be a list of lists, first decomposition levels, then time bands
+            # Calculate band energies
+            for i in range(0, 2**dec_level):
+                time_energy = []
+                for t in range(0, time_bands):
+                    left_t_bound = int((t / time_bands) * len(wave_coeffs[dec_level - 1][i][:]))
+                    right_t_bound = int(
+                        (((t + 1) / time_bands) * len(wave_coeffs[dec_level - 1][i][:]))
+                    )
+                    time_energy.append(
+                        sum(wave_coeffs[(dec_level - 1)][i][left_t_bound:right_t_bound] ** 2)
+                        / total_energy
+                    )
 
-        for j in range(0, 2 ** self.dec_level):
-            c = c + sum(energy[j][:])
+                energies.append(time_energy)
+        else:
+            # Mark example as invalid if total energy is zero
+            energies = [[None] * time_bands] * 2**dec_level
 
-        energies = {}
-        for a in range(0, len(energy)):
-            band_lower = a * 2048 / (2 ** self.dec_level)
-            band_upper = (a + 1) * 2048 / (2 ** self.dec_level)
-            for i, coeff in enumerate(energy[a]):
-                energies[f"mra_{band_lower:.0f}_{band_upper:.0f}_{i}"] = coeff
+        # Assemble feature dictionary
+        features = {}
+        for level, energies_per_level in enumerate(energies):
+            band_lower = level * 2048 / (2**dec_level)
+            band_upper = (level + 1) * 2048 / (2**dec_level)
+            # Only considers the frequencies until 1024 kHz, since bandpass already filters out higher content
+            if level < len(energies) / 2:
+                for band, band_energy in enumerate(energies_per_level):
+                    features[f"mra_{band_lower:.0f}_{band_upper:.0f}_{band}"] = band_energy
 
-        return energies, c
+        return features
 
-    def _find_wave_coeffs(self, signal_data):
+    def _find_wavelet_coeffs(self, signal_data: np.ndarray) -> tuple[list[list[float]], int]:
         """
         Decomposes data in object and flattens binary tree into three-dimensional array.
-
-        Parameters:
-            - None
         """
+        # Perform wavelet packet transform
         wp = pywt.WaveletPacket(data=signal_data, wavelet=self.wavelet, mode=self.mode)
 
-        if wp.maxlevel < self.dec_level:
-            self.dec_level = wp.maxlevel
+        dec_level = self.dec_level
+        if wp.maxlevel < dec_level:
+            dec_level = wp.maxlevel
             print(
                 "WARNING: Decomposition level is greater than the maximum allowed level. Consider choosing a lower decomposition level."
             )
 
-        wave_coeffs = []
-        for level in range(1, self.dec_level + 1):
-            wave_coeffs.append([wp[node.path].data for node in wp.get_level(level, "natural")])
+        # Extract wavelet coefficients
+        wavelet_coeffs = []
+        for level in range(1, dec_level + 1):
+            wavelet_coeffs.append([wp[node.path].data for node in wp.get_level(level, "natural")])
 
-        return wave_coeffs
+        return wavelet_coeffs, dec_level
