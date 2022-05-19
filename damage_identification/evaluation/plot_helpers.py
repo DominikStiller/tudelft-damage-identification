@@ -40,6 +40,7 @@ def format_plot_3d():
 
 def format_plot_2d(
     xlocator=matplotlib.ticker.AutoMinorLocator(),
+    ylocator=matplotlib.ticker.AutoMinorLocator(),
     zeroline=False,
 ):
     fig = plt.gcf()
@@ -48,7 +49,7 @@ def format_plot_2d(
             ax.axhline(0, linewidth=1.5, c="black")
 
         ax.get_xaxis().set_minor_locator(xlocator)
-        ax.get_yaxis().set_minor_locator(plt.LogLocator(base=10, subs="all", numticks=100))
+        ax.get_yaxis().set_minor_locator(ylocator)
         ax.grid(b=True, which="major", linewidth=1.0)
         ax.grid(b=True, which="minor", linewidth=0.5, linestyle="-.")
 
