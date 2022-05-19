@@ -12,7 +12,6 @@ def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], resu
     for clusterer in clusterer_names:
         cluster_statistics.write(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
-        data_grouped.to_pickle(os.path.join(results_folder, clusterer + "_statistics.pickle"))
 
         cluster_statistics.write("\n\nCOUNTS:\n")
         cluster_statistics.write(data_grouped.size().to_string())
@@ -23,6 +22,8 @@ def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], resu
         cluster_statistics.write("\n")
 
     cluster_statistics.close()
+
+    data.to_pickle(os.path.join(results_folder, "data.pickle"))
 
 
 def save_pca_correlations(pca: PrincipalComponents, results_folder: str):
