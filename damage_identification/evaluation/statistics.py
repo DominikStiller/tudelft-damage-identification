@@ -2,6 +2,8 @@ from typing import Optional
 import os
 import pandas as pd
 
+from damage_identification.pca import PrincipalComponents
+
 
 def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
 
@@ -21,6 +23,19 @@ def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], resu
         cluster_statistics.write("\n")
 
     cluster_statistics.close()
+
+
+def save_pca_correlations(pca: PrincipalComponents):
+    print("\nPCA CORRELATION (with every feature)")
+    display_composition = pd.DataFrame(
+        pca.correlations,
+        columns=pca.feature_names,
+        index=[f"PC {n+1}" for n in range(pca.n_components)],
+    )
+    with pd.option_context(
+        "display.max_rows", None, "display.max_columns", None, "display.precision", 3
+    ):
+        print(display_composition)
 
 
 def prepare_data_for_display(

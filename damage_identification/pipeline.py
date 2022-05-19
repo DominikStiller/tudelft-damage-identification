@@ -39,6 +39,7 @@ from damage_identification.damage_mode import DamageMode
 from damage_identification.evaluation.statistics import (
     save_cluster_statistics,
     prepare_data_for_display,
+    save_pca_correlations,
 )
 from damage_identification.evaluation.visualization import (
     visualize_clusters,
@@ -177,7 +178,7 @@ class Pipeline:
 
         if not self.params["skip_statistics"]:
             save_cluster_statistics(data_display, clusterer_names, self.results_folder)
-            self.pca.print_correlations()
+            save_pca_correlations(self.pca)
         if not self.params["skip_visualization"]:
             visualize_clusters(data_display, clusterer_names, self.results_folder)
             visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
