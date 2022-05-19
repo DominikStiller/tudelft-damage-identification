@@ -76,17 +76,13 @@ class PrincipalComponents:
         """
         self.pca = self.pca.fit(data)
 
-    def print_correlations(self):
-        print("\nPCA CORRELATION (with every feature)")
-        display_composition = pd.DataFrame(
-            self.pca.components_,
-            columns=self.pca.feature_names_in_,
-            index=[f"PC {n+1}" for n in range(self.n_components)],
-        )
-        with pd.option_context(
-            "display.max_rows", None, "display.max_columns", None, "display.precision", 3
-        ):
-            print(display_composition)
+    @property
+    def feature_names(self):
+        return self.pca.feature_names_in_
+
+    @property
+    def correlations(self):
+        return self.pca.components_
 
     @property
     def n_components(self):
