@@ -37,7 +37,7 @@ from damage_identification.clustering.kmeans import KmeansClusterer
 from damage_identification.clustering.optimal_k import find_optimal_number_of_clusters
 from damage_identification.damage_mode import DamageMode
 from damage_identification.evaluation.statistics import (
-    print_cluster_statistics,
+    save_cluster_statistics,
     prepare_data_for_display,
 )
 from damage_identification.evaluation.visualization import (
@@ -176,7 +176,7 @@ class Pipeline:
         )
 
         if not self.params["skip_statistics"]:
-            print_cluster_statistics(data_display, clusterer_names, self.results_folder)
+            save_cluster_statistics(data_display, clusterer_names, self.results_folder)
             self.pca.print_correlations()
         if not self.params["skip_visualization"]:
             visualize_clusters(data_display, clusterer_names, self.results_folder)

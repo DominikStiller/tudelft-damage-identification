@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 
-def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
+def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
 
     file_name = "cluster_statistics.txt"
     cluster_statistics = open(os.path.join(results_folder, file_name), "w", encoding="utf-8")
@@ -12,12 +12,13 @@ def print_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], res
         cluster_statistics.write(f"\nCLUSTER STATISTICS ({clusterer})")
         data_grouped = data.rename(columns={clusterer: "cluster"}).groupby("cluster")
 
-        cluster_statistics.write("COUNTS:")
+        cluster_statistics.write("\n\nCOUNTS:\n")
         cluster_statistics.write(data_grouped.size().to_string())
 
-        cluster_statistics.write("\nMEANS:")
+        cluster_statistics.write("\n\nMEANS:\n")
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
             cluster_statistics.write(data_grouped.mean().to_string())
+        cluster_statistics.write("\n")
 
     cluster_statistics.close()
 
