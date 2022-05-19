@@ -92,8 +92,10 @@ class MultiResolutionAnalysisExtractor(FeatureExtractor):
         for level, energies_per_level in enumerate(energies):
             band_lower = level * 2048 / (2**dec_level)
             band_upper = (level + 1) * 2048 / (2**dec_level)
-            for band, band_energy in enumerate(energies_per_level):
-                features[f"mra_{band_lower:.0f}_{band_upper:.0f}_{band}"] = band_energy
+            # Only considers the frequencies until 1024 kHz, since bandpass already filters out higher content
+            if level < len(energies) / 2:
+                for band, band_energy in enumerate(energies_per_level):
+                    features[f"mra_{band_lower:.0f}_{band_upper:.0f}_{band}"] = band_energy
 
         return features
 
