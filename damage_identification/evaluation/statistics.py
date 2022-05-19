@@ -25,7 +25,7 @@ def save_cluster_statistics(data: pd.DataFrame, clusterer_names: list[str], resu
     cluster_statistics.close()
 
 
-def save_pca_correlations(pca: PrincipalComponents):
+def save_pca_correlations(pca: PrincipalComponents, results_folder: str):
     print("\nPCA CORRELATION (with every feature)")
     display_composition = pd.DataFrame(
         pca.correlations,

@@ -178,7 +178,7 @@ class Pipeline:
 
         if not self.params["skip_statistics"]:
             save_cluster_statistics(data_display, clusterer_names, self.results_folder)
-            save_pca_correlations(self.pca)
+            save_pca_correlations(self.pca, self.results_folder)
         if not self.params["skip_visualization"]:
             visualize_clusters(data_display, clusterer_names, self.results_folder)
             visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
