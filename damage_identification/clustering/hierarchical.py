@@ -33,8 +33,8 @@ class HierarchicalClusterer(Clusterer):
         Args:
             params: parameters for the clustering method
         """
-        self.model = None
-        self.hcmodel = None
+        self.knn_model = None
+        self.hierarchical_clustering_model = None
         super(HierarchicalClusterer, self).__init__("hierarchical", params)
 
     def save(self, directory):
@@ -47,9 +47,9 @@ class HierarchicalClusterer(Clusterer):
             directory: The location the dump file will be saved to.
         """
         with open(os.path.join(directory, "classifier.pickle"), "wb") as f:
-            pickle.dump(self.model, f)
+            pickle.dump(self.knn_model, f)
         with open(os.path.join(directory, "hclust.pickle"), "wb") as f:
-            pickle.dump(self.hcmodel, f)
+            pickle.dump(self.hierarchical_clustering_model, f)
 
     def load(self, directory):
         """
@@ -60,7 +60,7 @@ class HierarchicalClusterer(Clusterer):
             directory: the directory where the dump file form the save function was saved.
         """
         with open(os.path.join(directory, "classifier.pickle"), "rb") as f:
-            self.model = pickle.load(f)
+            self.knn_model = pickle.load(f)
 
     def train(self, data):
         """
@@ -75,13 +75,15 @@ class HierarchicalClusterer(Clusterer):
             if self.params["n_neighbors"] % 2 == 0:
                 self.params["n_neighbors"] += 1
         labeled_data = self._do_hierarchical_clustering(data)
-        self.model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
-        self.model.fit(data, labeled_data)
+        self.knn_model = KNeighborsClassifier(n_neighbors=self.params["n_neighbors"])
+        self.knn_model.fit(data, labeled_data)
 
     def _do_hierarchical_clustering(self, data):
         """Generate labels for data through hierarchical clustering"""
-        self.hcmodel = AgglomerativeClustering(n_clusters=self.params["n_clusters"], linkage="ward")
-        labeled_data = self.hcmodel.fit_predict(data)
+        self.hierarchical_clustering_model = AgglomerativeClustering(
+            n_clusters=self.params["n_clusters"], linkage="ward"
+        )
+        labeled_data = self.hierarchical_clustering_model.fit_predict(data)
         return labeled_data
 
     def predict(self, data) -> int:
@@ -91,5 +93,5 @@ class HierarchicalClusterer(Clusterer):
         Args:
             data: datapoint for which the label should be predicted using the KNN classifier trained using the
             hierarchical clusters"""
-        prediction = self.model.predict(data)[0]
+        prediction = self.knn_model.predict(data)[0]
         return prediction
