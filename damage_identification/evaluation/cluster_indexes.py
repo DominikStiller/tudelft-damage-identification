@@ -4,14 +4,12 @@ import sys
 from typing import Union
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from fastdist import fastdist
 from sklearn.metrics import davies_bouldin_score, silhouette_score, calinski_harabasz_score
 from validclust import dunn
 
 from damage_identification.evaluation.plot_helpers import format_plot_2d, save_plot
-
 
 METRICS_NAMES = ["Davies-Bouldin", "Silhouette", "Dunn", "Calinski-Harabasz"]
 
@@ -37,44 +35,49 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
     metrics = pd.concat(metrics)
 
     results_folder = os.path.join("data", "results", "indexes", "-".join(pipeline_names))
-
-    for clusterer in metrics["clusterer"].unique():
-        fig = plt.figure(figsize=(12, 6))
-
-        for metric_name in METRICS_NAMES:
-            m = metrics[
-                (metrics["clusterer"] == clusterer) & (metrics["metric_name"] == metric_name)
-            ]
-
-            # Normalize indexes
-            if metric_name == "Davies-Bouldin":
-                m["metric_value"] = (
-                    (m["metric_value"] - abs(m["metric_value"].max())) / m["metric_value"].max()
-                ).abs()
-            elif metric_name == "Silhouette":
-                m["metric_value"] = (m["metric_value"] + 1) / 2
-            elif metric_name == "Calinski-Harabasz":
-                m["metric_value"] = (
-                    (m["metric_value"] - m["metric_value"].min())
-                    / (m["metric_value"].max() - m["metric_value"].min())
-                ).abs()
-
-            plt.plot(m["n_clusters"], m["metric_value"], label=metric_name, marker="o")
-
-        plt.xticks(metrics["n_clusters"].unique())
-        plt.legend()
-        plt.ylabel("Index scores")
-        plt.xlabel("k")
-
-        format_plot_2d()
-        save_plot(results_folder, clusterer, fig)
-
     with open(os.path.join(results_folder, "indexes.txt"), "w") as f:
-        f.write("CLUSTERING INDEXES\n")
-        with pd.option_context(
-            "display.max_rows", None, "display.max_columns", None, "display.precision", 5
-        ):
-            f.write(metrics.to_string())
+        f.write("CLUSTERING INDEXES")
+
+        for clusterer in metrics["clusterer"].unique():
+            f.write(f"\n\n\n ============= {clusterer} =============")
+
+            fig = plt.figure(figsize=(12, 6))
+
+            for metric_name in METRICS_NAMES:
+                m = metrics[
+                    (metrics["clusterer"] == clusterer) & (metrics["metric_name"] == metric_name)
+                ]
+
+                # Normalize indexes
+                if metric_name == "Davies-Bouldin":
+                    m["metric_value_norm"] = (
+                        (m["metric_value"] - abs(m["metric_value"].max())) / m["metric_value"].max()
+                    ).abs()
+                elif metric_name == "Silhouette":
+                    m["metric_value_norm"] = (m["metric_value"] + 1) / 2
+                elif metric_name == "Dunn":
+                    m["metric_value_norm"] = m["metric_value"]
+                elif metric_name == "Calinski-Harabasz":
+                    m["metric_value_norm"] = (
+                        (m["metric_value"] - m["metric_value"].min())
+                        / (m["metric_value"].max() - m["metric_value"].min())
+                    ).abs()
+
+                f.write(f"\n\n{metric_name} index:\n")
+                with pd.option_context(
+                    "display.max_rows", None, "display.max_columns", None, "display.precision", 5
+                ):
+                    f.write(m.to_string())
+
+                plt.plot(m["n_clusters"], m["metric_value_norm"], label=metric_name, marker="o")
+
+            plt.xticks(metrics["n_clusters"].unique())
+            plt.legend()
+            plt.ylabel("Index scores")
+            plt.xlabel("k")
+
+            format_plot_2d()
+            save_plot(results_folder, clusterer, fig)
 
     print(f"Saved results to {results_folder}")
 
@@ -97,7 +100,7 @@ def _collate_metrics(data, directory, n_clusters):
     try:
         k_labels = _load_labels(os.path.join(directory, "kmeans/model.pickle"), data.index)
         metrics += [
-            {"metric_name": METRICS_NAMES[i], "metric_value": val, "clusterer": "kmeans"}
+            {"clusterer": "kmeans", "metric_name": METRICS_NAMES[i], "metric_value": val}
             for i, val in enumerate(_get_metrics(data, k_labels, distmatrix))
         ]
     except:
@@ -106,7 +109,7 @@ def _collate_metrics(data, directory, n_clusters):
     try:
         f_labels = _load_fcmeans_labels(os.path.join(directory, "fcmeans/fcmeans.pickle"), data)
         metrics += [
-            {"metric_name": METRICS_NAMES[i], "metric_value": val, "clusterer": "fcmeans"}
+            {"clusterer": "fcmeans", "metric_name": METRICS_NAMES[i], "metric_value": val}
             for i, val in enumerate(_get_metrics(data, f_labels, distmatrix))
         ]
     except:
@@ -115,7 +118,7 @@ def _collate_metrics(data, directory, n_clusters):
     try:
         h_labels = _load_labels(os.path.join(directory, "hierarchical/hclust.pickle"), data.index)
         metrics += [
-            {"metric_name": METRICS_NAMES[i], "metric_value": val, "clusterer": "hierarchical"}
+            {"clusterer": "hierarchical", "metric_name": METRICS_NAMES[i], "metric_value": val}
             for i, val in enumerate(_get_metrics(data, h_labels, distmatrix))
         ]
     except:
