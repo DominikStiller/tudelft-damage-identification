@@ -13,7 +13,7 @@ from validclust import dunn
 from damage_identification.evaluation.plot_helpers import format_plot_2d, save_plot
 
 
-METRICS_NAMES = ["Davies", "Silhouette", "Dunn", "Calinski-Harabasz"]
+METRICS_NAMES = ["Davies-Bouldin", "Silhouette", "Dunn", "Calinski-Harabasz"]
 
 
 def graph_metrics(pipeline_dirs: Union[str, list]):
@@ -31,7 +31,7 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
 
         # Only use subset of data since distance matrix is too large otherwise
         # No sampling necessary since training data are shuffled
-        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2")).head(n=30000)
+        data = pd.read_pickle(os.path.join(d, "training_features_pca.pickle.bz2")).head(n=15000)
         metrics.append(_collate_metrics(data, d, n_clusters))
 
     metrics = pd.concat(metrics)
@@ -47,7 +47,7 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
             ]
 
             # Normalize indexes
-            if metric_name == "Davies":
+            if metric_name == "Davies-Bouldin":
                 m["metric_value"] = (
                     (m["metric_value"] - abs(m["metric_value"].max())) / m["metric_value"].max()
                 ).abs()
@@ -62,12 +62,19 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
             plt.plot(m["n_clusters"], m["metric_value"], label=metric_name, marker="o")
 
         plt.xticks(metrics["n_clusters"].unique())
-        plt.legend(loc=6)
+        plt.legend()
         plt.ylabel("Index scores")
         plt.xlabel("k")
 
         format_plot_2d()
         save_plot(results_folder, clusterer, fig)
+
+    with open(os.path.join(results_folder, "indexes.txt"), "w") as f:
+        f.write("CLUSTERING INDEXES\n")
+        with pd.option_context(
+            "display.max_rows", None, "display.max_columns", None, "display.precision", 5
+        ):
+            f.write(metrics.to_string())
 
     print(f"Saved results to {results_folder}")
 
