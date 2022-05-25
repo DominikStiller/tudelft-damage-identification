@@ -4,7 +4,11 @@ import pandas as pd
 from matplotlib.ticker import LogLocator
 
 
-from damage_identification.evaluation.plot_helpers import save_plot, format_plot_3d, format_plot_2d
+from damage_identification.evaluation.plot_helpers import (
+    save_plot,
+    format_plot_3d,
+    format_plot_2d,
+)
 
 
 def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
@@ -96,3 +100,14 @@ def visualize_cumulative_energy(
 
             format_plot_2d(ylocator=LogLocator(base=10, subs="all", numticks=100))
             save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}", plt)
+
+
+def force_displacement(data: pd.DataFrame, filename: str, results_folder: str):
+
+    plt.plot(data["displacement"], data["force"])
+    plt.xlabel("Displacement [mm]")
+    plt.ylabel("Force [kN]")
+    plt.gca().set_xlim(left=0)
+    plt.gca().set_ylim(bottom=0)
+    format_plot_2d()
+    save_plot(results_folder=results_folder, name=f"force_displacement_{filename}", fig=plt)
