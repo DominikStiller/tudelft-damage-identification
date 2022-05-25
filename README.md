@@ -98,9 +98,20 @@ python damage_identification/metadata.py [index_file] [pridb_file]
 * `pridb_file`: the .pridb file containing the metadata
 
 
+### Result plotting
+At the end of prediction, all plots are generated and saved to the results folder. However, in some cases, it is necessary to regenerate these plots from the numerical prediction results, which are saved in the results folder as well in the `data.pickle` file. This script allows this regeneration based on the saved prediction results.
+
+Usage:
+```
+python damage_identification/evaluation/visualization.py [results_folder]
+```
+* `results_folder`: a folder with prediction results containing a `data.pickle` file
+
+
 ### Cluster indexes
 The quality of clustering, for example how well clustering actually separates data, can be measured by indexes. This script can calculate the Davies, Silhouette, Dunn and Calinski-Harabasz indexes for different numbers of clusters. Note that only the first 10000 training examples are used for index calculations. The pipeline has to be trained with more examples than that.
 
+Usage:
 ```
 python damage_identification/evaluation/cluster_indexes.py [pipelines]
 ```

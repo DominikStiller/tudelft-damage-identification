@@ -118,3 +118,21 @@ def visualize_force_displacement(data: pd.DataFrame, results_folder: str):
 
     format_plot_2d()
     save_plot(results_folder, f"force_displacement")
+
+
+if __name__ == "__main__":
+    import os
+    import sys
+    import pandas as pd
+
+    results_folder = sys.argv[1]
+    results_folder_new = os.path.join(
+        os.path.dirname(results_folder), os.path.basename(results_folder) + "_new"
+    )
+
+    data = pd.read_pickle(os.path.join(results_folder, "data.pickle"))
+    print(data)
+
+    clusterer_names = ["kmeans", "fcmeans", "hierarchical"]
+    visualize_all(data, clusterer_names, results_folder_new)
+    print(f"Saved plots to {results_folder_new}")
