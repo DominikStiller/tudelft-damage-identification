@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 class PrincipalComponents:
     DEFAULT_EXPLAINED_VARIANCE = 0.95
 
-    def __init__(self, params: dict[str, Any]):
+    def __init__(self, params: Optional[dict[str, Any]] = None):
         """
         Initialize the PCA dimensionality reducer.
 

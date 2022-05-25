@@ -67,10 +67,20 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_f
 def visualize_cumulative_energy(
     data: pd.DataFrame, clusterer_names: list[str], results_folder: str
 ):
+    if "displacement" in data.columns:
+        x_feature = "displacement"
+        x_label = "Relative displacement [%]"
+    else:
+        x_feature = "index"
+        x_label = "Index"
+        print(
+            "WARNING: no metadata provided, plotting cumulative energy vs index instead of displacement"
+        )
+
     for clusterer in clusterer_names:
         predicted_clusters = data[clusterer].to_numpy()
         energy = data["energy"].to_numpy()
-        displacement = data["displacement"].to_numpy()
+        displacement = data[x_feature].to_numpy()
 
         # Sort by displacement
         order_idx = displacement.argsort()
@@ -83,7 +93,7 @@ def visualize_cumulative_energy(
 
             plt.scatter(displacement[idx_current_cluster] * 100, cumulative_energy, c="b")
 
-            plt.xlabel("Relative displacement [%]")
+            plt.xlabel(x_label)
             plt.ylabel("Cumulative energy [J]")
             plt.yscale("log")
             plt.title(f"Cluster {current_cluster} - {clusterer}")

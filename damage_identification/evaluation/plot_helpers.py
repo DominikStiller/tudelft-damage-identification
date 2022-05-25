@@ -44,7 +44,7 @@ def format_plot_2d(
     zeroline=False,
 ):
     fig = plt.gcf()
-    for ax in fig.axes[:1]:
+    for ax in fig.axes:
         if zeroline:
             ax.axhline(0, linewidth=1.5, c="black")
 
