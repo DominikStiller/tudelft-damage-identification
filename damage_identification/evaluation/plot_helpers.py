@@ -17,12 +17,15 @@ sb.set(
 )
 
 
-def save_plot(results_folder: str, name: str, fig, type="pdf"):
+def save_plot(results_folder: str, name: str, fig=None, type="pdf"):
     plots_folder = os.path.join(results_folder, "plots")
     os.makedirs(
         plots_folder,
         exist_ok=True,
     )
+
+    if fig is None:
+        fig = plt.gcf()
     fig.savefig(
         os.path.join(plots_folder, f"{name}.{type}"),
         dpi=300,

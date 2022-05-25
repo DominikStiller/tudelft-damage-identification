@@ -3,12 +3,17 @@ import numpy as np
 import pandas as pd
 from matplotlib.ticker import LogLocator
 
-
 from damage_identification.evaluation.plot_helpers import (
     save_plot,
     format_plot_3d,
     format_plot_2d,
 )
+
+
+def visualize_all(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
+    visualize_clusters(data, clusterer_names, results_folder)
+    visualize_cumulative_energy(data, clusterer_names, results_folder)
+    visualize_force_displacement(data, results_folder)
 
 
 def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_folder: str):
@@ -99,15 +104,17 @@ def visualize_cumulative_energy(
             plt.title(f"Cluster {current_cluster} - {clusterer}")
 
             format_plot_2d(ylocator=LogLocator(base=10, subs="all", numticks=100))
-            save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}", plt)
+            save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}")
 
 
-def force_displacement(data: pd.DataFrame, filename: str, results_folder: str):
-
+def visualize_force_displacement(data: pd.DataFrame, results_folder: str):
+    plt.figure(figsize=(6, 4))
     plt.plot(data["displacement"], data["force"])
-    plt.xlabel("Displacement [mm]")
-    plt.ylabel("Force [kN]")
-    plt.gca().set_xlim(left=0)
-    plt.gca().set_ylim(bottom=0)
+
+    plt.xlabel("Relative displacement [%]")
+    plt.ylabel("Relative force [%]")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+
     format_plot_2d()
-    save_plot(results_folder=results_folder, name=f"force_displacement_{filename}", fig=plt)
+    save_plot(results_folder, f"force_displacement")

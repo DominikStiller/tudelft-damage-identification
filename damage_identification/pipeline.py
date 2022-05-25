@@ -41,10 +41,7 @@ from damage_identification.evaluation.statistics import (
     prepare_data_for_display,
     save_pca_correlations,
 )
-from damage_identification.evaluation.visualization import (
-    visualize_clusters,
-    visualize_cumulative_energy,
-)
+from damage_identification.evaluation.visualization import visualize_all
 from damage_identification.features.base import FeatureExtractor
 from damage_identification.features.direct import DirectFeatureExtractor
 from damage_identification.features.fourier import FourierExtractor
@@ -181,8 +178,7 @@ class Pipeline:
             save_cluster_statistics(data_display, clusterer_names, self.results_folder)
             save_pca_correlations(self.pca, self.results_folder)
         if not self.params["skip_visualization"]:
-            visualize_clusters(data_display, clusterer_names, self.results_folder)
-            visualize_cumulative_energy(data_display, clusterer_names, self.results_folder)
+            visualize_all(data_display, clusterer_names, self.results_folder)
         print(f"-> Saved results to {self.results_folder}")
 
         self._identify_damage_modes(predictions, features_valid, valid_mask)
