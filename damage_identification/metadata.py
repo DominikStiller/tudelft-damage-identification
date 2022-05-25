@@ -26,10 +26,22 @@ if __name__ == "__main__":
     else:
         raise Exception("Second argument needs to be a .pridb file")
 
+    # Parameter mapping depends on dataset
+    if "comp0" in filename_data or "comp90" in filename_data:
+        param_displacement = "pa1"
+        param_force = "pa0"
+    elif "static" in filename_data:
+        param_displacement = "pa0"
+        param_force = "pa1"
+    else:
+        raise Exception("Cannot identify parameters for given dataset type")
+
     # Find interpolator for displacement and force over time
     force_displacement_data = pridb.read_parametric()[["time", "pa0", "pa1"]]
-    displacement_fn = interp1d(force_displacement_data["time"], force_displacement_data["pa0"])
-    force_fn = interp1d(force_displacement_data["time"], force_displacement_data["pa1"])
+    displacement_fn = interp1d(
+        force_displacement_data["time"], force_displacement_data[param_displacement]
+    )
+    force_fn = interp1d(force_displacement_data["time"], force_displacement_data[param_force])
 
     # Find times corresponding to indexes of example
     metadata = pridb.read_hits()[["time", "trai"]].set_index("trai")
