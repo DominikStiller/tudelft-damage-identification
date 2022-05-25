@@ -131,7 +131,6 @@ if __name__ == "__main__":
     )
 
     data = pd.read_pickle(os.path.join(results_folder, "data.pickle"))
-    print(data)
 
     clusterer_names = ["kmeans", "fcmeans", "hierarchical"]
     visualize_all(data, clusterer_names, results_folder_new)
