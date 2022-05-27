@@ -20,7 +20,9 @@ The main script can then be executed using `python -m damage_identification [mod
 * `predict`: predict the damage mode of one or multiple examples using a trained pipeline and show evaluation results
 * `--help`: show a help message with all possible command line options. This can also be appended to every mode to show mode-specific options.
 
-Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters. The data file(s) are specified as positional argument, separated by commas.
+Alternatively, the scripts in `bin` can be used which automatically activate the virtual environment and offer the same parameters.
+
+The dataset(s) are specified as positional argument. Multiple data files can be given, separated by commas. Multiple files is only recommended for training. During prediction, issues may occur if predicting on multiple datasets simultaneously. For example, metadata normalization (force, displacement) will be inconsistent.
 
 ### Examples
 Train the pipeline on `data/dataset.tradb`, finding the optimal number of clusters between 2 and 5, and requiring 90% of explained variance for PCA:

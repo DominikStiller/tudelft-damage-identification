@@ -227,6 +227,9 @@ class Pipeline:
             print("Loading dataset...")
         else:
             print(f"Loading {len(filenames)} datasets...")
+            if params["mode"] == PipelineMode.PREDICTION:
+                # For example, normalization of metadata will not be consistent
+                print("WARNING: predicting on multiple datasets simultaneously is not recommended")
 
         data = load_data(filenames)
 
