@@ -24,6 +24,9 @@ Alternatively, the scripts in `bin` can be used which automatically activate the
 
 The dataset(s) are specified as positional argument. Multiple data files can be given, separated by commas. Multiple files is only recommended for training. During prediction, issues may occur if predicting on multiple datasets simultaneously. For example, metadata normalization (force, displacement) will be inconsistent.
 
+The trained pipelines and prediction results are stored in `data/`. The folder of a trained pipeline (`data/pipeline_...`) can be copied to run the pipeline to another computer. The `data/` folder is also the recommended folder to store training and prediction datasets, since it is not committed to Git.
+
+
 ### Examples
 Train the pipeline on `data/dataset.tradb`, finding the optimal number of clusters between 2 and 5, and requiring 90% of explained variance for PCA:
 ```
@@ -119,12 +122,6 @@ python damage_identification/evaluation/cluster_indexes.py [pipelines]
 ```
 * `pipelines`: a comma-separated list of pipeline directories (e.g. `data/pipeline_comp0_3,data/pipeline_comp0_5`). These pipelines should have been trained on the same dataset with different `--n_clusters`.
 
-
-
-## Data folder layout
-All data files (e.g. AE recordings and trained pipeline models) should be stored in `data/` which is not committed. The folder is structures as follows:
-* `data/Waveforms.csv`: first AE recording that Davide gave us
-* `data/pipeline_name/`: trained pipeline models for feature extraction and clustering
 
 
 
