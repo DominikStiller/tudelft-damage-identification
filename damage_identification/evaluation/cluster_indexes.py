@@ -35,6 +35,7 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
     metrics = pd.concat(metrics)
 
     results_folder = os.path.join("data", "results", "indexes", "-".join(pipeline_names))
+    os.makedirs(results_folder, exist_ok=True)
     with open(os.path.join(results_folder, "indexes.txt"), "w") as f:
         f.write("CLUSTERING INDEXES")
 
