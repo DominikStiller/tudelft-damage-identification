@@ -110,7 +110,7 @@ Usage:
 ```
 python damage_identification/evaluation/visualization.py [results_folder]
 ```
-* `results_folder`: a folder with prediction results containing a `data.pickle` file
+* `results_folder`: a folder with prediction results containing a `data.pickle` file (e.g. `data/results/2022-05-23T14-04-17`)
 
 
 ### Cluster indexes
@@ -120,8 +120,17 @@ Usage:
 ```
 python damage_identification/evaluation/cluster_indexes.py [pipelines]
 ```
-* `pipelines`: a comma-separated list of pipeline directories (e.g. `data/pipeline_comp0_3,data/pipeline_comp0_5`). These pipelines should have been trained on the same dataset with different `--n_clusters`.
+* `pipelines`: a comma-separated list of pipeline directories (e.g. `data/pipeline_DS0_3,data/pipeline_DS0_5`). These pipelines should have been trained on the same dataset with different `--n_clusters`.
 
+
+### Pipeline information
+This script prints information about a trained pipeline. This includes the parameters used for training and information about PCA.
+
+Usage:
+```
+python damage_identification/pipeline.py [pipeline]
+```
+* `pipeline`: a pipeline directory (e.g. `data/pipeline_DS0`)
 
 
 

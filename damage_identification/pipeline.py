@@ -441,3 +441,21 @@ class Pipeline:
 class PipelineMode(IntEnum):
     TRAINING = 0
     PREDICTION = 1
+
+
+if __name__ == "__main__":
+    pipeline = sys.argv[1]
+
+    with open(pipeline + "/params.pickle", "rb") as f:
+        params = pickle.load(f)
+    pca = PrincipalComponents(params)
+    pca.load(pipeline + "/pca")
+
+    print(f"PIPELINE: {pipeline}")
+    print("Parameters:")
+    for k, v in params.items():
+        print(f" - {k}: {v}")
+
+    print("Principal component analysis:")
+    print(f" - Number of selected principal components: {pca.n_components}")
+    print(f" - Explained variance: {pca.explained_variance:.0%}")
