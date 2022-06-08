@@ -83,7 +83,8 @@ class DirectFeatureExtractor(FeatureExtractor):
             duration = 0
             rise_time = 0
 
-        # Energy (squared micro-volt for 1/1000th second --> 10e-12V)
+        # Energy
+        # AE values are in μV -> energy in this calculation is aJ (e-18)
         timestamps = np.linspace(0, 1 / 1000, n_samples)  # in s
         energy = simpson(np.square(example * 1000), timestamps)
 

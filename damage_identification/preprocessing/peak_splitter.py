@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 from tqdm import tqdm
 
@@ -132,7 +134,6 @@ class PeakSplitter:
 
 if __name__ == "__main__":
     import os
-    import sys
 
     from damage_identification.io import load_data
 

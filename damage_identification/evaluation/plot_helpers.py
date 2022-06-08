@@ -28,7 +28,7 @@ def save_plot(results_folder: str, name: str, fig=None, type="pdf"):
         fig = plt.gcf()
     fig.savefig(
         os.path.join(plots_folder, f"{name}.{type}"),
-        dpi=300,
+        dpi=450,
         bbox_inches="tight",
         pad_inches=0.01,
     )

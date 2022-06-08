@@ -42,7 +42,7 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
         for clusterer in metrics["clusterer"].unique():
             f.write(f"\n\n\n ============= {clusterer} =============")
 
-            fig = plt.figure(figsize=(12, 6))
+            fig = plt.figure(figsize=(8.5, 3.5))
 
             for metric_name in METRICS_NAMES:
                 m = metrics[
@@ -73,7 +73,9 @@ def graph_metrics(pipeline_dirs: Union[str, list]):
                 plt.plot(m["n_clusters"], m["metric_value_norm"], label=metric_name, marker="o")
 
             plt.xticks(metrics["n_clusters"].unique())
-            plt.legend()
+            plt.xlim(3 - 4 * 0.05, 6 + 4 * 0.05)
+            if clusterer == "kmeans" and not "DSQI" in "".join(pipeline_names):
+                plt.legend()
             plt.ylabel("Index scores")
             plt.xlabel("k")
 

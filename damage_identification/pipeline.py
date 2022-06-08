@@ -456,6 +456,10 @@ if __name__ == "__main__":
     for k, v in params.items():
         print(f" - {k}: {v}")
 
-    print("Principal component analysis:")
+    print(f"\nFeatures ({len(pca.feature_names)} in total)")
+    for name in pca.feature_names:
+        print(f" - {name}")
+
+    print("\nPrincipal component analysis:")
     print(f" - Number of selected principal components: {pca.n_components}")
     print(f" - Explained variance: {pca.explained_variance:.0%}")

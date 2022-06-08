@@ -44,13 +44,13 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_f
             data["pca_3"],
             c=data[clusterer].map(cmap),
             depthshade=False,
+            rasterized=True,
         )
-        ax1.set_title(f"PCA ({clusterer})", y=1.04)
-        ax1.set_xlabel("pca 1", labelpad=10)
-        ax1.set_ylabel("pca 2", labelpad=10)
-        ax1.set_zlabel("pca 3", labelpad=10)
+        ax1.set_title(f"PCA ({_clusterer_display_name(clusterer)})", y=1.04)
+        ax1.set_xlabel("PC 1 ", labelpad=10)
+        ax1.set_ylabel("PC 2 ", labelpad=10)
+        ax1.set_zlabel("PC 3 ", labelpad=10)
 
-        # TODO check if contribute most to PCs
         features = ["duration [μs]", "peak_frequency [kHz]", "central_frequency [kHz]"]
 
         ax2.scatter3D(
@@ -59,8 +59,9 @@ def visualize_clusters(data: pd.DataFrame, clusterer_names: list[str], results_f
             data[features[2]],
             c=data[clusterer].map(cmap),
             depthshade=False,
+            rasterized=True,
         )
-        ax2.set_title(f"Features ({clusterer})", y=1.04)
+        ax2.set_title(f"Features ({_clusterer_display_name(clusterer)})", y=1.04)
         ax2.set_xlabel(features[0].replace("_", " "), labelpad=10)
         ax2.set_ylabel(features[1].replace("_", " "), labelpad=10)
         ax2.set_zlabel(features[2].replace("_", " "), labelpad=10)
@@ -96,12 +97,15 @@ def visualize_cumulative_energy(
             idx_current_cluster = np.where(predicted_clusters == current_cluster)
             cumulative_energy = np.cumsum(energy[idx_current_cluster])
 
-            plt.scatter(displacement[idx_current_cluster] * 100, cumulative_energy, c="b")
+            # plt.figure(figsize=(475/320*8, 6))  # for DS-QI plots
+            plt.scatter(
+                displacement[idx_current_cluster] * 100, cumulative_energy, c="b", rasterized=True
+            )
 
             plt.xlabel(x_label)
-            plt.ylabel("Cumulative energy [J]")
+            plt.ylabel("Cumulative energy [aJ]")  # atto-Joule
             plt.yscale("log")
-            plt.title(f"Cluster {current_cluster} - {clusterer}")
+            plt.xlim(left=-5)
 
             format_plot_2d(ylocator=LogLocator(base=10, subs="all", numticks=100))
             save_plot(results_folder, f"energy_plot_{clusterer}_{current_cluster}")
@@ -109,7 +113,7 @@ def visualize_cumulative_energy(
 
 def visualize_force_displacement(data: pd.DataFrame, results_folder: str):
     plt.figure(figsize=(6, 4))
-    plt.plot(data["displacement"], data["force"])
+    plt.plot(data["displacement"] * 100, data["force"] * 100, rasterized=True)
 
     plt.xlabel("Relative displacement [%]")
     plt.ylabel("Relative force [%]")
@@ -118,6 +122,13 @@ def visualize_force_displacement(data: pd.DataFrame, results_folder: str):
 
     format_plot_2d()
     save_plot(results_folder, f"force_displacement")
+
+
+def _clusterer_display_name(clusterer_name: str) -> str:
+    return {
+        "kmeans": "k-means",
+        "fcmeans": "fuzzy c-means",
+    }.get(clusterer_name, clusterer_name)
 
 
 if __name__ == "__main__":
@@ -132,6 +143,7 @@ if __name__ == "__main__":
 
     data = pd.read_pickle(os.path.join(results_folder, "data.pickle"))
 
+    print("Generating plots...")
     clusterer_names = ["kmeans", "fcmeans", "hierarchical"]
     visualize_all(data, clusterer_names, results_folder_new)
     print(f"Saved plots to {results_folder_new}")
