@@ -1,4 +1,7 @@
-# Damage mode identification for composites
+# Acoustic emission-based damage identification in CFRP
+> A novel machine learning method to cluster and identify damage modes in CFRP in
+compression-after-impact tests
+
 This is the repository for the TU Delft [AE2223-I](https://studiegids.tudelft.nl/a101_displayCourse.do?course_id=54305) research project of group D5. The goal is the identification of the damage mode in composites under compression after impact based on acoustic emission measurements. A data analysis pipeline consisting of pre-processing, feature extraction, dimensionality reduction and clustering performs this task.
 
 Links:
