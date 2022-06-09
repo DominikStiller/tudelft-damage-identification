@@ -6,7 +6,7 @@ This is the repository for the TU Delft [AE2223-I](https://studiegids.tudelft.nl
 
 Links:
 * See the [research plan](docs/Research_plan.pdf) for more details on the project
-* See the [paper](docs/Paper.pdf) for the final paper including results
+* See the [paper](docs/Paper.pdf) for the research results
 * See the [developer's guidelines](docs/CONTRIBUTING.md) if you want to contribute
 
 
@@ -142,7 +142,19 @@ python damage_identification/pipeline.py [pipeline]
 
 
 
+## File types
+While using the pipeline, you will encounter different file types, identified by their suffix and extension:
+* `.tradb`: "transient database" stored by the [Vallen](https://www.vallen.de/) AE data acquisition system, internally an SQLite database. Contains the AE signals for each hit.
+* `.csv`: alternative format for AE signals, e.g., when they were already pre-processed by another script
+* `_split.npy`: signals to which peak splitting has been applied, generated from `.tradb` or `.csv` using `damage_identification/preprocessing/peak_splitter.py`.
+* `_split_idx.npy`: index file mapping the peak-split signals in `_split.npy` to their original signal, necessary for metadata mapping.
+* `.pridb`: "primary database" stored by the Vallen AE data acquisition system, internally an SQLite database. Contains the metadata for each hit.
+* `_metadata.pickle`: metadata file corresponding to a `_split.npy` file (if extension is `_split_metadata.pickle`), or to a non-peak-split file such as `.tradb` otherwise. Extracted from `.pridb` using `damage_identification/metadata.py`. Can be loaded during prediction using `--metadata_file`.
+
+
+
 ## Glossary:
+* Acoustic emission: a non-destructive evaluation technique for composites, recording elastic waves emitted when damage occurs
 * Example: a single waveform, term is commonly used in machine learning
 * Pipeline: the collective term for all components and the flow of data between them, starting from raw waveforms and ending at the identified damage mode
 * Sample: a single data point in a waveform, associated with a certain time
